@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/plugins/featureswithgps" >
+        <file>resources/GPS.png</file>
+        <file>resources/mActionAddTrack.svg</file>
+        <file>resources/greendot3.png</file>
+    </qresource>
+</RCC>
