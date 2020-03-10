@@ -74,9 +74,9 @@ import uuid
 
 class TOMsParams(QObject):
 
-    TOMsParamsNotFound = pyqtSignal()
+    gpsParamsNotFound = pyqtSignal()
     """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
-    TOMsParamsSet = pyqtSignal()
+    gpsParamsSet = pyqtSignal()
     """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
 
     def __init__(self):
@@ -88,7 +88,8 @@ class TOMsParams(QObject):
                           "BayLength",
                           "BayOffsetFromKerb",
                           "LineOffsetFromKerb",
-                          "CrossoverShapeWidth"
+                          "CrossoverShapeWidth",
+                          "gpsPort"
                         ]
 
         self.TOMsParamsDict = {}
@@ -102,24 +103,26 @@ class TOMsParams(QObject):
         project = QgsProject.instance()
 
         if len(project.fileName()) == 0:
-            QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Project not yet open"))
+            #QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Project not yet open"))
             found = False
 
         else:
 
             for param in self.TOMsParamsList:
-                currParam = float(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(param))
+
+                currParam = QgsExpressionContextUtils.projectScope().variable(param)
                 if currParam:
-                    self.TOMsParamsDict[param] = currParam
+                    if param != "gpsPort":
+                        self.TOMsParamsDict[param] = float(currParam)
                 else:
-                    QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
+                    #QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
                     found = False
                     break
 
         if found == False:
-            self.TOMsParamsNotFound.emit()
+            self.gpsParamsNotFound.emit()
         else:
-            self.TOMsParamsSet.emit()
+            self.gpsParamsSet.emit()
 
         return
 
@@ -128,9 +131,9 @@ class TOMsParams(QObject):
 
 class TOMSLayers(QObject):
 
-    TOMsLayersNotFound = pyqtSignal()
+    gpsLayersNotFound = pyqtSignal()
     """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
-    TOMsLayersSet = pyqtSignal()
+    gpsLayersSet = pyqtSignal()
     """ signal will be emitted if everything is OK with opening TOMs """
 
     def __init__(self, iface):
@@ -146,16 +149,23 @@ class TOMSLayers(QObject):
                          "Lines",
                          "Signs",
                          "RestrictionPolygons",
-                         "ConstructionLines",
-                         "CPZs",
-                         "ParkingTariffAreas",
-                         "StreetGazetteerRecords",
+                         #"ConstructionLines",
+                         #"CPZs",
+                         #"ParkingTariffAreas",
+                         #"StreetGazetteerRecords",
                          "RoadCentreLine",
                          "RoadCasement",
-                         "RestrictionTypes",
+                         #"RestrictionTypes",
                          "BayLineTypes",
-                         "SignTypes",
-                         "RestrictionPolygonTypes"
+            #"BayTypes",
+            #"LineTypes",
+                         #"RestrictionPolygonTypes",
+            "LengthOfTime",
+            "PaymentTypes",
+            "RestrictionShapeTypes",
+            "SignTypes",
+            "TimePeriods",
+            "UnacceptabilityTypes"
                          ]
         self.TOMsLayerDict = {}
 
@@ -174,8 +184,8 @@ class TOMSLayers(QObject):
         else:
 
             for layer in self.TOMsLayerList:
-                if QgsProject.instance().mapLayersByName(layer):
-                    self.TOMsLayerDict[layer] = QgsProject.instance().mapLayersByName(layer)[0]
+                if QgsMapLayerRegistry.instance().mapLayersByName(layer):
+                    self.TOMsLayerDict[layer] = QgsMapLayerRegistry.instance().mapLayersByName(layer)[0]
                 else:
                     QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Table " + layer + " is not present"))
                     found = False
@@ -184,9 +194,9 @@ class TOMSLayers(QObject):
         # TODO: need to deal with any errors arising ...
 
         if found == False:
-            self.TOMsLayersNotFound.emit()
+            self.gpsLayersNotFound.emit()
         else:
-            self.TOMsLayersSet.emit()
+            self.gpsLayersSet.emit()
 
         return
 
@@ -219,10 +229,10 @@ class FieldRestrictionTypeUtilsMixin():
 
         self.iface = iface
 
-    def setDefaultFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, currDate):
+    def setDefaultFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, currDateTime):
         QgsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: ", tag="TOMs panel")
 
-        generateGeometryUtils.setRoadName(currRestriction)
+        #generateGeometryUtils.setRoadName(currRestriction)
         if currRestrictionLayer.geometryType() == 1:  # Line or Bay
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             #currRestriction.setAttribute("Shape_Length", currRestriction.geometry().length())
@@ -238,7 +248,7 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("GeomShapeID", 10)   # 10 = Parallel Line
 
             #currRestriction.setAttribute("NoWaitingTimeID", cpzWaitingTimeID)
-            currRestriction.setAttribute("SurveyDateTime", currDate)
+            #currRestriction.setAttribute("CreateDateTime", currDateTime)
 
         elif currRestrictionLayer.name() == "Bays":
             currRestriction.setAttribute("RestType", 101)  # 28 = Permit Holders Bays (Bays)
@@ -253,20 +263,23 @@ class FieldRestrictionTypeUtilsMixin():
             #currRestriction.setAttribute("NoReturnID", ptaNoReturnTimeID)
             #currRestriction.setAttribute("ParkingTariffArea", currentPTA)
 
-            currRestriction.setAttribute("SurveyDateTime", currDate)
+            #currRestriction.setAttribute("CreateDateTime", currDateTime)
 
         elif currRestrictionLayer.name() == "Signs":
             currRestriction.setAttribute("SignType_1", 28)  # 28 = Permit Holders Only (Signs)
-            currRestriction.setAttribute("SignDate", currDate)
+            #currRestriction.setAttribute("SignDate", currDate)
+            #currRestriction.setAttribute("CreateDateTime", currDateTime)
 
         elif currRestrictionLayer.name() == "RestrictionPolygons":
             currRestriction.setAttribute("RestrictionTypeID", 4)  # 28 = Residential mews area (RestrictionPolygons)
+
+        currRestriction.setAttribute("CreateDateTime", currDateTime)
 
         pass
 
 
     def setupFieldRestrictionDialog(self, restrictionDialog, currRestrictionLayer, currRestriction):
-
+        QgsMessageLog.logMessage("In setupFieldRestrictionDialog: ", tag="TOMs panel")
         #self.restrictionDialog = restrictionDialog
         #self.currRestrictionLayer = currRestrictionLayer
         #self.currRestriction = currRestriction
@@ -320,15 +333,107 @@ class FieldRestrictionTypeUtilsMixin():
                                                 QMessageBox.Ok)  # rollback all changes
         return
 
-    def onSaveFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, dialog):
-        QgsMessageLog.logMessage("In onSaveFieldRestrictionDetails: " + str(currRestriction.attribute("GeometryID")), tag="TOMs panel")
+    def onSaveFieldRestrictionDetails(self, currFeature, currFeatureLayer, dialog):
+        QgsMessageLog.logMessage("In onSaveFieldRestrictionDetails: ", tag="TOMs panel")
 
-        status = dialog.attributeForm().save()
+        try:
+            self.camera1.endCamera()
+            self.camera2.endCamera()
+            self.camera3.endCamera()
+        except:
+            None
+
+        attrs1 = currFeature.attributes()
+        QgsMessageLog.logMessage("In onSaveDemandDetails: currRestriction: " + str(attrs1),
+                                 tag="TOMs panel")
+
+        QgsMessageLog.logMessage(
+            ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().exportToWkt())),
+            tag="TOMs panel")
+
+        currFeatureID = currFeature.id()
+        QgsMessageLog.logMessage("In onSaveDemandDetails: currFeatureID: " + str(currFeatureID),
+                                 tag="TOMs panel")
+
+        status = currFeatureLayer.updateFeature(currFeature)
+        """if currFeatureID > 0:   # Not sure what this value should if the feature has not been created ...
+
+            # TODO: Sort out this for UPDATE
+            self.setDefaultRestrictionDetails(currFeature, currFeatureLayer)
+
+            status = currFeatureLayer.updateFeature(currFeature)
+            QgsMessageLog.logMessage("In onSaveDemandDetails: updated Feature: ", tag="TOMs panel")
+        else:
+            status = currFeatureLayer.addFeature(currFeature)
+            QgsMessageLog.logMessage("In onSaveDemandDetails: added Feature: " + str(status), tag="TOMs panel")"""
+
+        QgsMessageLog.logMessage("In onSaveDemandDetails: Before commit", tag="TOMs panel")
+
+        """reply = QMessageBox.information(None, "Information",
+                                        "Wait a moment ...",
+                                        QMessageBox.Ok)"""
+        attrs1 = currFeature.attributes()
+        QgsMessageLog.logMessage("In onSaveDemandDetails: currRestriction: " + str(attrs1),
+                                 tag="TOMs panel")
+
+        QgsMessageLog.logMessage(
+            ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().exportToWkt())),
+            tag="TOMs panel")
+
+        QgsMessageLog.logMessage("In onSaveDemandDetails: currActiveLayer: " + str(self.iface.activeLayer().name()),
+                                 tag="TOMs panel")
+
+        #Test
+        #status = dialog.attributeForm().save()
+        #status = dialog.accept()
+        #status = dialog.accept()
+
+        """reply = QMessageBox.information(None, "Information",
+                                        "And another ... iseditable: " + str(currFeatureLayer.isEditable()),
+                                        QMessageBox.Ok)"""
+
+        #currFeatureLayer.blockSignals(True)
+
+        if currFeatureID == 0:
+            self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
+            QgsMessageLog.logMessage("In onSaveDemandDetails: mapTool unset",
+                                     tag="TOMs panel")
+
+        try:
+            currFeatureLayer.commitChanges()
+        except:
+            reply = QMessageBox.information(None, "Information", "Problem committing changes" + str(currFeatureLayer.commitErrors()), QMessageBox.Ok)
+
+        #currFeatureLayer.blockSignals(False)
+
+        QgsMessageLog.logMessage("In onSaveDemandDetails: changes committed", tag="TOMs panel")
+
+        status = dialog.close()
+
+        """status = dialog.attributeForm().save()
         currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
         #currRestrictionLayer.updateFeature(currRestriction)  # TH (added for v3)
 
+        try:
+            currRestrictionLayer.commitChanges()
+        except:
+            reply = QMessageBox.information(None, "Information", "Problem committing changes" + str(currRestrictionLayer.commitErrors()), QMessageBox.Ok)
+
+        #currFeatureLayer.blockSignals(False)
+
+        QgsMessageLog.logMessage("In onSaveDemandDetails: changes committed", tag="TOMs panel")
+
+        status = dialog.close()"""
+
     def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog):
         QgsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", tag="TOMs panel")
+
+        try:
+            self.camera1.endCamera()
+            self.camera2.endCamera()
+            self.camera3.endCamera()
+        except:
+            None
 
         restrictionDialog.reject()
 

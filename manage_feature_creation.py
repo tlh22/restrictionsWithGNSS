@@ -15,6 +15,7 @@ from PyQt4.QtCore import (
     QObject,
     QDate,
     pyqtSignal,
+    pyqtSlot,
     QCoreApplication, QThread
 )
 
@@ -47,7 +48,8 @@ from qgis.gui import *
 from .mapTools import CreateRestrictionTool
 #from TOMsUtils import *
 
-from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin
+from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, TOMSLayers, TOMsParams
+from .SelectTool import GeometryInfoMapTool
 
 import functools
 
@@ -118,6 +120,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         # Save reference to the QGIS interface
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
+        self.mapTool = None
 
         self.featuresWithGPSToolbar = featuresWithGPSToolbar
         self.gpsMapTool = False
@@ -139,29 +142,52 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.actionAddGPSLocation = QAction(QIcon(":/plugins/featureswithgps/resources/greendot3.png"),
                                QCoreApplication.translate("MyPlugin", "Add vertex"),
                                self.iface.mainWindow())
-        self.actionAddGPSLocation.setCheckable(True)
+        #self.actionAddGPSLocation.setCheckable(True)
+
+        self.actionRestrictionDetails = QAction(QIcon(":/plugins/featureswithgps/resources/mActionGetInfo.svg"),
+                                         QCoreApplication.translate("MyPlugin", "Get Restriction Details"),
+                                         self.iface.mainWindow())
+        self.actionRestrictionDetails.setCheckable(True)
 
         # Add actions to the toolbar
 
         self.featuresWithGPSToolbar.addAction(self.actionCreateRestriction)
         self.featuresWithGPSToolbar.addAction(self.actionAddGPSLocation)
-
+        self.featuresWithGPSToolbar.addAction(self.actionRestrictionDetails)
         # Connect action signals to slots
 
         self.actionCreateRestriction.triggered.connect(self.doCreateRestriction)
         self.actionAddGPSLocation.triggered.connect(self.doAddGPSLocation)
+        self.actionRestrictionDetails.triggered.connect(self.doRestrictionDetails)
 
         self.actionCreateRestriction.setEnabled(False)
         self.actionAddGPSLocation.setEnabled(False)
+        self.actionRestrictionDetails.setEnabled(False)
 
     def enableFeaturesWithGPSToolbarItems(self):
 
         QgsMessageLog.logMessage("In enablefeaturesWithGPSToolbarItems", tag="TOMs panel")
-
+        self.closeCaptureGPSFeatures = False
         #self.gps_thread.gpsActivated.connect(functools.partial(self.gpsStarted))
         #self.gps_thread.gpsDeactivated.connect(functools.partial(self.gpsStopped))
 
-        self.gps_thread = GPS_Thread(self.dest_crs)
+        self.tableNames = TOMSLayers(self.iface)
+        params = TOMsParams()
+
+        self.tableNames.gpsLayersNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
+        params.gpsParamsNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
+
+        self.tableNames.getLayers()
+        params.getParams()
+
+        if self.closeCaptureGPSFeatures:
+            QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Unable to start GPS ..."))
+            #self.actionProposalsPanel.setChecked(False)
+            return
+
+        gpsPort = QgsExpressionContextUtils.projectScope().variable('gpsPort')
+
+        self.gps_thread = GPS_Thread(self.dest_crs, gpsPort)
         thread = QThread()
         self.gps_thread.moveToThread(thread)
         self.gps_thread.gpsActivated.connect(self.gpsStarted)
@@ -185,12 +211,14 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.actionCreateRestriction.setEnabled(True)
             self.actionAddGPSLocation.setEnabled(True)"""
 
+    def setCloseCaptureGPSFeaturesFlag(self):
+        self.closeCaptureGPSFeatures = True
 
     def disableFeaturesWithGPSToolbarItems(self):
 
         QgsMessageLog.logMessage("In disablefeaturesWithGPSToolbarItems", tag="TOMs panel")
-
-        self.gps_thread.endGPS()
+        if not self.closeCaptureGPSFeatures:
+            self.gps_thread.endGPS()
 
 
     def doCreateRestriction(self):
@@ -235,6 +263,85 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             reply = QMessageBox.information(self.iface.mainWindow(), "Information", "You need to activate the tool first ...",
                                             QMessageBox.Ok)
 
+    def doRestrictionDetails(self):
+        """ Select point and then display details
+        """
+        QgsMessageLog.logMessage("In doRestrictionDetails", tag="TOMs panel")
+
+        # self.demandUtils.signToolChanged.emit()
+        # self.demandUtils.signToolChanged.connect(self.actionToggled)
+        # self.mapTool = None
+
+        if self.actionRestrictionDetails.isChecked():
+
+            QgsMessageLog.logMessage("In doSignDetails - tool activated", tag="TOMs panel")
+
+            self.currLayer = self.iface.activeLayer()
+            #self.currLayer = QgsMapLayerRegistry.instance().mapLayersByName("MovingTrafficSigns")[0]
+
+            self.iface.setActiveLayer(self.currLayer)
+            if not self.actionRestrictionDetails.isChecked():
+                QgsMessageLog.logMessage("In doSignDetails - resetting mapTool", tag="TOMs panel")
+                self.actionRestrictionDetails.setChecked(False)
+                self.iface.mapCanvas().unsetMapTool(self.mapTool)
+                self.mapTool = None
+                # self.actionPan.connect()
+                return
+
+            self.actionRestrictionDetails.setChecked(True)
+
+            self.mapTool = GeometryInfoMapTool(self.iface)
+            self.mapTool.setAction(self.actionRestrictionDetails)
+            self.iface.mapCanvas().setMapTool(self.mapTool)
+
+            self.mapTool.notifyFeatureFound.connect(self.showSignDetails)
+
+        else:
+
+            QgsMessageLog.logMessage("In doSignDetails - tool deactivated", tag="TOMs panel")
+
+            self.mapTool.notifyFeatureFound.disconnect(self.showSignDetails)
+            self.iface.mapCanvas().unsetMapTool(self.mapTool)
+            # del self.mapTool
+            self.mapTool = None
+            self.actionRestrictionDetails.setChecked(False)
+
+    @pyqtSlot(str)
+    def showSignDetails(self, closestLayer, closestFeature):
+
+        QgsMessageLog.logMessage(
+            "In showSignDetails ... Layer: " + str(closestLayer.name()),
+            tag="TOMs panel")
+
+        if closestLayer.isEditable() == True:
+            if closestLayer.commitChanges() == False:
+                reply = QMessageBox.information(None, "Information",
+                                                "Problem committing changes" + str(closestLayer.commitErrors()),
+                                                QMessageBox.Ok)
+            else:
+                QgsMessageLog.logMessage("In onSaveDemandDetails: changes committed", tag="TOMs panel")
+
+        if self.currLayer.readOnly() == True:
+            # Set different form
+            # closestLayer.editFormConfig().setUiForm(...)
+            """reply = QMessageBox.information(None, "Information",
+                                            "Could not start transaction on " + self.currLayer.name(), QMessageBox.Ok)
+            return"""
+            QgsMessageLog.logMessage("In showSignDetails - Not able to start transaction ...",
+                                     tag="TOMs panel")
+
+        else:
+            if self.currLayer.startEditing() == False:
+                reply = QMessageBox.information(None, "Information",
+                                                "Could not start transaction on " + self.currLayer.name(),
+                                                QMessageBox.Ok)
+                return
+
+        self.dialog = self.iface.getFeatureForm(closestLayer, closestFeature)
+        self.setupFieldRestrictionDialog(self.dialog, closestLayer, closestFeature)
+
+        self.dialog.show()
+
     #@pyqtSlot(QgsGpsConnection)
     def gpsStarted(self, connection):
         QgsMessageLog.logMessage("In enableTools - GPS connection found ",
@@ -255,6 +362,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         self.actionCreateRestriction.setEnabled(True)
         self.actionAddGPSLocation.setEnabled(True)
+        self.actionRestrictionDetails.setEnabled(True)
 
     #@pyqtSlot()
     def gpsStopped(self):
@@ -271,8 +379,13 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         if self.canvas is not None:
             self.canvas.scene().removeItem(self.marker)
 
+        if self.mapTool is not None:
+            self.iface.mapCanvas().unsetMapTool(self.mapTool)
+
         self.actionCreateRestriction.setEnabled(False)
         self.actionAddGPSLocation.setEnabled(False)
+        self.actionRestrictionDetails.setEnabled(False)
+
 
     #@pyqtSlot()
     #def gpsPositionProvided(self):
@@ -325,7 +438,7 @@ class GPS_Thread(QObject):
     gpsError = pyqtSignal(Exception)
     gpsPosition = pyqtSignal(object, object)
 
-    def __init__(self, dest_crs):
+    def __init__(self, dest_crs, port):
         #QThread.__init__(self)
         #self.iface=iface
         #self.prj=QgsProject().instance()
@@ -336,6 +449,7 @@ class GPS_Thread(QObject):
         try:
             self.gps_active = False
 
+            self.port = port
             # set up transformation
             self.dest_crs = dest_crs
             self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4326"), self.dest_crs)
@@ -357,7 +471,7 @@ class GPS_Thread(QObject):
             QgsMessageLog.logMessage("In GPS_Thread - running ... ",
                                      tag="TOMs panel")
             self.gpsCon = None
-            self.port = "COM6"  # TODO: Add menu to select port
+            #self.port = "COM6"  # TODO: Add menu to select port
             self.gpsDetector = QgsGPSDetector(self.port)
             self.gpsDetector.detected[QgsGPSConnection].connect(self.connection_succeed)
             self.gpsDetector.detectionFailed.connect(self.connection_failed)

@@ -479,6 +479,12 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         if self.nrPoints > 0:
 
+            if self.currLayer.startEditing() == False:
+                reply = QMessageBox.information(None, "Information",
+                                                "Could not start transaction on " + self.currLayer.name(),
+                                                QMessageBox.Ok)
+                #return
+
             # take points from the rubber band and copy them into the "feature"
 
             fields = self.layer.dataProvider().fields()
@@ -512,7 +518,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
                 # set any geometry related attributes ...
 
-                self.setDefaultFieldRestrictionDetails(feature, self.layer, QDate.currentDate())
+                self.setDefaultFieldRestrictionDetails(feature, self.layer, QDateTime.currentDateTime())
 
                 # is there any other tidying to do ??
 

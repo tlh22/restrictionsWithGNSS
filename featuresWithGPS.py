@@ -210,15 +210,18 @@ class featuresWithGPS:
 
             QgsMessageLog.logMessage("In onInitGPSTools. Activating ...", tag="TOMs panel")
 
-            self.openGPSTools()
+            result = self.openGPSTools()
+            QgsMessageLog.logMessage("In onInitGPSTools. Activating ..." + str(result), tag="TOMs panel")
+            if self.closeGPSToolsFlag:
+                self.actionGPSToolbar.setChecked(False)
 
         else:
 
             QgsMessageLog.logMessage("In onInitGPSTools. Deactivating ...", tag="TOMs panel")
 
             self.closeGPSTools()
+            self.actionGPSToolbar.setChecked(False)
 
-        pass
 
     def openGPSTools(self):
         # actions when the Proposals Panel is closed or the toolbar "start" is toggled
@@ -235,10 +238,11 @@ class featuresWithGPS:
         if self.closeGPSToolsFlag:
             QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Unable to start GPSTools ..."))
             self.actionGPSToolbar.setChecked(False)
-            return
+            return False
 
         self.gpsTools.enableFeaturesWithGPSToolbarItems()
 
+        return True
 
     def setCloseGPSToolsFlag(self):
         self.closeGPSToolsFlag = True
