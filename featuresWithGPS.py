@@ -21,7 +21,7 @@
  ***************************************************************************/
 """
 
-
+"""
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
@@ -31,22 +31,21 @@ from qgis.gui import *
 import resources
 
 # Import the code for the dialog
-#from TOMs.core.proposalsManager import TOMsProposalsManager
+from TOMs.core.proposalsManager import TOMsProposalsManager
 
-#from .expressions import registerFunctions, unregisterFunctions
+from .expressions import registerFunctions, unregisterFunctions
 #from TOMs.test5_module_dialog import Test5ClassDialog
 
-#from .proposals_panel import proposalsPanel
-#from .search_bar import searchBar
+from .proposals_panel import proposalsPanel
+from .search_bar import searchBar
 
-#from .manage_restriction_details import manageRestrictionDetails
-from .manage_feature_creation import captureGPSFeatures
+from .manage_restriction_details import manageRestrictionDetails
 
 import os.path
 import time
 import datetime
-
 """
+
 from qgis.PyQt.QtWidgets import (
     QMessageBox,
     QAction,
@@ -84,7 +83,7 @@ from .manage_feature_creation import captureGPSFeatures
 import os.path
 import time
 import datetime
-"""
+
 
 class featuresWithGPS:
     """QGIS Plugin Implementation."""
@@ -134,8 +133,7 @@ class featuresWithGPS:
             logfile = 'qgis_' + datetime.date.today().strftime("%Y%m%d") + '.log'
             self.filename = os.path.join(logFilePath, logfile)
             QgsMessageLog.logMessage("Sorting out log file" + self.filename, tag="TOMs panel")
-            QgsMessageLog.instance().messageReceived.connect(self.write_log_message)
-            #QgsApplication.instance().messageLog().messageReceived.connect(self.write_log_message)
+            QgsApplication.instance().messageLog().messageReceived.connect(self.write_log_message)
 
         QgsMessageLog.logMessage("Finished init", tag="TOMs panel")
         #self.toolbar = self.iface.addToolBar(u'Test5Class')
@@ -195,7 +193,7 @@ class featuresWithGPS:
     def onInitGPSTools(self):
         """Filter main layer based on date and state options"""
 
-        QgsMessageLog.logMessage("In    onInitGPSTools", tag="TOMs panel")
+        QgsMessageLog.logMessage("In onInitGPSTools", tag="TOMs panel")
 
         # print "** STARTING ProposalPanel"
 
@@ -210,18 +208,15 @@ class featuresWithGPS:
 
             QgsMessageLog.logMessage("In onInitGPSTools. Activating ...", tag="TOMs panel")
 
-            result = self.openGPSTools()
-            QgsMessageLog.logMessage("In onInitGPSTools. Activating ..." + str(result), tag="TOMs panel")
-            if self.closeGPSToolsFlag:
-                self.actionGPSToolbar.setChecked(False)
+            self.openGPSTools()
 
         else:
 
             QgsMessageLog.logMessage("In onInitGPSTools. Deactivating ...", tag="TOMs panel")
 
             self.closeGPSTools()
-            self.actionGPSToolbar.setChecked(False)
 
+        pass
 
     def openGPSTools(self):
         # actions when the Proposals Panel is closed or the toolbar "start" is toggled
@@ -238,11 +233,10 @@ class featuresWithGPS:
         if self.closeGPSToolsFlag:
             QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Unable to start GPSTools ..."))
             self.actionGPSToolbar.setChecked(False)
-            return False
+            return
 
         self.gpsTools.enableFeaturesWithGPSToolbarItems()
 
-        return True
 
     def setCloseGPSToolsFlag(self):
         self.closeGPSToolsFlag = True

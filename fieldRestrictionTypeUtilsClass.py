@@ -12,12 +12,6 @@
 Series of functions to deal with restrictionsInProposals. Defined as static functions to allow them to be used in forms ... (not sure if this is the best way ...)
 
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
-
-"""
 from qgis.PyQt.QtWidgets import (
     QMessageBox,
     QAction,
@@ -45,6 +39,7 @@ from qgis.PyQt.QtCore import (
 )
 
 from qgis.core import (
+    QgsExpressionContextScope,
     QgsExpressionContextUtils,
     QgsExpression,
     QgsFeatureRequest,
@@ -53,13 +48,14 @@ from qgis.core import (
     QgsGeometry,
     QgsTransaction,
     QgsTransactionGroup,
-    QgsProject
+    QgsProject,
+    QgsSettings
 )
-"""
 
+from qgis.gui import *
 import functools
-import datetime, time
-import sys, os, ntpath
+import time
+import os
 import cv2
 
 from abc import ABCMeta
@@ -74,9 +70,9 @@ import uuid
 
 class TOMsParams(QObject):
 
-    gpsParamsNotFound = pyqtSignal()
+    TOMsParamsNotFound = pyqtSignal()
     """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
-    gpsParamsSet = pyqtSignal()
+    TOMsParamsSet = pyqtSignal()
     """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
 
     def __init__(self):
@@ -89,51 +85,64 @@ class TOMsParams(QObject):
                           "BayOffsetFromKerb",
                           "LineOffsetFromKerb",
                           "CrossoverShapeWidth",
-                          "gpsPort"
+                          "PhotoPath",
+                          "MinimumTextDisplayScale"
                         ]
 
         self.TOMsParamsDict = {}
 
     def getParams(self):
 
-        # QgsMessageLog.logMessage("In TOMSLayers.getParams ...", tag="TOMs panel")
+        QgsMessageLog.logMessage("In TOMSLayers.getParams ...", tag="TOMs panel")
         found = True
 
         # Check for project being open
-        project = QgsProject.instance()
+        currProject = QgsProject.instance()
 
-        if len(project.fileName()) == 0:
-            #QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Project not yet open"))
+        if len(currProject.fileName()) == 0:
+            QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Project not yet open"))
             found = False
 
         else:
 
-            for param in self.TOMsParamsList:
+            # QgsMessageLog.logMessage("In TOMSLayers.getParams ... starting to get", tag="TOMs panel")
 
-                currParam = QgsExpressionContextUtils.projectScope().variable(param)
-                if currParam:
-                    if param != "gpsPort":
-                        self.TOMsParamsDict[param] = float(currParam)
+            for param in self.TOMsParamsList:
+                QgsMessageLog.logMessage("In TOMSLayers.getParams ... getting " + str(param), tag="TOMs panel")
+
+                """if QgsExpressionContextUtils.projectScope(currProject).hasVariable(param):
+                    currParam = QgsExpressionContextUtils.projectScope(currProject).variable(param)"""
+                currParam = None
+                try:
+                    currParam = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(param)
+                except None:
+                    QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
+
+                if len(str(currParam))>0:
+                    self.TOMsParamsDict[param] = currParam
+                    QgsMessageLog.logMessage("In TOMSLayers.getParams ... set " + str(param) + " as " + str(currParam), tag="TOMs panel")
                 else:
-                    #QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
+                    QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
                     found = False
                     break
 
         if found == False:
-            self.gpsParamsNotFound.emit()
+            self.TOMsParamsNotFound.emit()
         else:
-            self.gpsParamsSet.emit()
+            self.TOMsParamsSet.emit()
 
-        return
+            # QgsMessageLog.logMessage("In TOMSLayers.getParams ... finished ", tag="TOMs panel")
+
+        return found
 
     def setParam(self, param):
         return self.TOMsParamsDict.get(param)
 
 class TOMSLayers(QObject):
 
-    gpsLayersNotFound = pyqtSignal()
+    TOMsLayersNotFound = pyqtSignal()
     """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
-    gpsLayersSet = pyqtSignal()
+    TOMsLayersSet = pyqtSignal()
     """ signal will be emitted if everything is OK with opening TOMs """
 
     def __init__(self, iface):
@@ -143,23 +152,25 @@ class TOMSLayers(QObject):
         QgsMessageLog.logMessage("In TOMSLayers.init ...", tag="TOMs panel")
         #self.proposalsManager = proposalsManager
 
+        # TODO: Load these from a local file - or database
+
         #RestrictionsLayers = QgsMapLayerRegistry.instance().mapLayersByName("RestrictionLayers")[0]
         self.TOMsLayerList = [
-                         "Bays",
-                         "Lines",
-                         "Signs",
-                         "RestrictionPolygons",
-                         #"ConstructionLines",
-                         #"CPZs",
-                         #"ParkingTariffAreas",
-                         #"StreetGazetteerRecords",
-                         "RoadCentreLine",
-                         "RoadCasement",
-                         #"RestrictionTypes",
-                         "BayLineTypes",
-            #"BayTypes",
-            #"LineTypes",
-                         #"RestrictionPolygonTypes",
+            "Bays",
+            "Lines",
+            "Signs",
+            "RestrictionPolygons",
+            # "ConstructionLines",
+            # "CPZs",
+            # "ParkingTariffAreas",
+            # "StreetGazetteerRecords",
+            "RoadCentreLine",
+            "RoadCasement",
+            # "RestrictionTypes",
+            "BayLineTypes",
+            # "BayTypes",
+            # "LineTypes",
+            # "RestrictionPolygonTypes",
             "LengthOfTime",
             "PaymentTypes",
             "RestrictionShapeTypes",
@@ -184,8 +195,8 @@ class TOMSLayers(QObject):
         else:
 
             for layer in self.TOMsLayerList:
-                if QgsMapLayerRegistry.instance().mapLayersByName(layer):
-                    self.TOMsLayerDict[layer] = QgsMapLayerRegistry.instance().mapLayersByName(layer)[0]
+                if QgsProject.instance().mapLayersByName(layer):
+                    self.TOMsLayerDict[layer] = QgsProject.instance().mapLayersByName(layer)[0]
                 else:
                     QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Table " + layer + " is not present"))
                     found = False
@@ -194,14 +205,77 @@ class TOMSLayers(QObject):
         # TODO: need to deal with any errors arising ...
 
         if found == False:
-            self.gpsLayersNotFound.emit()
+            self.TOMsLayersNotFound.emit()
         else:
-            self.gpsLayersSet.emit()
+            self.TOMsLayersSet.emit()
 
         return
 
     def setLayer(self, layer):
         return self.TOMsLayerDict.get(layer)
+
+class gpsParams(TOMsParams):
+
+    gpsParamsNotFound = pyqtSignal()
+    """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
+    gpsParamsSet = pyqtSignal()
+    """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
+
+    def __init__(self, iface):
+        TOMsParams.__init__(self)
+        self.iface = iface
+
+        QgsMessageLog.logMessage("In gpsParams.init ...", tag="TOMs panel")
+
+        self.gpsParamsList = [
+                          "gpsPort"
+                               ]
+        self.gpsParamsDict = {}
+
+    def getParams(self):
+
+        found = True
+        # QgsMessageLog.logMessage("In TOMSLayers.getParams ...", tag="TOMs panel")
+        if TOMsParams.getParams(self):
+
+            # Check for project being open
+            currProject = QgsProject.instance()
+
+            if len(currProject.fileName()) == 0:
+                QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Project not yet open"))
+                found = False
+
+            else:
+
+                for param in self.gpsParamsList:
+
+                    """if QgsExpressionContextUtils.projectScope(currProject).hasVariable(param):
+                        currParam = QgsExpressionContextUtils.projectScope(currProject).variable(param)"""
+
+                    try:
+                        currParam = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(param)
+                    except None:
+                        QMessageBox.information(self.iface.mainWindow(), "ERROR",
+                                                ("Property " + param + " is not present"))
+
+                    if len(str(currParam)) > 0:
+                        self.TOMsParamsDict[param] = currParam
+                        QgsMessageLog.logMessage("In gpsLayers.getParams ... set " + str(param) + " as " + str(currParam),
+                            tag="TOMs panel")
+                    else:
+                        QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
+                        found = False
+                        break
+
+            if found == False:
+                self.gpsParamsNotFound.emit()
+            else:
+                self.gpsParamsSet.emit()
+
+        return
+
+    def setGpsParam(self, param):
+        return self.gpsParamsDict.get(param)
 
 class originalFeature(object):
     def __init__(self, feature=None):
@@ -228,14 +302,21 @@ class FieldRestrictionTypeUtilsMixin():
     def __init__(self, iface):
 
         self.iface = iface
+        self.settings = QgsSettings()
 
-    def setDefaultFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, currDateTime):
+    def setDefaultFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, currDate):
         QgsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: ", tag="TOMs panel")
 
-        #generateGeometryUtils.setRoadName(currRestriction)
+        # TODO: Need to check whether or not these fields exist. Also need to retain the last values and reuse
+        # gis.stackexchange.com/questions/138563/replacing-action-triggered-script-by-one-supplied-through-qgis-plugin
+
+        currRestriction.setAttribute("CreateDateTime", currDate)
+
+        generateGeometryUtils.setRoadName(currRestriction)
         if currRestrictionLayer.geometryType() == 1:  # Line or Bay
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
-            #currRestriction.setAttribute("Shape_Length", currRestriction.geometry().length())
+            currRestriction.setAttribute("Restriction_Length", currRestriction.geometry().length())
+
 
         #currentCPZ, cpzWaitingTimeID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
 
@@ -244,16 +325,17 @@ class FieldRestrictionTypeUtilsMixin():
         #currDate = self.proposalsManager.date()
 
         if currRestrictionLayer.name() == "Lines":
-            currRestriction.setAttribute("RestType", 201)  # 10 = SYL (Lines)
-            currRestriction.setAttribute("GeomShapeID", 10)   # 10 = Parallel Line
-
+            currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Lines", "RestrictionTypeID", 201))  # 10 = SYL (Lines)
+            currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 10))   # 10 = Parallel Line
+            currRestriction.setAttribute("NoWaitingTimeID", self.readLastUsedDetails("Lines", "NoWaitingTimeID", None))
             #currRestriction.setAttribute("NoWaitingTimeID", cpzWaitingTimeID)
-            #currRestriction.setAttribute("CreateDateTime", currDateTime)
+            #currRestriction.setAttribute("CreateDateTime", currDate)
 
         elif currRestrictionLayer.name() == "Bays":
-            currRestriction.setAttribute("RestType", 101)  # 28 = Permit Holders Bays (Bays)
-            currRestriction.setAttribute("GeomShapeID", 1)   # 21 = Parallel Bay (Polygon)
+            currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Bays", "RestrictionTypeID", 101))  # 28 = Permit Holders Bays (Bays)
+            currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Bays", "GeomShapeID", 1)) # 21 = Parallel Bay (Polygon)
             currRestriction.setAttribute("NrBays", -1)
+            currRestriction.setAttribute("TimePeriodID", self.readLastUsedDetails("Bays", "TimePeriodID", None))
 
             #currRestriction.setAttribute("TimePeriodID", cpzWaitingTimeID)
 
@@ -262,24 +344,28 @@ class FieldRestrictionTypeUtilsMixin():
             #currRestriction.setAttribute("MaxStayID", ptaMaxStayID)
             #currRestriction.setAttribute("NoReturnID", ptaNoReturnTimeID)
             #currRestriction.setAttribute("ParkingTariffArea", currentPTA)
-
-            #currRestriction.setAttribute("CreateDateTime", currDateTime)
+            #currRestriction.setAttribute("CreateDateTime", currDate)
 
         elif currRestrictionLayer.name() == "Signs":
-            currRestriction.setAttribute("SignType_1", 28)  # 28 = Permit Holders Only (Signs)
-            #currRestriction.setAttribute("SignDate", currDate)
-            #currRestriction.setAttribute("CreateDateTime", currDateTime)
+            currRestriction.setAttribute("SignType_1", self.readLastUsedDetails("Signs", "SignType_1", 28))  # 28 = Permit Holders Only (Signs)
 
         elif currRestrictionLayer.name() == "RestrictionPolygons":
-            currRestriction.setAttribute("RestrictionTypeID", 4)  # 28 = Residential mews area (RestrictionPolygons)
-
-        currRestriction.setAttribute("CreateDateTime", currDateTime)
+            currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("RestrictionPolygons", "RestrictionTypeID", 4))  # 28 = Residential mews area (RestrictionPolygons)
 
         pass
 
+    def storeLastUsedDetails(self, layer, field, value):
+        entry = '{layer}/{field}'.format(layer=layer, field=field)
+        QgsMessageLog.logMessage("In storeLastUsedDetails: " + str(entry) + " (" + str(value) + ")", tag="TOMs panel")
+        self.settings.setValue(entry, value)
+
+    def readLastUsedDetails(self, layer, field, default):
+        entry = '{layer}/{field}'.format(layer=layer, field=field)
+        QgsMessageLog.logMessage("In readLastUsedDetails: " + str(entry) + " (" + str(default) + ")", tag="TOMs panel")
+        return self.settings.value(entry, default)
 
     def setupFieldRestrictionDialog(self, restrictionDialog, currRestrictionLayer, currRestriction):
-        QgsMessageLog.logMessage("In setupFieldRestrictionDialog: ", tag="TOMs panel")
+
         #self.restrictionDialog = restrictionDialog
         #self.currRestrictionLayer = currRestrictionLayer
         #self.currRestriction = currRestriction
@@ -305,7 +391,7 @@ class FieldRestrictionTypeUtilsMixin():
         button_box.accepted.connect(functools.partial(self.onSaveFieldRestrictionDetails, currRestriction,
                                       currRestrictionLayer, restrictionDialog))
 
-        button_box.rejected.connect(functools.partial(self.onRejectFieldRestrictionDetailsFromForm, restrictionDialog))
+        button_box.rejected.connect(functools.partial(self.onRejectFieldRestrictionDetailsFromForm, restrictionDialog, currRestrictionLayer))
 
         restrictionDialog.attributeForm().attributeChanged.connect(functools.partial(self.onAttributeChangedClass2, currRestriction, currRestrictionLayer))
 
@@ -325,6 +411,7 @@ class FieldRestrictionTypeUtilsMixin():
 
             currFeature[layer.fields().indexFromName(fieldName)] = value
             #currFeature.setAttribute(layer.fields().indexFromName(fieldName), value)
+            self.storeLastUsedDetails(layer.name(), fieldName, value)
 
         except:
 
@@ -332,6 +419,13 @@ class FieldRestrictionTypeUtilsMixin():
                                                 "onAttributeChangedClass2. Update failed for: " + str(layer.name()) + " (" + fieldName + "): " + str(value),
                                                 QMessageBox.Ok)  # rollback all changes
         return
+
+        """def onSaveFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, dialog):
+        QgsMessageLog.logMessage("In onSaveFieldRestrictionDetails: " + str(currRestriction.attribute("GeometryID")), tag="TOMs panel")
+
+        status = dialog.attributeForm().save()
+        currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
+        #currRestrictionLayer.updateFeature(currRestriction)  # TH (added for v3)"""
 
     def onSaveFieldRestrictionDetails(self, currFeature, currFeatureLayer, dialog):
         QgsMessageLog.logMessage("In onSaveFieldRestrictionDetails: ", tag="TOMs panel")
@@ -348,7 +442,7 @@ class FieldRestrictionTypeUtilsMixin():
                                  tag="TOMs panel")
 
         QgsMessageLog.logMessage(
-            ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().exportToWkt())),
+            ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().asWkt())),
             tag="TOMs panel")
 
         currFeatureID = currFeature.id()
@@ -377,7 +471,7 @@ class FieldRestrictionTypeUtilsMixin():
                                  tag="TOMs panel")
 
         QgsMessageLog.logMessage(
-            ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().exportToWkt())),
+            ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().asWkt())),
             tag="TOMs panel")
 
         QgsMessageLog.logMessage("In onSaveDemandDetails: currActiveLayer: " + str(self.iface.activeLayer().name()),
@@ -399,6 +493,21 @@ class FieldRestrictionTypeUtilsMixin():
             QgsMessageLog.logMessage("In onSaveDemandDetails: mapTool unset",
                                      tag="TOMs panel")
 
+        """try:
+            currFeatureLayer.commitChanges()
+        except:
+            reply = QMessageBox.information(None, "Information", "Problem committing changes" + str(currFeatureLayer.commitErrors()), QMessageBox.Ok)
+
+        #currFeatureLayer.blockSignals(False)
+
+        QgsMessageLog.logMessage("In onSaveDemandDetails: changes committed", tag="TOMs panel")
+
+        status = dialog.close()"""
+
+        status = dialog.attributeForm().save()
+        #currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
+        currFeatureLayer.updateFeature(currFeature)  # TH (added for v3)
+
         try:
             currFeatureLayer.commitChanges()
         except:
@@ -410,22 +519,8 @@ class FieldRestrictionTypeUtilsMixin():
 
         status = dialog.close()
 
-        """status = dialog.attributeForm().save()
-        currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
-        #currRestrictionLayer.updateFeature(currRestriction)  # TH (added for v3)
 
-        try:
-            currRestrictionLayer.commitChanges()
-        except:
-            reply = QMessageBox.information(None, "Information", "Problem committing changes" + str(currRestrictionLayer.commitErrors()), QMessageBox.Ok)
-
-        #currFeatureLayer.blockSignals(False)
-
-        QgsMessageLog.logMessage("In onSaveDemandDetails: changes committed", tag="TOMs panel")
-
-        status = dialog.close()"""
-
-    def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog):
+    def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog, currFeatureLayer):
         QgsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", tag="TOMs panel")
 
         try:
@@ -435,7 +530,13 @@ class FieldRestrictionTypeUtilsMixin():
         except:
             None
 
+        currFeatureLayer.rollBack()
         restrictionDialog.reject()
+
+        """def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog):
+        QgsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", tag="TOMs panel")
+
+        restrictionDialog.reject()"""
 
     def photoDetails(self, restrictionDialog, currRestrictionLayer, currRestriction):
 
@@ -451,20 +552,18 @@ class FieldRestrictionTypeUtilsMixin():
         FIELD2 = self.demandDialog.findChild(QLabel, "Photo_Widget_02")
         FIELD3 = self.demandDialog.findChild(QLabel, "Photo_Widget_03")
 
-        """ v3
         photoPath = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('PhotoPath')
         projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_folder')
-        """
 
+        """ v2.18
         photoPath = QgsExpressionContextUtils.projectScope().variable('PhotoPath')
         projectFolder = QgsExpressionContextUtils.projectScope().variable('project_folder')
-
-        if photoPath == None:
-            reply = QMessageBox.information(None, "Information", "Please set value for PhotoPath.", QMessageBox.Ok)
-            return
-
+        """
         path_absolute = os.path.join(projectFolder, photoPath)
 
+        if path_absolute == None:
+            reply = QMessageBox.information(None, "Information", "Please set value for PhotoPath.", QMessageBox.Ok)
+            return
 
         # Check path exists ...
         if os.path.isdir(path_absolute) == False:
@@ -623,10 +722,10 @@ class FieldRestrictionTypeUtilsMixin():
                                                 QMessageBox.Ok)
 
 class formCamera(QObject):
-    notifyPhotoTaken = pyqtSignal(str)
+    notifyPhotoTaken = QtCore.pyqtSignal(str)
 
     def __init__(self, path_absolute, currFileName):
-        QObject.__init__(self)
+        QtCore.QObject.__init__(self)
         self.path_absolute = path_absolute
         self.currFileName = currFileName
         self.camera = cvCamera()
@@ -636,7 +735,7 @@ class formCamera(QObject):
         # QgsMessageLog.logMessage("In formCamera::displayFrame ... ", tag="TOMs panel")
         self.FIELD.setPixmap(pixmap)
         self.FIELD.setScaledContents(True)
-        QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
+        QtGui.QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
 
     def useCamera(self, START_CAMERA_BUTTON, TAKE_PHOTO_BUTTON, FIELD):
         QgsMessageLog.logMessage("In formCamera::useCamera ... ", tag="TOMs panel")
@@ -746,10 +845,10 @@ class cvCamera(QThread):
         if ret == True:
             # Need to change from BRG (cv::mat) to RGB image
             cvRGBImg = cv2.cvtColor(self.frame, cv2.cv.CV_BGR2RGB)
-            qimg = QImage(cvRGBImg.data, cvRGBImg.shape[1], cvRGBImg.shape[0], QImage.Format_RGB888)
+            qimg = QtGui.QImage(cvRGBImg.data, cvRGBImg.shape[1], cvRGBImg.shape[0], QtGui.QImage.Format_RGB888)
 
             # Now display ...
-            pixmap = QPixmap.fromImage(qimg)
+            pixmap = QtGui.QPixmap.fromImage(qimg)
 
             self.changePixmap.emit(pixmap)
 

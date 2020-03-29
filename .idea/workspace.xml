@@ -15,10 +15,10 @@
       <file leaf-file-name="featuresWithGPS.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/featuresWithGPS.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-233">
-              <caret line="197" column="40" lean-forward="false" selection-start-line="197" selection-start-column="40" selection-end-line="197" selection-end-column="40" />
+            <state relative-caret-position="256">
+              <caret line="237" column="22" lean-forward="false" selection-start-line="237" selection-start-column="22" selection-end-line="237" selection-end-column="22" />
               <folding>
-                <element signature="e#1107#1133#0" expanded="true" />
+                <element signature="e#1685#1800#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -27,10 +27,22 @@
       <file leaf-file-name="manage_feature_creation.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/manage_feature_creation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="245">
-              <caret line="266" column="8" lean-forward="false" selection-start-line="266" selection-start-column="8" selection-end-line="266" selection-end-column="8" />
+            <state relative-caret-position="485">
+              <caret line="515" column="28" lean-forward="true" selection-start-line="515" selection-start-column="28" selection-end-line="515" selection-end-column="28" />
               <folding>
-                <element signature="e#517#615#0" expanded="true" />
+                <element signature="e#1472#1496#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SelectTool.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/SelectTool.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="232">
+              <caret line="72" column="70" lean-forward="true" selection-start-line="72" selection-start-column="70" selection-end-line="72" selection-end-column="70" />
+              <folding>
+                <element signature="e#1172#1186#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -39,8 +51,8 @@
       <file leaf-file-name="mapTools.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mapTools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="734">
-              <caret line="504" column="132" lean-forward="true" selection-start-line="504" selection-start-column="132" selection-end-line="504" selection-end-column="132" />
+            <state relative-caret-position="3480">
+              <caret line="264" column="0" lean-forward="false" selection-start-line="264" selection-start-column="0" selection-end-line="264" selection-end-column="0" />
               <folding>
                 <element signature="e#605#616#0" expanded="true" />
               </folding>
@@ -51,11 +63,31 @@
       <file leaf-file-name="fieldRestrictionTypeUtilsClass.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="175">
-              <caret line="533" column="27" lean-forward="true" selection-start-line="533" selection-start-column="27" selection-end-line="533" selection-end-column="27" />
+            <state relative-caret-position="1469">
+              <caret line="413" column="69" lean-forward="true" selection-start-line="413" selection-start-column="69" selection-end-line="413" selection-end-column="69" />
               <folding>
-                <element signature="e#614#640#0" expanded="true" />
+                <element signature="e#614#789#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="generateGeometryUtils.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/generateGeometryUtils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="935">
+              <caret line="348" column="63" lean-forward="false" selection-start-line="348" selection-start-column="63" selection-end-line="348" selection-end-column="63" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="gpsManager.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/gpsManager.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="323">
+              <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="50" selection-end-column="55" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -63,8 +95,8 @@
       <file leaf-file-name="mapTools_218.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mapTools_218.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-266">
-              <caret line="238" column="63" lean-forward="false" selection-start-line="238" selection-start-column="63" selection-end-line="238" selection-end-column="63" />
+            <state relative-caret-position="3723">
+              <caret line="243" column="0" lean-forward="false" selection-start-line="243" selection-start-column="0" selection-end-line="251" selection-end-column="116" />
               <folding />
             </state>
           </provider>
@@ -82,19 +114,33 @@
       <find>QApplication</find>
       <find>photoDetails</find>
       <find>addFea</find>
-      <find>transform</find>
-      <find>TOMsParams</find>
-      <find>onInitGPSTools</find>
+      <find>getLocationFromGPS</find>
+      <find>P</find>
+      <find>Para</find>
+      <find>Param</find>
+      <find>Params</find>
+      <find>gpsPor</find>
+      <find>c</find>
+      <find>comm</find>
+      <find>commi</find>
+      <find>Wkt</find>
+      <find>setDefaultFieldRestrictionDetails</find>
+      <find>commit</find>
+      <find>u</find>
+      <find>uuid</find>
+      <find>closeCaptureGPSFeatures</find>
+      <find>self.actionCreateSign</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/gpsManager.py" />
-        <option value="$PROJECT_DIR$/resources.qrc" />
-        <option value="$PROJECT_DIR$/restrictionTypeUtilsClass.py" />
-        <option value="$PROJECT_DIR$/metadata.txt" />
         <option value="$PROJECT_DIR$/featuresWithGPS.py" />
+        <option value="$PROJECT_DIR$/restrictionTypeUtilsClass.py" />
+        <option value="$PROJECT_DIR$/resources.qrc" />
+        <option value="$PROJECT_DIR$/generateGeometryUtils.py" />
+        <option value="$PROJECT_DIR$/SelectTool.py" />
         <option value="$PROJECT_DIR$/manage_feature_creation.py" />
         <option value="$PROJECT_DIR$/mapTools.py" />
         <option value="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" />
@@ -122,7 +168,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -138,10 +183,11 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/.qgis2/python/plugins/featureswithgps" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -245,7 +291,7 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24947916" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298077" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3298077" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -288,7 +334,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1107#1133#0" expanded="true" />
+            <element signature="e#1685#1800#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -298,7 +344,7 @@
         <state relative-caret-position="1037">
           <caret line="110" column="57" lean-forward="true" selection-start-line="110" selection-start-column="57" selection-end-line="110" selection-end-column="57" />
           <folding>
-            <element signature="e#517#615#0" expanded="true" />
+            <element signature="e#1472#1496#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -318,7 +364,7 @@
         <state relative-caret-position="306">
           <caret line="63" column="19" lean-forward="true" selection-start-line="63" selection-start-column="19" selection-end-line="63" selection-end-column="19" />
           <folding>
-            <element signature="e#614#640#0" expanded="true" />
+            <element signature="e#614#789#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -344,7 +390,7 @@
         <state relative-caret-position="2431">
           <caret line="179" column="114" lean-forward="false" selection-start-line="179" selection-start-column="114" selection-end-line="179" selection-end-column="114" />
           <folding>
-            <element signature="e#1107#1133#0" expanded="true" />
+            <element signature="e#1685#1800#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -381,7 +427,7 @@
         <state relative-caret-position="3383">
           <caret line="247" column="18" lean-forward="false" selection-start-line="247" selection-start-column="18" selection-end-line="247" selection-end-column="18" />
           <folding>
-            <element signature="e#517#615#0" expanded="true" />
+            <element signature="e#1472#1496#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -391,7 +437,7 @@
         <state relative-caret-position="3043">
           <caret line="179" column="114" lean-forward="true" selection-start-line="179" selection-start-column="114" selection-end-line="179" selection-end-column="114" />
           <folding>
-            <element signature="e#1107#1133#0" expanded="true" />
+            <element signature="e#1685#1800#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -428,7 +474,7 @@
         <state relative-caret-position="4624">
           <caret line="272" column="29" lean-forward="false" selection-start-line="272" selection-start-column="29" selection-end-line="272" selection-end-column="29" />
           <folding>
-            <element signature="e#517#615#0" expanded="true" />
+            <element signature="e#1472#1496#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -438,7 +484,7 @@
         <state relative-caret-position="1377">
           <caret line="81" column="0" lean-forward="true" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
           <folding>
-            <element signature="e#1107#1133#0" expanded="true" />
+            <element signature="e#1685#1800#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -448,7 +494,7 @@
         <state relative-caret-position="1615">
           <caret line="95" column="0" lean-forward="true" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
           <folding>
-            <element signature="e#517#615#0" expanded="true" />
+            <element signature="e#1472#1496#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -476,69 +522,80 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-51">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/Downloads/TOMs-V3/manage_restriction_details.py" />
+    <entry file="file://$PROJECT_DIR$/mapTools_218.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3723">
+          <caret line="243" column="0" lean-forward="false" selection-start-line="243" selection-start-column="0" selection-end-line="251" selection-end-column="116" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$USER_HOME$/Downloads/TOMs-V3/core/proposalsManager.py" />
     <entry file="file://$USER_HOME$/Downloads/TOMs-V3/restrictionTypeUtilsClass.py" />
     <entry file="file://$PROJECT_DIR$/restrictionTypeUtilsClass.py" />
-    <entry file="file://$PROJECT_DIR$/metadata.txt">
+    <entry file="file://$PROJECT_DIR$/resources.qrc">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
-          <caret line="9" column="18" lean-forward="true" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
+          <caret line="9" column="6" lean-forward="false" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/gpsManager.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
+        <state relative-caret-position="323">
           <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="50" selection-end-column="55" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources.qrc">
+    <entry file="file://$PROJECT_DIR$/generateGeometryUtils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="33" lean-forward="false" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mapTools_218.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-266">
-          <caret line="238" column="63" lean-forward="false" selection-start-line="238" selection-start-column="63" selection-end-line="238" selection-end-column="63" />
+        <state relative-caret-position="935">
+          <caret line="348" column="63" lean-forward="false" selection-start-line="348" selection-start-column="63" selection-end-line="348" selection-end-column="63" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/featuresWithGPS.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-233">
-          <caret line="197" column="40" lean-forward="false" selection-start-line="197" selection-start-column="40" selection-end-line="197" selection-end-column="40" />
+        <state relative-caret-position="256">
+          <caret line="237" column="22" lean-forward="false" selection-start-line="237" selection-start-column="22" selection-end-line="237" selection-end-column="22" />
           <folding>
-            <element signature="e#1107#1133#0" expanded="true" />
+            <element signature="e#1685#1800#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SelectTool.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="72" column="70" lean-forward="true" selection-start-line="72" selection-start-column="70" selection-end-line="72" selection-end-column="70" />
+          <folding>
+            <element signature="e#1172#1186#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/manage_feature_creation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="266" column="8" lean-forward="false" selection-start-line="266" selection-start-column="8" selection-end-line="266" selection-end-column="8" />
+        <state relative-caret-position="485">
+          <caret line="515" column="28" lean-forward="true" selection-start-line="515" selection-start-column="28" selection-end-line="515" selection-end-column="28" />
           <folding>
-            <element signature="e#517#615#0" expanded="true" />
+            <element signature="e#1472#1496#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mapTools.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="734">
-          <caret line="504" column="132" lean-forward="true" selection-start-line="504" selection-start-column="132" selection-end-line="504" selection-end-column="132" />
+        <state relative-caret-position="3480">
+          <caret line="264" column="0" lean-forward="false" selection-start-line="264" selection-start-column="0" selection-end-line="264" selection-end-column="0" />
           <folding>
             <element signature="e#605#616#0" expanded="true" />
           </folding>
@@ -547,10 +604,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="533" column="27" lean-forward="true" selection-start-line="533" selection-start-column="27" selection-end-line="533" selection-end-column="27" />
+        <state relative-caret-position="1469">
+          <caret line="413" column="69" lean-forward="true" selection-start-line="413" selection-start-column="69" selection-end-line="413" selection-end-column="69" />
           <folding>
-            <element signature="e#614#640#0" expanded="true" />
+            <element signature="e#614#789#0" expanded="true" />
           </folding>
         </state>
       </provider>
