@@ -114,6 +114,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         QgsMessageLog.logMessage("In captureGPSFeatures::init", tag="TOMs panel")
 
+        FieldRestrictionTypeUtilsMixin.__init__(self, iface)
+
         # Save reference to the QGIS interface
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
@@ -121,7 +123,6 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.featuresWithGPSToolbar = featuresWithGPSToolbar
         self.gpsMapTool = False
         self.marker = None
-
 
         # This will set up the items on the toolbar
         # Create actions
@@ -238,6 +239,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                     self.actionAddGPSLocation.setEnabled(True)"""
 
         self.enableToolbarItems()
+        self.createMapToolDict = {}
 
     def enableToolbarItems(self):
         self.actionCreateRestriction.setEnabled(True)
@@ -279,28 +281,77 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         self.mapTool = None
 
-        currLayer = self.iface.activeLayer()
+        self.currLayer = self.iface.activeLayer()
 
-        if self.actionCreateRestriction.isChecked():
+        if self.currLayer:
 
-            QgsMessageLog.logMessage("In doCreateRestriction - tool activated", tag="TOMs panel")
+            if self.actionCreateRestriction.isChecked():
 
-            self.iface.setActiveLayer(currLayer)
+                QgsMessageLog.logMessage("In doCreateRestriction - tool activated", tag="TOMs panel")
 
-            self.mapTool = CreateRestrictionTool(self.iface, currLayer)
+                #self.iface.setActiveLayer(self.currLayer)
 
-            self.mapTool.setAction(self.actionCreateRestriction)
-            self.iface.mapCanvas().setMapTool(self.mapTool)
-            self.gpsMapTool = True
+                self.mapTool = self.createMapToolDict.get(self.currLayer)
+
+                if not self.mapTool:
+                    self.mapTool = CreateRestrictionTool(self.iface, self.currLayer)
+                    self.createMapToolDict[self.currLayer] =  self.mapTool
+
+                self.mapTool.setAction(self.actionCreateRestriction)
+                self.iface.mapCanvas().setMapTool(self.mapTool)
+                self.gpsMapTool = True
+
+                #signsLayer.editingStarted.connect(functools.partial(self.createRestrictionStarted))
+                self.iface.currentLayerChanged.connect(self.changeCurrLayer)
+                self.canvas.mapToolSet.connect(self.changeMapTool)
+
+            else:
+
+                QgsMessageLog.logMessage("In doCreateRestriction - tool deactivated", tag="TOMs panel")
+
+                self.iface.mapCanvas().unsetMapTool(self.mapTool)
+                self.mapTool = None
+                self.actionCreateRestriction.setChecked(False)
+                self.gpsMapTool = False
 
         else:
 
-            QgsMessageLog.logMessage("In doCreateRestriction - tool deactivated", tag="TOMs panel")
+            reply = QMessageBox.information(self.iface.mainWindow(), "Information", "Please choose a layer ...",
+                                            QMessageBox.Ok)
 
-            self.iface.mapCanvas().unsetMapTool(self.mapTool)
-            self.mapTool = None
-            self.actionCreateRestriction.setChecked(False)
-            self.gpsMapTool = False
+    def changeMapTool(self, newMapTool, oldMapTool):
+        QgsMessageLog.logMessage("In changeMapTool: ", tag="TOMs panel")
+        try:
+            self.iface.currentLayerChanged.disconnect(self.changeCurrLayer)
+            self.canvas.mapToolSet.disconnect(self.changeMapTool)
+        except Exception:
+            None
+
+    def changeCurrLayer(self, newLayer):
+        QgsMessageLog.logMessage("In changeCurrLayer - newLayer: " + str(newLayer.name()),
+                                 tag="TOMs panel")
+        self.iface.currentLayerChanged.disconnect(self.changeCurrLayer)
+        if self.actionCreateRestriction.isChecked():
+            # TODO: Check whether or not it has been switched to an allowable layer
+            self.doCreateRestriction()
+
+    """def createRestrictionStarted(self):
+        self.createProcessStarted = True
+
+    def createRestrictionMapToolDeactivated(self, inProcess):
+        QgsMessageLog.logMessage("In createRestrictionMapToolDeactivated - currMapTool " + str(inProcess), tag="TOMs panel")
+        self.interrupted = inProcess"""
+
+    """def reinstateCreateRestrictionTool(self):
+        QgsMessageLog.logMessage("In reinstateCreateRestrictionTool - currMapTool " + self.currCreateRestrictionTool.toolName(), tag="TOMs panel")
+
+        self.iface.setActiveLayer(self.currLayer)
+        self.mapTool = self.createMapToolDict.get(self.currLayer)
+
+        #self.iface.mapCanvas().unsetMapTool(self.mapTool)
+        #self.actionCreateSign.setChecked(False)
+        #if self.currCreateRestrictionTool:
+        self.iface.mapCanvas().setMapTool(self.mapTool)"""
 
     def doAddGPSLocation(self):
 
@@ -487,20 +538,35 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         if self.actionCreateSign.isChecked():
 
             self.currMapTool = self.canvas.mapTool()
-            QgsMessageLog.logMessage("In doCreateSign - currMapTool [" + self.currMapTool.toolName() + "]", tag="TOMs panel")
-            self.currLayer = self.iface.activeLayer()
+            self.signsLayer = self.tableNames.setLayer("Signs")
+
+            if self.currMapTool:
+                toolText = self.currMapTool.action().text()
+                QgsMessageLog.logMessage("In doCreateSign - currMapTool [" + toolText + "]", tag="TOMs panel")
+
+                if toolText == 'Create Restriction':
+                    self.currentlySelectedLayer = self.iface.activeLayer()
+                else:
+                    self.currentlySelectedLayer = self.signsLayer
+
             self.mapTool = None
 
-            signsLayer = self.tableNames.setLayer("Signs")
-            self.iface.setActiveLayer(signsLayer)
+            self.iface.setActiveLayer(self.signsLayer)
+
+            self.mapTool = self.createMapToolDict.get(self.signsLayer)
+
+            if not self.mapTool:
+                self.mapTool = CreateRestrictionTool(self.iface, self.signsLayer)
+                self.createMapToolDict[self.signsLayer] = self.mapTool
 
             QgsMessageLog.logMessage("In doCreateSign - tool activated", tag="TOMs panel")
 
-            signsLayer.editingStopped.connect(functools.partial(self.reinstateMapTool))
+            #self.func1 = functools.partial(self.reinstateMapTool, self.signsLayer)
+            self.signsLayer.editingStopped.connect(self.reinstateMapTool)
 
             self.actionCreateSign.setChecked(True)
 
-            self.mapTool = CreatePointTool(self.iface, signsLayer)
+            self.mapTool = CreatePointTool(self.iface, self.signsLayer)
             self.mapTool.setAction(self.actionCreateSign)
 
             self.iface.mapCanvas().setMapTool(self.mapTool)
@@ -509,11 +575,20 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
 
     def reinstateMapTool(self):
-        QgsMessageLog.logMessage("In reinstateMapTool - currMapTool " + self.currMapTool.toolName(), tag="TOMs panel")
-        self.iface.setActiveLayer(self.currLayer)
-        self.iface.mapCanvas().unsetMapTool(self.mapTool)
-        self.actionCreateSign.setChecked(False)
+
         if self.currMapTool:
+            QgsMessageLog.logMessage("In reinstateMapTool ... " + self.currMapTool.toolName(), tag="TOMs panel")
+
+            self.signsLayer.editingStopped.disconnect(self.reinstateMapTool)
+            """try:
+                self.signsLayer.editingStopped.disconnect(functools.partial(self.reinstateMapTool, self.signsLayer))
+            except TypeError:
+                pass"""
+
+            self.iface.setActiveLayer(self.currentlySelectedLayer)
+            self.iface.mapCanvas().unsetMapTool(self.mapTool)
+            self.actionCreateSign.setChecked(False)
+
             self.iface.mapCanvas().setMapTool(self.currMapTool)
 
 

@@ -34,6 +34,7 @@ from qgis.PyQt.QtCore import (
     Qt,
     QRect, QTimer, pyqtSignal, pyqtSlot, QDate
 )
+
 #from qgis.PyQt.QtCore import *
 #from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import QMenu, QAction, QDockWidget, QMessageBox, QToolTip
@@ -245,7 +246,7 @@ class MapToolMixin:
 
 class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
     # helpful link - http://apprize.info/python/qgis/7.html ??
-    #notifyFeatureCreated = QtCore.pyqtSignal(QgsVectorLayer, QgsFeature)
+    #deActivatedInProcess = pyqtSignal(bool)
 
     def __init__(self, iface, layer):
 
@@ -267,6 +268,8 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         canvas = iface.mapCanvas()
         self.iface = iface
         self.layer = layer
+
+        #self.inProcess = True
 
         """if self.layer.geometryType() == 0: # PointGeometry:
             self.captureMode = (CreateRestrictionTool.CapturePoint)
@@ -291,13 +294,14 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem(4326), dest_crs, QgsProject.instance())"""
 
         #advancedDigitizingPanel = self.iface.AdvancedDigitizingTools()
-        self.setAdvancedDigitizingAllowed(True)
+
         self.setAutoSnapEnabled(True)
 
+        """self.setAdvancedDigitizingAllowed(True)
         advancedDigitizingPanel = iface.mainWindow().findChild(QDockWidget, 'AdvancedDigitizingTools')
         if not advancedDigitizingPanel:
             QMessageBox.information(self.iface.mainWindow(), "ERROR",
-                                    ("Advanced Digitising Panel is not present"))
+                                    ("Advanced Digitising Panel is not present"))"""
         # TODO: Need to do something if this is not present
 
         #advancedDigitizingPanel.setVisible(True)
@@ -322,7 +326,8 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         self.rb = self.createRubberBand(QgsWkbTypes.LineGeometry)  # what about a polygon ??
 
-        self.currLayer = self.currentVectorLayer()
+        #self.currLayer = self.currentVectorLayer()
+        self.currLayer = self.layer
 
         QgsMessageLog.logMessage(("In CreateRestrictionTool - init. Curr layer is " + str(self.currLayer.name()) + "Incoming: " + str(self.layer)), tag="TOMs panel")
 
@@ -339,11 +344,11 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         snapping_layer3 = QgsSnappingUtils.LayerConfig(ConstructionLines, QgsPointLocator.Vertex and QgsPointLocator.Edge, 0.5,
                                                        QgsTolerance.LayerUnits)
         """
-        self.snappingConfig = QgsSnappingConfig()
+        #self.snappingConfig = QgsSnappingConfig()
 
         #self.snappingUtils.setLayers([snapping_layer1, snapping_layer2, snapping_layer3])
 
-        self.snappingConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
+        #self.snappingConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
 
         # set up tracing configuration
 
@@ -365,6 +370,12 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         #self.TOMsTracer.setMaxFeatureCount(1000)
         self.lastPoint = None
+
+        """if not self.layer.isEditable():
+            if self.layer.startEditing() == False:
+                reply = QMessageBox.information(None, "Information",
+                                                "Could not start transaction on " + self.layer.name(),
+                                                QMessageBox.Ok)"""
 
         # set up function to be called when capture is complete
         #self.onCreateRestriction = onCreateRestriction
@@ -475,9 +486,9 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         if self.nrPoints > 0:
 
-            if self.currLayer.startEditing() == False:
+            if self.layer.startEditing() == False:
                 reply = QMessageBox.information(None, "Information",
-                                                "Could not start transaction on " + self.currLayer.name(),
+                                                "Could not start transaction on " + self.layer.name(),
                                                 QMessageBox.Ok)
 
             # take points from the rubber band and copy them into the "feature"
@@ -547,6 +558,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
                 self.setupFieldRestrictionDialog(dialog, self.layer, feature)  # connects signals, etc
 
+                self.inProcess = False
                 dialog.show()
                 #self.iface.openFeatureForm(self.layer, feature, False, False)
 
@@ -557,7 +569,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         #feature.setAttribute(fieldName, value)
 
-    def prepareCurrentRestriction(self):
+    """def prepareCurrentRestriction(self):
 
         fields = self.layer.dataProvider().fields()
         feature = QgsFeature()
@@ -591,7 +603,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
                 "In CreateRestrictionTool - getPointsCaptured. currRestrictionLayer: " + str(self.layer.name()),
                 tag="TOMs panel")
 
-            self.layer.addFeature(feature)  # TH (added for v3)
+            self.layer.addFeature(feature)  # TH (added for v3)"""
 
 
     def addPointFromGPS(self, curr_gps_location, curr_gps_info):
@@ -604,6 +616,14 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         # TODO: opportunity to add details about GPS point to another table
 
         return status
+
+        """def deactivated(self):
+        QgsMessageLog.logMessage(("In CreateRestrictionTool - deactivated."), tag="TOMs panel")
+        self.deActivatedInProcess.emit(self.inProcess)"""
+
+        """def activated(self):
+        QgsMessageLog.logMessage(("In CreateRestrictionTool - activated."), tag="TOMs panel")
+        self.alreadyExists = True"""
 
 class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
 

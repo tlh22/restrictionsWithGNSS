@@ -236,7 +236,7 @@ class featuresWithGPS:
             return
 
         self.gpsTools.enableFeaturesWithGPSToolbarItems()
-
+        # TODO: connect close project signal to closeGPSTools
 
     def setCloseGPSToolsFlag(self):
         self.closeGPSToolsFlag = True

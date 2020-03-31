@@ -56,15 +56,15 @@ from qgis.gui import *
 import functools
 import time
 import os
-import cv2
+#import cv2
 
 from abc import ABCMeta
 from .generateGeometryUtils import generateGeometryUtils
 
-"""try:
+try:
     import cv2
 except ImportError:
-    None"""
+    None
 
 import uuid
 
@@ -411,13 +411,15 @@ class FieldRestrictionTypeUtilsMixin():
 
             currFeature[layer.fields().indexFromName(fieldName)] = value
             #currFeature.setAttribute(layer.fields().indexFromName(fieldName), value)
-            self.storeLastUsedDetails(layer.name(), fieldName, value)
 
         except:
 
             reply = QMessageBox.information(None, "Error",
                                                 "onAttributeChangedClass2. Update failed for: " + str(layer.name()) + " (" + fieldName + "): " + str(value),
                                                 QMessageBox.Ok)  # rollback all changes
+
+        self.storeLastUsedDetails(layer.name(), fieldName, value)
+
         return
 
         """def onSaveFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, dialog):
@@ -474,9 +476,11 @@ class FieldRestrictionTypeUtilsMixin():
             ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().asWkt())),
             tag="TOMs panel")
 
-        QgsMessageLog.logMessage("In onSaveDemandDetails: currActiveLayer: " + str(self.iface.activeLayer().name()),
+        """QgsMessageLog.logMessage("In onSaveDemandDetails: currActiveLayer: " + str(self.iface.activeLayer().name()),
+                                 tag="TOMs panel")"""
+        QgsMessageLog.logMessage("In onSaveDemandDetails: currActiveLayer: " + str(currFeatureLayer.name()),
                                  tag="TOMs panel")
-
+        currFeatureLayer
         #Test
         #status = dialog.attributeForm().save()
         #status = dialog.accept()
@@ -488,10 +492,10 @@ class FieldRestrictionTypeUtilsMixin():
 
         #currFeatureLayer.blockSignals(True)
 
-        if currFeatureID == 0:
+        """if currFeatureID == 0:
             self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
             QgsMessageLog.logMessage("In onSaveDemandDetails: mapTool unset",
-                                     tag="TOMs panel")
+                                     tag="TOMs panel")"""
 
         """try:
             currFeatureLayer.commitChanges()
@@ -518,7 +522,8 @@ class FieldRestrictionTypeUtilsMixin():
         QgsMessageLog.logMessage("In onSaveDemandDetails: changes committed", tag="TOMs panel")
 
         status = dialog.close()
-
+        #self.mapTool = None
+        self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
 
     def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog, currFeatureLayer):
         QgsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", tag="TOMs panel")
@@ -532,6 +537,8 @@ class FieldRestrictionTypeUtilsMixin():
 
         currFeatureLayer.rollBack()
         restrictionDialog.reject()
+
+        #del self.mapTool
 
         """def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog):
         QgsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", tag="TOMs panel")
