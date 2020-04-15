@@ -667,3 +667,48 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
         self.setupFieldRestrictionDialog(dialog, self.currLayer, feature)  # connects signals, etc
 
         dialog.show()
+
+class getMTR_PointMapTool(QgsMapToolIdentify):
+
+    pointFound = pyqtSignal(object, object, object  )  # TODO: return point and link/node reference
+
+    def __init__(self, iface):
+        QgsMapToolIdentify.__init__(self, iface.mapCanvas())
+
+        self.iface = iface
+        self.canvas = self.iface.mapCanvas()
+
+        # set up list of layers to snap and check
+        #layerDict = ...
+
+    def canvasReleaseEvent(self, event):
+        # Return point under cursor
+
+        QgsMessageLog.logMessage(("In Info - canvasReleaseEvent."), tag="TOMs panel")
+
+        currPt = self.canvas.mouseLastXY()
+
+        nearestLink, nearestNode = self.getNearestLinkNode(currPt)
+
+        self.pointFound.emit(currPt, nearestLink, nearestNode)
+
+    def getNearestLinkNode(self, pos):
+        #  def findFeatureAt(self, pos, excludeFeature=None):
+        # http://www.lutraconsulting.co.uk/blog/2014/10/17/getting-started-writing-qgis-python-plugins/ - generates "closest feature" function
+
+        """ Find the feature close to the given position.
+
+            'pos' is the position to check, in canvas coordinates.
+
+            if 'excludeFeature' is specified, we ignore this feature when
+            finding the clicked-on feature.
+
+            If no feature is close to the given coordinate, we return None.
+        """
+
+
+        ### TODO:
+
+
+        return nearestLink, nearestNode
+

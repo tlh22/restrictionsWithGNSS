@@ -38,6 +38,10 @@ from qgis.PyQt.QtCore import (
     pyqtSlot
 )
 
+from qgis.PyQt.QtSql import (
+    QSqlDatabase
+)
+
 from qgis.core import (
     QgsExpressionContextScope,
     QgsExpressionContextUtils,
@@ -57,6 +61,7 @@ import functools
 import time
 import os
 #import cv2
+
 
 from abc import ABCMeta
 from .generateGeometryUtils import generateGeometryUtils
@@ -310,7 +315,10 @@ class FieldRestrictionTypeUtilsMixin():
         # TODO: Need to check whether or not these fields exist. Also need to retain the last values and reuse
         # gis.stackexchange.com/questions/138563/replacing-action-triggered-script-by-one-supplied-through-qgis-plugin
 
-        currRestriction.setAttribute("CreateDateTime", currDate)
+        try:
+            currRestriction.setAttribute("CreateDateTime", currDate)
+        except Exception:
+            None
 
         generateGeometryUtils.setRoadName(currRestriction)
         if currRestrictionLayer.geometryType() == 1:  # Line or Bay
@@ -328,18 +336,16 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Lines", "RestrictionTypeID", 201))  # 10 = SYL (Lines)
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 10))   # 10 = Parallel Line
             currRestriction.setAttribute("NoWaitingTimeID", self.readLastUsedDetails("Lines", "NoWaitingTimeID", None))
-            #currRestriction.setAttribute("NoWaitingTimeID", cpzWaitingTimeID)
+            currRestriction.setAttribute("NoLoadingTimeID", self.readLastUsedDetails("Lines", "NoLoadingTimeID", None))
+            #currRestriction.setAttribute("NoWTimeID", cpzWaitingTimeID)
             #currRestriction.setAttribute("CreateDateTime", currDate)
+            currRestriction.setAttribute("Unacceptability", self.readLastUsedDetails("Lines", "Unacceptability", None))
 
         elif currRestrictionLayer.name() == "Bays":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Bays", "RestrictionTypeID", 101))  # 28 = Permit Holders Bays (Bays)
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Bays", "GeomShapeID", 1)) # 21 = Parallel Bay (Polygon)
             currRestriction.setAttribute("NrBays", -1)
             currRestriction.setAttribute("TimePeriodID", self.readLastUsedDetails("Bays", "TimePeriodID", None))
-
-            #currRestriction.setAttribute("TimePeriodID", cpzWaitingTimeID)
-
-            #currentPTA, ptaMaxStayID, ptaNoReturnTimeID = generateGeometryUtils.getCurrentPTADetails(currRestriction)
 
             #currRestriction.setAttribute("MaxStayID", ptaMaxStayID)
             #currRestriction.setAttribute("NoReturnID", ptaNoReturnTimeID)
@@ -885,4 +891,3 @@ class cvCamera(QThread):
         # Now stop camera (and display image)
 
         self.cap.release()
-
