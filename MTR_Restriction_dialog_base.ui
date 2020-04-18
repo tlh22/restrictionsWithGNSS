@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>403</width>
+    <height>327</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>9</x>
-     <y>268</y>
+     <x>10</x>
+     <y>300</y>
      <width>156</width>
      <height>23</height>
     </rect>
@@ -35,7 +35,7 @@
      <x>9</x>
      <y>35</y>
      <width>382</width>
-     <height>121</height>
+     <height>81</height>
     </rect>
    </property>
    <property name="title">
@@ -47,7 +47,7 @@
       <x>10</x>
       <y>20</y>
       <width>361</width>
-      <height>91</height>
+      <height>51</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="geometryFormLayout"/>
@@ -57,9 +57,9 @@
    <property name="geometry">
     <rect>
      <x>9</x>
-     <y>160</y>
+     <y>119</y>
      <width>381</width>
-     <height>80</height>
+     <height>171</height>
     </rect>
    </property>
    <property name="title">
@@ -71,19 +71,19 @@
       <x>10</x>
       <y>19</y>
       <width>361</width>
-      <height>51</height>
+      <height>141</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="attributesFormLayout"/>
    </widget>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>9</x>
      <y>9</y>
      <width>381</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="MTR_Type_Layout">

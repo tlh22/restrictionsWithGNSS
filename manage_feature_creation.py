@@ -75,7 +75,7 @@ from qgis.PyQt.QtWidgets import (
     QAction,
     QDialogButtonBox,
     QLabel,
-    QDockWidget
+    QDockWidget, QComboBox
 )
 
 from qgis.core import (
@@ -95,17 +95,17 @@ from qgis.gui import (
 )
 
 import os, time
-import psycopg2
+
 #from qgis.gui import *
 
 # from .CadNodeTool.TOMsNodeTool import TOMsNodeTool
-from .MTR_Restriction_dialog import MTR_RestrictionDialog
+
 from .mapTools import CreateRestrictionTool, CreatePointTool
 #from TOMsUtils import *
 
 from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, TOMSLayers, gpsParams
 from .SelectTool import GeometryInfoMapTool
-from .formManager import mtrFormFactory
+from .formManager import mtrForm
 
 
 import functools
@@ -156,7 +156,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                                                     self.iface.mainWindow())
         self.actionCreateSign.setCheckable(True)
 
-        self.actionCreateMTR = QAction(QIcon(":/plugins/featureswithgps/resources/mActionSetEndPoint.svg"),
+        self.actionCreateMTR = QAction(QIcon(":/plugins/featureswithgps/resources/UK_traffic_sign_606F.svg"),
                                                     QCoreApplication.translate("MyPlugin", "Create moving traffic restriction"),
                                                     self.iface.mainWindow())
         self.actionCreateMTR.setCheckable(True)
@@ -606,22 +606,26 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             QgsMessageLog.logMessage("In doCreateMTR - tool activated", tag="TOMs panel")
 
             # Open MTR form ...
-            self.dialog = MTR_RestrictionDialog()
-            dbConn = self.getDbConnection()
-            if not dbConn:
-                reply = QMessageBox.information(None, "Information",
-                                                "Problem with db connection",
-                                                QMessageBox.Ok)
 
-            res = mtrFormFactory.prepareForm(self.iface, dbConn, self.dialog)
+            try:
+                self.thisMtrForm
+            except AttributeError:
+                self.thisMtrForm = mtrForm(self.iface)
+
+            #res = mtrFormFactory.prepareForm(self.iface, self.dbConn, self.dialog)
+            #self.mtrTypeCB = self.dialog.findChild(QComboBox, "cmb_MTR_list")
+            #self.mtrTypeCB.activated[str].connect(self.onLocalChanged)
+            #self.currDialog.findChild(QComboBox, "cmb_MTR_list").activated[str].connect(self.onChanged)
+
 
             """ Need to setup dialog:
                 a. create drop down
                 b. link structure of form to different options from drop down, e.g., Access Restriction needs ?? attributes and one point, Turn Restriction needs ?? attributes and two points
                 c. link getPoint actions to buttons
             """
-            status = self.dialog.show()
-
+            status = self.thisMtrForm.show()
+            # Run the dialog event loop
+            result = self.thisMtrForm.exec_()
             #
 
         else:
@@ -633,20 +637,11 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.actionCreateMTR.setChecked(False)
             self.gpsMapTool = False
 
-    def getDbConnection(self):
-        # http://pyqgis.org/blog/2013/04/11/creating-a-postgresql-connection-from-a-qgis-layer-datasource/
-        # get the active layer
-        dbConn = None
-        layer = self.iface.activeLayer()  # TODO: use a layer know to be using the database
-        # get the underlying data provider
-        provider = layer.dataProvider()
-        if provider.name() == 'postgres':
-            # get the URI containing the connection parameters
-            uri = QgsDataSourceUri(provider.dataSourceUri())
-            QgsMessageLog.logMessage("In captureGPSFeatures::getDbConnection. db URI :" + uri.uri(), tag="TOMs panel")
-            dbConn = psycopg2.connect(uri.connectionInfo())
+    def onLocalChanged(self, text):
+        QgsMessageLog.logMessage(
+            "In generateFirstStageForm::selectionchange.  " + text, tag="TOMs panel")
+        res = mtrFormFactory.prepareForm(self.iface, self.dbConn, self.dialog, text)
 
-        return dbConn
 
 
     def reinstateMapTool(self):

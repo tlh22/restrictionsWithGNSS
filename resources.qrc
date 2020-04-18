@@ -6,5 +6,6 @@
         <file>resources/mActionGetInfo.svg</file>
         <file>resources/mActionDeleteTrack.svg</file>
         <file>resources/mActionSetEndPoint.svg</file>
+        <file>resources/UK_traffic_sign_606F.svg</file>
     </qresource>
 </RCC>
