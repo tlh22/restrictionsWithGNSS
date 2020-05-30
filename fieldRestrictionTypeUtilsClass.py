@@ -65,6 +65,7 @@ import os
 
 from abc import ABCMeta
 from .generateGeometryUtils import generateGeometryUtils
+from TOMs.restrictionTypeUtilsClass import TOMsParams
 
 try:
     import cv2
@@ -73,12 +74,9 @@ except ImportError:
 
 import uuid
 
+"""
 class TOMsParams(QObject):
 
-    TOMsParamsNotFound = pyqtSignal()
-    """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
-    TOMsParamsSet = pyqtSignal()
-    """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
 
     def __init__(self):
         QObject.__init__(self)
@@ -114,9 +112,6 @@ class TOMsParams(QObject):
 
             for param in self.TOMsParamsList:
                 QgsMessageLog.logMessage("In TOMSLayers.getParams ... getting " + str(param), tag="TOMs panel")
-
-                """if QgsExpressionContextUtils.projectScope(currProject).hasVariable(param):
-                    currParam = QgsExpressionContextUtils.projectScope(currProject).variable(param)"""
                 currParam = None
                 try:
                     currParam = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(param)
@@ -142,7 +137,7 @@ class TOMsParams(QObject):
 
     def setParam(self, param):
         return self.TOMsParamsDict.get(param)
-
+"""
 class TOMSLayers(QObject):
 
     TOMsLayersNotFound = pyqtSignal()
@@ -232,12 +227,12 @@ class gpsParams(TOMsParams):
 
         QgsMessageLog.logMessage("In gpsParams.init ...", tag="TOMs panel")
 
-        self.gpsParamsList = [
+        self.TOMsParamsList.extend([
                           "gpsPort"
-                               ]
-        self.gpsParamsDict = {}
+                               ])
+        #self.gpsParamsDict = {}
 
-    def getParams(self):
+        """def getParams(self):
 
         found = True
         # QgsMessageLog.logMessage("In TOMSLayers.getParams ...", tag="TOMs panel")
@@ -253,9 +248,6 @@ class gpsParams(TOMsParams):
             else:
 
                 for param in self.gpsParamsList:
-
-                    """if QgsExpressionContextUtils.projectScope(currProject).hasVariable(param):
-                        currParam = QgsExpressionContextUtils.projectScope(currProject).variable(param)"""
 
                     try:
                         currParam = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(param)
@@ -279,8 +271,9 @@ class gpsParams(TOMsParams):
 
         return
 
-    def setGpsParam(self, param):
+        def setGpsParam(self, param):
         return self.gpsParamsDict.get(param)
+        """
 
 class originalFeature(object):
     def __init__(self, feature=None):

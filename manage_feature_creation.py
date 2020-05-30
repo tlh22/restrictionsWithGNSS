@@ -107,7 +107,6 @@ from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, TOMS
 from .SelectTool import GeometryInfoMapTool
 from .formManager import mtrForm
 
-
 import functools
 
 
@@ -219,35 +218,39 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         # Now check to see if the port is set. If not assume that just normal tools
 
+        gpsPort = params.setParam("gpsPort")
+        QgsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems: GPS port is: {}".format(gpsPort), tag="TOMs panel")
+
+        if gpsPort:
+            self.gpsAvailable = True
+
         if self.gpsAvailable == True:
 
-            gpsPort = params.setGpsParam("gpsPort")
+            QgsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems - GPS connection found ",
+                                     tag="TOMs panel")
+            self.gps_thread = GPS_Thread(self.dest_crs, gpsPort)
+            thread = QThread()
+            self.gps_thread.moveToThread(thread)
+            self.gps_thread.gpsActivated.connect(self.gpsStarted)
+            self.gps_thread.gpsPosition.connect(self.gpsPositionProvided)
+            self.gps_thread.gpsDeactivated.connect(functools.partial(self.gpsStopped))
+            self.gps_thread.gpsError.connect(self.gpsErrorEncountered)
+            #self.gps_thread.progress.connect(progressBar.setValue)
+            thread.started.connect(self.gps_thread.startGPS)
+            #thread.finished.connect(functools.partial(self.gpsStopped, thread))
+            thread.start()
+            self.thread = thread
 
-            if gpsPort:
-                self.gpsAvailable = True
-                self.gps_thread = GPS_Thread(self.dest_crs, gpsPort)
-                thread = QThread()
-                self.gps_thread.moveToThread(thread)
-                self.gps_thread.gpsActivated.connect(self.gpsStarted)
-                self.gps_thread.gpsPosition.connect(self.gpsPositionProvided)
-                self.gps_thread.gpsDeactivated.connect(functools.partial(self.gpsStopped))
-                self.gps_thread.gpsError.connect(self.gpsErrorEncountered)
-                #self.gps_thread.progress.connect(progressBar.setValue)
-                thread.started.connect(self.gps_thread.startGPS)
-                #thread.finished.connect(functools.partial(self.gpsStopped, thread))
-                thread.start()
-                self.thread = thread
+            if self.gps_connection:
+                QgsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems - GPS connection found ",
+                                         tag="TOMs panel")
 
-                """if self.gps_connection:
-                    QgsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems - GPS connection found ",
-                                             tag="TOMs panel")
-        
-                    reply = QMessageBox.information(None, "Error",
-                                                    "Connection found",
-                                                    QMessageBox.Ok)
-        
-                    self.actionCreateRestriction.setEnabled(True)
-                    self.actionAddGPSLocation.setEnabled(True)"""
+                reply = QMessageBox.information(None, "Error",
+                                                "Connection found",
+                                                QMessageBox.Ok)
+
+                self.actionCreateRestriction.setEnabled(True)
+                self.actionAddGPSLocation.setEnabled(True)
 
         self.enableToolbarItems()
         self.createMapToolDict = {}
@@ -758,7 +761,7 @@ class GPS_Thread(QObject):
     gpsError = pyqtSignal(Exception)
     gpsPosition = pyqtSignal(object, object)
 
-    def __init__(self):
+    def __init__(self, dest_crs, gpsPort):
         #QThread.__init__(self)
         #self.iface=iface
         self.prj=QgsProject().instance()

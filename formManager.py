@@ -101,6 +101,7 @@ class mtrForm(MTR_RestrictionDialog):
 
     def setupThisUi(self):
 
+        # create stacked widgets that can be used based on the restriction type choosen
         self.accessRestrictionAttributeStack = QWidget()
         self.turnRestrictionAttributeStack = QWidget()
         self.highwayDedicationAttributeStack = QWidget()
@@ -291,7 +292,7 @@ class mtrForm(MTR_RestrictionDialog):
         return None
 
     def showShortestPath(self, startPoint, endPoint):
-
+        # taken from Qgis Py Cookbook
         #startPoint = self.ptList[0][0].asPoint()
         #endPoint = self.ptList[1][0].asPoint()
 
@@ -375,6 +376,12 @@ class mtrForm(MTR_RestrictionDialog):
         self.btn_PointReference.clicked.connect(self.getPointReference)
         geomLayout.addRow(self.tr("&Access Restriction Location:"), self.btn_PointReference)
 
+        # add link direction
+        self.cb_accessRestrictionLinkDirectionValue = QComboBox(self)
+        enumList = self.getEnumList('LinkDirectionValue')
+        self.cb_accessRestrictionLinkDirectionValue.addItems(enumList)
+        geomLayout.addRow(self.tr("&Applicable link direction:"), self.cb_accessRestrictionLinkDirectionValue)
+
         self.accessRestrictionGeometryStack.setLayout(geomLayout)
 
         # create relevant features
@@ -393,7 +400,7 @@ class mtrForm(MTR_RestrictionDialog):
 
         # Add turn restriction type
         self.cb_turnRestrictionType = QComboBox(self)
-        enumList = self.getTableList('"moving_traffic"."TurnRestrictionValue"')
+        enumList = self.getEnumList('TurnRestrictionValue')
         self.cb_turnRestrictionType.addItems(enumList)
         layout.addRow(self.tr("&Turn Restriction Type:"), self.cb_turnRestrictionType)
 
@@ -442,47 +449,35 @@ class mtrForm(MTR_RestrictionDialog):
         QgsMessageLog.logMessage("In generateHighwayDedicationForm::generateForm ... ", tag="TOMs panel")
 
         layout = QFormLayout()
-        #groupBox = QGroupBox("Restriction Attributes", self.currDialog)
-        #formLayout = QFormLayout()
 
-        # Add access restriction type
-        #lbl_accessRestrictionType = QLabel(self.currDialog)
-        #lbl_accessRestrictionType.setText("Access Restriction Type:")
-
-        self.cb_accessRestrictionType = QComboBox(self)
-        #self.cb_accessRestrictionType.setFont(self.font)
-        #self.cb_accessRestrictionType.setGeometry(QRect(100, 120, 200, 60))
-
-        self.cb_accessRestrictionType.addItem("E")
-        self.cb_accessRestrictionType.addItem("E++")
-        self.cb_accessRestrictionType.addItems(["Java", "D#", "Python"])
-
-        layout.addRow(self.tr("&Access Restriction Type:"), self.cb_accessRestrictionType)
-
-        #groupBox.setLayout(formLayout)
-
-        #list = []
-        #cb = combo(self.currDialog)
-
-        # Add vehicle exemption
-
-        # Add vehicle inclusions
-
-        # add time intervals
-
-        # add traffic sign
-
-        # set up network reference capture
+        # Add turn restriction type
+        self.cb_dedicationValue = QComboBox(self)
+        enumList = self.getEnumList('DedicationValue')
+        self.cb_dedicationValue.addItems(enumList)
+        layout.addRow(self.tr("&Dedication:"), self.cb_dedicationValue)
 
         self.highwayDedicationAttributeStack.setLayout(layout)
 
         # set up network reference capture
 
         geomLayout = QFormLayout()
-        btn_PointReference = QPushButton("Location")
-        geomLayout.addRow(self.tr("&Highway Dedication Location:"), btn_PointReference)
+        self.btn_StartReference = QPushButton("Start")
+        self.btn_EndReference = QPushButton("End")
+        self.btn_StartReference.clicked.connect(self.getLinkReferenceFirst)
+        self.btn_EndReference.clicked.connect(self.getLinkReference)
+        geomLayout.addRow(self.tr("&Highway Dedication Start:"), self.btn_StartReference)
+        geomLayout.addRow(self.tr("&Highway Dedication End:"), self.btn_EndReference)
 
         self.highwayDedicationGeometryStack.setLayout(geomLayout)
+
+        # create relevant features
+        """
+        self.turnRestrictionFeature = QgsFeature(self.turnRestrictionLayer)
+        self.turnRestrictionNetworkReference = QgsFeature(self.linkReferenceLayer)
+        # link them together with a uuid??
+
+        # self.accessRestrictionFeature
+        """
 
     def generateRestrictionForVehiclesForm(self):
 
@@ -491,7 +486,7 @@ class mtrForm(MTR_RestrictionDialog):
         layout = QFormLayout()
         # Add restriction for vehicles type
         self.cb_restrictionForVehiclesType = QComboBox(self)
-        enumList = self.getTableList('"moving_traffic"."RestrictionTypeValue"')
+        enumList = self.getEnumList('RestrictionTypeValue')
         self.cb_restrictionForVehiclesType.addItems(enumList)
         layout.addRow(self.tr("&Access Restriction Type:"), self.cb_restrictionForVehiclesType)
 
@@ -519,7 +514,7 @@ class mtrForm(MTR_RestrictionDialog):
 
         # add structure type
         self.cb_restrictionForVehiclesStructureType = QComboBox(self)
-        enumList = self.getTableList('"moving_traffic"."StructureTypeValue"')
+        enumList = self.getEnumList('StructureTypeValue')
         self.cb_restrictionForVehiclesStructureType.addItems(enumList)
         layout.addRow(self.tr("&Structure Type:"), self.cb_restrictionForVehiclesStructureType)
 
@@ -535,6 +530,12 @@ class mtrForm(MTR_RestrictionDialog):
         self.btn_PointReference = QPushButton("Location")
         self.btn_PointReference.clicked.connect(self.getPointReference)
         geomLayout.addRow(self.tr("&Restriction For Vehicle Location:"), self.btn_PointReference)
+
+        # add link direction
+        self.cb_restrictionForVehiclesLinkDirectionValue = QComboBox(self)
+        enumList = self.getEnumList('LinkDirectionValue')
+        self.cb_restrictionForVehiclesLinkDirectionValue.addItems(enumList)
+        geomLayout.addRow(self.tr("&Applicable link direction:"), self.cb_restrictionForVehiclesLinkDirectionValue)
 
         self.restrictionForVehiclesGeometryStack.setLayout(geomLayout)
 
