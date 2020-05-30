@@ -4,7 +4,7 @@
 
 [general]
 name=featuresWithGPSPlugin
-qgisMinimumVersion=2.18
+qgisMinimumVersion=3.0
 description=Features with GPS
 version=0.1
 author=TH for MHTC

@@ -20,12 +20,9 @@
 import math
 import time
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
+#from qgis.core import *
+#from qgis.gui import *
 
-"""
 from qgis.PyQt.QtGui import (
     QColor,
 QMouseEvent
@@ -37,6 +34,7 @@ from qgis.PyQt.QtCore import (
     Qt,
     QRect, QTimer, pyqtSignal, pyqtSlot, QDate
 )
+
 #from qgis.PyQt.QtCore import *
 #from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import QMenu, QAction, QDockWidget, QMessageBox, QToolTip
@@ -67,9 +65,10 @@ from qgis.gui import (
     QgsMapToolAdvancedDigitizing,
     QgsRubberBand,
     QgsMapMouseEvent,
-    QgsMapToolIdentify, QgsMapToolCapture, QgsMapTool
+    QgsMapToolIdentify, QgsMapToolCapture, QgsMapTool,
+    QgsMapToolEmitPoint
 )
-"""
+
 from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin
 
 import functools
@@ -247,6 +246,8 @@ class MapToolMixin:
 
 class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
     # helpful link - http://apprize.info/python/qgis/7.html ??
+    #deActivatedInProcess = pyqtSignal(bool)
+
     def __init__(self, iface, layer):
 
         QgsMessageLog.logMessage(("In CreateRestrictionTool - init."), tag="TOMs panel")
@@ -261,11 +262,14 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             return
 
         QgsMapToolCapture.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
+        FieldRestrictionTypeUtilsMixin.__init__(self, iface)
 
         # https: // qgis.org / api / classQgsMapToolCapture.html
         canvas = iface.mapCanvas()
         self.iface = iface
         self.layer = layer
+
+        #self.inProcess = True
 
         """if self.layer.geometryType() == 0: # PointGeometry:
             self.captureMode = (CreateRestrictionTool.CapturePoint)
@@ -290,9 +294,10 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem(4326), dest_crs, QgsProject.instance())"""
 
         #advancedDigitizingPanel = self.iface.AdvancedDigitizingTools()
-        """self.setAdvancedDigitizingAllowed(True)
+
         self.setAutoSnapEnabled(True)
 
+        """self.setAdvancedDigitizingAllowed(True)
         advancedDigitizingPanel = iface.mainWindow().findChild(QDockWidget, 'AdvancedDigitizingTools')
         if not advancedDigitizingPanel:
             QMessageBox.information(self.iface.mainWindow(), "ERROR",
@@ -319,9 +324,10 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         # Set up rubber band. In current implementation, it is not showing feeback for "next" location
 
-        self.rb = self.createRubberBand(QGis.Line)  # what about a polygon ??
+        self.rb = self.createRubberBand(QgsWkbTypes.LineGeometry)  # what about a polygon ??
 
-        self.currLayer = self.currentVectorLayer()
+        #self.currLayer = self.currentVectorLayer()
+        self.currLayer = self.layer
 
         QgsMessageLog.logMessage(("In CreateRestrictionTool - init. Curr layer is " + str(self.currLayer.name()) + "Incoming: " + str(self.layer)), tag="TOMs panel")
 
@@ -338,16 +344,11 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         snapping_layer3 = QgsSnappingUtils.LayerConfig(ConstructionLines, QgsPointLocator.Vertex and QgsPointLocator.Edge, 0.5,
                                                        QgsTolerance.LayerUnits)
         """
-        """self.snappingConfig = QgsSnappingConfig()
+        #self.snappingConfig = QgsSnappingConfig()
 
         #self.snappingUtils.setLayers([snapping_layer1, snapping_layer2, snapping_layer3])
 
-        self.snappingConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)"""
-        self.snappingUtils = QgsSnappingUtils()
-
-        #self.snappingUtils.setLayers([snapping_layer1, snapping_layer2, snapping_layer3])
-
-        self.snappingUtils.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
+        #self.snappingConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
 
         # set up tracing configuration
 
@@ -369,6 +370,12 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         #self.TOMsTracer.setMaxFeatureCount(1000)
         self.lastPoint = None
+
+        """if not self.layer.isEditable():
+            if self.layer.startEditing() == False:
+                reply = QMessageBox.information(None, "Information",
+                                                "Could not start transaction on " + self.layer.name(),
+                                                QMessageBox.Ok)"""
 
         # set up function to be called when capture is complete
         #self.onCreateRestriction = onCreateRestriction
@@ -396,7 +403,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
             # Now wanting to add point(s) to new shape. Take account of snapping and tracing
             # self.toLayerCoordinates(self.layer, event.pos())
-            self.currPoint = event.snapPoint(1)    #  1 is value of QgsMapMouseEvent.SnappingMode (not sure where this is defined)
+            self.currPoint = event.snapPoint()    #  1 is value of QgsMapMouseEvent.SnappingMode (not sure where this is defined)
             self.lastEvent = event
             # If this is the first point, add and k
 
@@ -479,11 +486,10 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         if self.nrPoints > 0:
 
-            if self.currLayer.startEditing() == False:
+            if self.layer.startEditing() == False:
                 reply = QMessageBox.information(None, "Information",
-                                                "Could not start transaction on " + self.currLayer.name(),
+                                                "Could not start transaction on " + self.layer.name(),
                                                 QMessageBox.Ok)
-                #return
 
             # take points from the rubber band and copy them into the "feature"
 
@@ -494,11 +500,11 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             QgsMessageLog.logMessage(("In CreateRestrictionTool. getPointsCaptured, layerType: " + str(self.layer.geometryType())), tag="TOMs panel")
 
             if self.layer.geometryType() == 0:  # Point
-                feature.setGeometry(QgsGeometry.fromPoint(self.sketchPoints[0]))
+                feature.setGeometry(QgsGeometry.fromPointXY(self.sketchPoints[0]))
             elif self.layer.geometryType() == 1:  # Line
-                feature.setGeometry(QgsGeometry.fromPolyline(self.sketchPoints))
+                feature.setGeometry(QgsGeometry.fromPolylineXY(self.sketchPoints))
             elif self.layer.geometryType() == 2:  # Polygon
-                feature.setGeometry(QgsGeometry.fromPolygon([self.sketchPoints]))
+                feature.setGeometry(QgsGeometry.fromPolygonXY([self.sketchPoints]))
                 #feature.setGeometry(QgsGeometry.fromPolygonXY(self.sketchPoints))
             else:
                 QgsMessageLog.logMessage(("In CreateRestrictionTool - no geometry type found"), tag="TOMs panel")
@@ -508,7 +514,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
             #self.valid = feature.isValid()
 
-            QgsMessageLog.logMessage(("In Create - getPointsCaptured; geometry prepared; " + str(feature.geometry().exportToWkt())),
+            QgsMessageLog.logMessage(("In Create - getPointsCaptured; geometry prepared; " + str(feature.geometry().asWkt())),
                                      tag="TOMs panel")
 
             if self.layer.name() == "ConstructionLines":
@@ -518,7 +524,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
                 # set any geometry related attributes ...
 
-                self.setDefaultFieldRestrictionDetails(feature, self.layer, QDateTime.currentDateTime())
+                self.setDefaultFieldRestrictionDetails(feature, self.layer, QDate.currentDate())
 
                 # is there any other tidying to do ??
 
@@ -546,12 +552,13 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
                 newRestrictionID = str(uuid.uuid4())
                 feature[self.layer.fields().indexFromName("GeometryID")] = newRestrictionID
-                #self.layer.addFeature(feature)  # TH (added for v3)
+                self.layer.addFeature(feature)  # TH (added for v3)
 
                 dialog = self.iface.getFeatureForm(self.layer, feature)
 
                 self.setupFieldRestrictionDialog(dialog, self.layer, feature)  # connects signals, etc
 
+                self.inProcess = False
                 dialog.show()
                 #self.iface.openFeatureForm(self.layer, feature, False, False)
 
@@ -562,6 +569,41 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         #feature.setAttribute(fieldName, value)
 
+    """def prepareCurrentRestriction(self):
+
+        fields = self.layer.dataProvider().fields()
+        feature = QgsFeature()
+        feature.setFields(fields)
+
+        QgsMessageLog.logMessage(
+            ("In CreateRestrictionTool. getPointsCaptured, layerType: " + str(self.layer.geometryType())),
+            tag="TOMs panel")
+
+        if self.layer.geometryType() == 0:  # Point
+            feature.setGeometry(QgsGeometry.fromPointXY(self.sketchPoints[0]))
+        elif self.layer.geometryType() == 1:  # Line
+            feature.setGeometry(QgsGeometry.fromPolylineXY(self.sketchPoints))
+        elif self.layer.geometryType() == 2:  # Polygon
+            feature.setGeometry(QgsGeometry.fromPolygonXY([self.sketchPoints]))
+            # feature.setGeometry(QgsGeometry.fromPolygonXY(self.sketchPoints))
+        else:
+            QgsMessageLog.logMessage(("In CreateRestrictionTool - no geometry type found"), tag="TOMs panel")
+            return
+
+        QgsMessageLog.logMessage(
+            ("In Create - getPointsCaptured; geometry prepared; " + str(feature.geometry().asWkt())),
+            tag="TOMs panel")
+
+        if self.layer.name() == "ConstructionLines":
+            self.layer.addFeature(feature)
+            pass
+        else:
+
+            QgsMessageLog.logMessage(
+                "In CreateRestrictionTool - getPointsCaptured. currRestrictionLayer: " + str(self.layer.name()),
+                tag="TOMs panel")
+
+            self.layer.addFeature(feature)  # TH (added for v3)"""
 
 
     def addPointFromGPS(self, curr_gps_location, curr_gps_info):
@@ -574,4 +616,99 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         # TODO: opportunity to add details about GPS point to another table
 
         return status
+
+        """def deactivated(self):
+        QgsMessageLog.logMessage(("In CreateRestrictionTool - deactivated."), tag="TOMs panel")
+        self.deActivatedInProcess.emit(self.inProcess)"""
+
+        """def activated(self):
+        QgsMessageLog.logMessage(("In CreateRestrictionTool - activated."), tag="TOMs panel")
+        self.alreadyExists = True"""
+
+class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
+
+    def __init__(self, iface, layer):
+
+        QgsMessageLog.logMessage(("In CreatePointTool - init."), tag="TOMs panel")
+
+        self.iface = iface
+        self.canvas = iface.mapCanvas()
+        self.currLayer = layer
+
+        QgsMapToolEmitPoint.__init__(self, iface.mapCanvas())
+        FieldRestrictionTypeUtilsMixin.__init__(self, iface)
+
+    def canvasReleaseEvent(self, event):
+
+        QgsMessageLog.logMessage(("In CreatePointTool - canvasReleaseEvent."), tag="TOMs panel")
+
+        if self.currLayer.startEditing() == False:
+            reply = QMessageBox.information(None, "Information",
+                                            "Could not start transaction on " + self.currLayer.name(),
+                                            QMessageBox.Ok)
+
+        x = event.pos().x()
+        y = event.pos().y()
+        pointLocation = self.canvas.getCoordinateTransform().toMapCoordinates(x, y)
+        QgsMessageLog.logMessage("In CreatePointTool - location" + " X: " +str(pointLocation.x()) + " Y: " + str(pointLocation.y()), tag="TOMs panel")
+
+        fields = self.currLayer.dataProvider().fields()
+        feature = QgsFeature()
+        feature.setFields(fields)
+
+        feature.setGeometry(QgsGeometry.fromPointXY(pointLocation))
+
+        self.setDefaultFieldRestrictionDetails(feature, self.currLayer, QDate.currentDate())
+
+        self.currLayer.addFeature(feature)  # TH (added for v3)
+
+        dialog = self.iface.getFeatureForm(self.currLayer, feature)
+
+        self.setupFieldRestrictionDialog(dialog, self.currLayer, feature)  # connects signals, etc
+
+        dialog.show()
+
+class getMTR_PointMapTool(QgsMapToolIdentify):
+
+    pointFound = pyqtSignal(object, object, object  )  # TODO: return point and link/node reference
+
+    def __init__(self, iface):
+        QgsMapToolIdentify.__init__(self, iface.mapCanvas())
+
+        self.iface = iface
+        self.canvas = self.iface.mapCanvas()
+
+        # set up list of layers to snap and check
+        #layerDict = ...
+
+    def canvasReleaseEvent(self, event):
+        # Return point under cursor
+
+        QgsMessageLog.logMessage(("In Info - canvasReleaseEvent."), tag="TOMs panel")
+
+        currPt = self.canvas.mouseLastXY()
+
+        nearestLink, nearestNode = self.getNearestLinkNode(currPt)
+
+        self.pointFound.emit(currPt, nearestLink, nearestNode)
+
+    def getNearestLinkNode(self, pos):
+        #  def findFeatureAt(self, pos, excludeFeature=None):
+        # http://www.lutraconsulting.co.uk/blog/2014/10/17/getting-started-writing-qgis-python-plugins/ - generates "closest feature" function
+
+        """ Find the feature close to the given position.
+
+            'pos' is the position to check, in canvas coordinates.
+
+            if 'excludeFeature' is specified, we ignore this feature when
+            finding the clicked-on feature.
+
+            If no feature is close to the given coordinate, we return None.
+        """
+
+
+        ### TODO:
+
+
+        return nearestLink, nearestNode
 

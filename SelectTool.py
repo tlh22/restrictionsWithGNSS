@@ -21,27 +21,32 @@
  ***************************************************************************/
 """
 
-import resources
+#import resources
 # Import the code for the dialog
 
 import os.path
 
-from PyQt4.QtGui import (
+from qgis.PyQt.QtWidgets import (
     QMessageBox,
-    QPixmap,
+    QAction,
+    QDialogButtonBox,
+    QLabel,
+    QDockWidget,
     QDialog,
     QLabel,
     QPushButton,
-    QDialogButtonBox,
-    QImage,
     QApplication,
-    QIcon,
-    QAction,
-    QDockWidget,
     QMenu
 )
 
-from PyQt4.QtCore import (
+from qgis.PyQt.QtGui import (
+    QIcon,
+    QPixmap,
+    QImage
+)
+
+
+from qgis.PyQt.QtCore import (
     QObject,
     QThread,
     pyqtSignal,
@@ -53,7 +58,8 @@ from PyQt4.QtCore import (
 
 from qgis.core import (
     QgsMessageLog,
-    QgsExpressionContextUtils
+    QgsExpressionContextUtils,
+    QgsWkbTypes
 )
 from qgis.core import *
 from qgis.gui import *
@@ -88,12 +94,10 @@ class GeometryInfoMapTool(QgsMapToolIdentify):
 
         else:
 
-            QgsMessageLog.logMessage(
-                ("In Info - canvasReleaseEvent. Feature selected from layer: " + closestLayer.name() + " id: " + str(
-                    closestFeature.id())),
-                tag="TOMs panel")
+            QgsMessageLog.logMessage(("In Info - canvasReleaseEvent. Feature selected from layer: " + closestLayer.name() + " id: " + str(
+                    closestFeature.id())), tag="TOMs panel")
 
-            if closestLayer <> self.iface.activeLayer():
+            if not closestLayer == self.iface.activeLayer():
                 if self.iface.activeLayer():
                     self.iface.activeLayer().removeSelection()
                 self.iface.setActiveLayer(closestLayer)
@@ -102,10 +106,10 @@ class GeometryInfoMapTool(QgsMapToolIdentify):
                 QgsMessageLog.logMessage(("In Info - canvasReleaseEvent. layer type " + str(closestLayer.type())),
                                          tag="TOMs panel")
 
-            if closestLayer.geometryType() == QGis.Point:
+            if closestLayer.geometryType() == QgsWkbTypes.PointGeometry:
                 QgsMessageLog.logMessage(("In Info - canvasReleaseEvent. point layer type "), tag="TOMs panel")
 
-            if closestLayer.geometryType() == QGis.Line:
+            if closestLayer.geometryType() == QgsWkbTypes.LineGeometry:
                 QgsMessageLog.logMessage(("In Info - canvasReleaseEvent. line layer type "), tag="TOMs panel")
 
             self.notifyFeatureFound.emit(closestLayer, closestFeature)
