@@ -21,31 +21,6 @@
  ***************************************************************************/
 """
 
-"""
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
-
-# Initialize Qt resources from file resources.py
-import resources
-
-# Import the code for the dialog
-from TOMs.core.proposalsManager import TOMsProposalsManager
-
-from .expressions import registerFunctions, unregisterFunctions
-#from TOMs.test5_module_dialog import Test5ClassDialog
-
-from .proposals_panel import proposalsPanel
-from .search_bar import searchBar
-
-from .manage_restriction_details import manageRestrictionDetails
-
-import os.path
-import time
-import datetime
-"""
-
 from qgis.PyQt.QtWidgets import (
     QMessageBox,
     QAction,

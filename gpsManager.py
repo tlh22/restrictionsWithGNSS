@@ -37,7 +37,6 @@ from ..constants import (
 from ..core.TOMsProposal import (TOMsProposal)
 from .TOMsProposalElement import *
 
-@singleton
 class gpsManager(QObject):
     """
     Manages what is currently shown to the user.
