@@ -9,49 +9,6 @@
 #---------------------------------------------------------------------
 # Tim Hancock 2017
 
-# Initialize Qt resources from file resources.py
-"""
-from PyQt4.QtCore import (
-    QObject,
-    QDate,
-    pyqtSignal,
-    QCoreApplication
-)
-
-from PyQt4.QtGui import (
-    QMessageBox,
-    QAction,
-    QIcon,
-    QDialogButtonBox,
-    QPixmap,
-    QLabel
-)
-
-from qgis.core import (
-    QgsExpressionContextUtils,
-    QgsMapLayerRegistry,
-    QgsMessageLog, QgsFeature, QgsGeometry
-)
-
-import os
-
-from qgis.gui import *
-
-from TOMs.CadNodeTool.TOMsNodeTool import TOMsNodeTool
-
-from TOMs.mapTools import *
-#from TOMsUtils import *
-from TOMs.constants import (
-    ACTION_CLOSE_RESTRICTION,
-    ACTION_OPEN_RESTRICTION
-)
-
-from TOMs.restrictionTypeUtilsClass import RestrictionTypeUtilsMixin, TOMsTransaction, setupTableNames
-#from BayRestrictionForm import BayRestrictionForm
-
-import functools
-"""
-
 # https://www.opengis.ch/2016/09/07/using-threads-in-qgis-python-plugins/
 # https://snorfalorpagus.net/blog/2013/12/07/multithreading-in-qgis-python-plugins/
 
@@ -225,8 +182,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.gpsAvailable = True
 
         if self.gpsAvailable == True:
-
-            QgsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems - GPS connection found ",
+            self.gpsConnection = None
+            QgsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems - GPS port is specified ",
                                      tag="TOMs panel")
             self.gps_thread = GPS_Thread(self.dest_crs, gpsPort)
             thread = QThread()
@@ -241,7 +198,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             thread.start()
             self.thread = thread
 
-            if self.gps_connection:
+            if self.gpsConnection:
                 QgsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems - GPS connection found ",
                                          tag="TOMs panel")
 
@@ -692,13 +649,13 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.enableToolbarItems()
 
     #@pyqtSlot()
-    def gpsStopped(self, thread):
+    def gpsStopped(self):
         QgsMessageLog.logMessage("In enableTools - GPS connection stopped ",
                                      tag="TOMs panel")
         self.gps_thread.deleteLater()
-        thread.quit()
-        thread.wait()
-        thread.deleteLater()
+        self.gps_thread.quit()
+        self.gps_thread.wait()
+        #gps_thread.deleteLater()
 
         if self.gpsAvailable:
             if self.canvas is not None:
@@ -762,30 +719,23 @@ class GPS_Thread(QObject):
     gpsPosition = pyqtSignal(object, object)
 
     def __init__(self, dest_crs, gpsPort):
-        #QThread.__init__(self)
-        #self.iface=iface
         self.prj=QgsProject().instance()
         self.connectionRegistry = QgsApplication.gpsConnectionRegistry()
-        #self.canvas = self.iface.mapCanvas()
         super(GPS_Thread, self).__init__()
         try:
             self.gps_active = False
-
             # set up transformation
             self.dest_crs = self.prj.crs()
             self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4326"), self.dest_crs,
                                                          QgsProject.instance())
-
-            #self.marker = None
-            #gps
-
             self.gpsCon = None
-
             QgsMessageLog.logMessage("In GPS_Thread - initialised ... ",
                                      tag="TOMs panel")
         except Exception as e:
             QgsMessageLog.logMessage(("In GPS - exception: " + str(e)), tag="TOMs panel")
             self.gpsError.emit(e)
+
+        self.gpsPort = gpsPort
 
     def startGPS(self):
 
@@ -793,8 +743,8 @@ class GPS_Thread(QObject):
             QgsMessageLog.logMessage("In GPS_Thread - running ... ",
                                      tag="TOMs panel")
             self.gpsCon = None
-            self.port = "COM6"  # TODO: Add menu to select port
-            self.gpsDetector = QgsGpsDetector(self.port)
+            #self.port = "COM3"  # TODO: Add menu to select port
+            self.gpsDetector = QgsGpsDetector(self.gpsPort)
             self.gpsDetector.detected[QgsGpsConnection].connect(self.connection_succeed)
             self.gpsDetector.detectionFailed.connect(self.connection_failed)
 
@@ -853,49 +803,54 @@ class GPS_Thread(QObject):
             self.endGPS()
 
     def status_changed(self,gpsInfo):
-        try:
-            if self.gpsCon.status() == 3: #data received
-                """QgsMessageLog.logMessage(("In GPS - fixMode:" + str(gpsInfo.fixMode)),
-                                         tag="TOMs panel")
-                QgsMessageLog.logMessage(("In GPS - pdop:" + str(gpsInfo.pdop)),
-                                         tag="TOMs panel")
-                QgsMessageLog.logMessage(("In GPS - satellitesUsed:" + str(gpsInfo.satellitesUsed)),
-                                         tag="TOMs panel")
-                QgsMessageLog.logMessage(("In GPS - longitude:" + str(gpsInfo.longitude)),
-                                         tag="TOMs panel")
-                QgsMessageLog.logMessage(("In GPS - latitude:" + str(gpsInfo.latitude)),
-                                         tag="TOMs panel")
-                QgsMessageLog.logMessage(("In GPS - ====="),
-                                         tag="TOMs panel")"""
-                wgs84_pointXY = QgsPointXY(gpsInfo.longitude, gpsInfo.latitude)
-                wgs84_point = QgsPoint(wgs84_pointXY)
-                wgs84_point.transform(self.transformation)
-                x = wgs84_point.x()
-                y = wgs84_point.y()
-                mapPointXY = QgsPointXY(x, y)
-                self.gpsPosition.emit(mapPointXY, gpsInfo)
-                time.sleep(1)
+        if self.gps_active:
+            try:
+                if self.gpsCon.status() == 3: #data received
+                    """QgsMessageLog.logMessage(("In GPS - fixMode:" + str(gpsInfo.fixMode)),
+                                             tag="TOMs panel")
+                    QgsMessageLog.logMessage(("In GPS - pdop:" + str(gpsInfo.pdop)),
+                                             tag="TOMs panel")
+                    QgsMessageLog.logMessage(("In GPS - satellitesUsed:" + str(gpsInfo.satellitesUsed)),
+                                             tag="TOMs panel")
+                    QgsMessageLog.logMessage(("In GPS - longitude:" + str(gpsInfo.longitude)),
+                                             tag="TOMs panel")
+                    QgsMessageLog.logMessage(("In GPS - latitude:" + str(gpsInfo.latitude)),
+                                             tag="TOMs panel")
+                    QgsMessageLog.logMessage(("In GPS - ====="),
+                                             tag="TOMs panel")"""
+                    wgs84_pointXY = QgsPointXY(gpsInfo.longitude, gpsInfo.latitude)
+                    wgs84_point = QgsPoint(wgs84_pointXY)
+                    wgs84_point.transform(self.transformation)
+                    x = wgs84_point.x()
+                    y = wgs84_point.y()
+                    mapPointXY = QgsPointXY(x, y)
+                    self.gpsPosition.emit(mapPointXY, gpsInfo)
+                    time.sleep(1)
 
-                QgsMessageLog.logMessage(("In GPS - location:" + mapPointXY.asWkt()),
-                                         tag="TOMs panel")
-                """if gpsInfo.pdop >= 1:  # gps ok
-                    self.marker.setColor(QColor(0, 200, 0))
+                    QgsMessageLog.logMessage(("In GPS - location:" + mapPointXY.asWkt()),
+                                             tag="TOMs panel")
+                    """if gpsInfo.pdop >= 1:  # gps ok
+                        self.marker.setColor(QColor(0, 200, 0))
+                    else:
+                        self.marker.setColor(QColor(255, 0, 0))
+                    self.marker.setCenter(mapPointXY)
+                    self.marker.show()
+                    self.canvas.setCenter(mapPointXY)"""
+
                 else:
-                    self.marker.setColor(QColor(255, 0, 0))
-                self.marker.setCenter(mapPointXY)
-                self.marker.show()
-                self.canvas.setCenter(mapPointXY)"""
+                    self.gps_active = False
 
-            else:
-                if self.gpsCon is not None:
-                    self.gpsCon.close()
-                self.connectionRegistry.unregisterConnection(self.gpsCon)
-                self.gpsDeactivated.emit()
+            except Exception as e:
+                QgsMessageLog.logMessage(("In GPS - exception: " + str(e)),
+                                         tag="TOMs panel")
+                self.gpsError.emit(e)
+            return
 
-        except Exception as e:
-            QgsMessageLog.logMessage(("In GPS - exception: " + str(e)),
-                                     tag="TOMs panel")
-            self.gpsError.emit(e)
+        # shutdown the receiver
+        if self.gpsCon is not None:
+            self.gpsCon.close()
+        self.connectionRegistry.unregisterConnection(self.gpsCon)
+        self.gpsDeactivated.emit()
 
     def getLocationFromGPS(self):
         QgsMessageLog.logMessage(
