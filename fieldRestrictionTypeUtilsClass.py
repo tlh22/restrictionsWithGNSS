@@ -65,7 +65,7 @@ import os
 
 from abc import ABCMeta
 from .generateGeometryUtils import generateGeometryUtils
-from TOMs.restrictionTypeUtilsClass import TOMsParams
+from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers)
 
 try:
     import cv2
@@ -74,87 +74,12 @@ except ImportError:
 
 import uuid
 
-"""
-class TOMsParams(QObject):
-
-
-    def __init__(self):
-        QObject.__init__(self)
-        # self.iface = iface
-
-        QgsMessageLog.logMessage("In TOMSParams.init ...", tag="TOMs panel")
-        self.TOMsParamsList = ["BayWidth",
-                          "BayLength",
-                          "BayOffsetFromKerb",
-                          "LineOffsetFromKerb",
-                          "CrossoverShapeWidth",
-                          "PhotoPath",
-                          "MinimumTextDisplayScale"
-                        ]
-
-        self.TOMsParamsDict = {}
-
-    def getParams(self):
-
-        QgsMessageLog.logMessage("In TOMSLayers.getParams ...", tag="TOMs panel")
-        found = True
-
-        # Check for project being open
-        currProject = QgsProject.instance()
-
-        if len(currProject.fileName()) == 0:
-            QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Project not yet open"))
-            found = False
-
-        else:
-
-            # QgsMessageLog.logMessage("In TOMSLayers.getParams ... starting to get", tag="TOMs panel")
-
-            for param in self.TOMsParamsList:
-                QgsMessageLog.logMessage("In TOMSLayers.getParams ... getting " + str(param), tag="TOMs panel")
-                currParam = None
-                try:
-                    currParam = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(param)
-                except None:
-                    QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
-
-                if len(str(currParam))>0:
-                    self.TOMsParamsDict[param] = currParam
-                    QgsMessageLog.logMessage("In TOMSLayers.getParams ... set " + str(param) + " as " + str(currParam), tag="TOMs panel")
-                else:
-                    QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
-                    found = False
-                    break
-
-        if found == False:
-            self.TOMsParamsNotFound.emit()
-        else:
-            self.TOMsParamsSet.emit()
-
-            # QgsMessageLog.logMessage("In TOMSLayers.getParams ... finished ", tag="TOMs panel")
-
-        return found
-
-    def setParam(self, param):
-        return self.TOMsParamsDict.get(param)
-"""
-class TOMSLayers(QObject):
-
-    TOMsLayersNotFound = pyqtSignal()
-    """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
-    TOMsLayersSet = pyqtSignal()
-    """ signal will be emitted if everything is OK with opening TOMs """
-
+class gpsLayers(TOMsLayers):
     def __init__(self, iface):
-        QObject.__init__(self)
+        TOMsLayers.__init__(self, iface)
         self.iface = iface
-
-        QgsMessageLog.logMessage("In TOMSLayers.init ...", tag="TOMs panel")
-        #self.proposalsManager = proposalsManager
-
+        QgsMessageLog.logMessage("In gpsLayers.init ...", tag="TOMs panel")
         # TODO: Load these from a local file - or database
-
-        #RestrictionsLayers = QgsMapLayerRegistry.instance().mapLayersByName("RestrictionLayers")[0]
         self.TOMsLayerList = [
             "Bays",
             "Lines",
@@ -180,100 +105,16 @@ class TOMSLayers(QObject):
                          ]
         self.TOMsLayerDict = {}
 
-    def getLayers(self):
-
-        QgsMessageLog.logMessage("In TOMSLayers.getLayers ...", tag="TOMs panel")
-        found = True
-
-        # Check for project being open
-        project = QgsProject.instance()
-
-        if len(project.fileName()) == 0:
-            QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Project not yet open"))
-            found = False
-
-        else:
-
-            for layer in self.TOMsLayerList:
-                if QgsProject.instance().mapLayersByName(layer):
-                    self.TOMsLayerDict[layer] = QgsProject.instance().mapLayersByName(layer)[0]
-                else:
-                    QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Table " + layer + " is not present"))
-                    found = False
-                    break
-
-        # TODO: need to deal with any errors arising ...
-
-        if found == False:
-            self.TOMsLayersNotFound.emit()
-        else:
-            self.TOMsLayersSet.emit()
-
-        return
-
-    def setLayer(self, layer):
-        return self.TOMsLayerDict.get(layer)
-
 class gpsParams(TOMsParams):
-
-    gpsParamsNotFound = pyqtSignal()
-    """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
-    gpsParamsSet = pyqtSignal()
-    """ signal will be emitted if there is a problem with opening TOMs - typically a layer missing """
-
-    def __init__(self, iface):
+    def __init__(self):
         TOMsParams.__init__(self)
-        self.iface = iface
+        #self.iface = iface
 
         QgsMessageLog.logMessage("In gpsParams.init ...", tag="TOMs panel")
 
         self.TOMsParamsList.extend([
                           "gpsPort"
                                ])
-        #self.gpsParamsDict = {}
-
-        """def getParams(self):
-
-        found = True
-        # QgsMessageLog.logMessage("In TOMSLayers.getParams ...", tag="TOMs panel")
-        if TOMsParams.getParams(self):
-
-            # Check for project being open
-            currProject = QgsProject.instance()
-
-            if len(currProject.fileName()) == 0:
-                QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Project not yet open"))
-                found = False
-
-            else:
-
-                for param in self.gpsParamsList:
-
-                    try:
-                        currParam = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable(param)
-                    except None:
-                        QMessageBox.information(self.iface.mainWindow(), "ERROR",
-                                                ("Property " + param + " is not present"))
-
-                    if len(str(currParam)) > 0:
-                        self.TOMsParamsDict[param] = currParam
-                        QgsMessageLog.logMessage("In gpsLayers.getParams ... set " + str(param) + " as " + str(currParam),
-                            tag="TOMs panel")
-                    else:
-                        QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Property " + param + " is not present"))
-                        found = False
-                        break
-
-            if found == False:
-                self.gpsParamsNotFound.emit()
-            else:
-                self.gpsParamsSet.emit()
-
-        return
-
-        def setGpsParam(self, param):
-        return self.gpsParamsDict.get(param)
-        """
 
 class originalFeature(object):
     def __init__(self, feature=None):

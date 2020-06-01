@@ -60,7 +60,7 @@ import os, time
 from .mapTools import CreateRestrictionTool, CreatePointTool
 #from TOMsUtils import *
 
-from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, TOMSLayers, gpsParams
+from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
 from .SelectTool import GeometryInfoMapTool
 from .formManager import mtrForm
 
@@ -151,12 +151,12 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         #self.gps_thread.gpsActivated.connect(functools.partial(self.gpsStarted))
         #self.gps_thread.gpsDeactivated.connect(functools.partial(self.gpsStopped))
 
-        self.tableNames = TOMSLayers(self.iface)
-        params = gpsParams(self.iface)
+        self.tableNames = gpsLayers(self.iface)
+        params = gpsParams()
 
         self.tableNames.TOMsLayersNotFound.connect(self.setCloseTOMsFlag)
         #self.tableNames.gpsLayersNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
-        params.gpsParamsNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
+        params.TOMsParamsNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
 
         self.prj = QgsProject().instance()
         self.dest_crs = self.prj.crs()
@@ -282,11 +282,37 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.iface.currentLayerChanged.connect(self.changeCurrLayer)
             self.canvas.mapToolSet.connect(self.changeMapTool)
 
+            if self.currLayer.isEditable() == True:
+                if self.currLayer.commitChanges() == False:
+                    reply = QMessageBox.information(None, "Information",
+                                                    "Problem committing changes" + str(currLayer.commitErrors()),
+                                                    QMessageBox.Ok)
+                else:
+                    QgsMessageLog.logMessage("In doCreateRestriction: changes committed", tag="TOMs panel")
+
+            if self.currLayer.readOnly() == True:
+                # Set different form
+                # currLayer.editFormConfig().setUiForm(...)
+                """reply = QMessageBox.information(None, "Information",
+                                                "Could not start transaction on " + self.currLayer.name(), QMessageBox.Ok)
+                return"""
+                QgsMessageLog.logMessage("In doCreateRestriction - Not able to start transaction ...",
+                                         tag="TOMs panel")
+
+            else:
+                if self.currLayer.startEditing() == False:
+                    reply = QMessageBox.information(None, "Information",
+                                                    "Could not start transaction on " + self.currLayer.name(),
+                                                    QMessageBox.Ok)
+                    return
+
         else:
 
             QgsMessageLog.logMessage("In doCreateRestriction - tool deactivated", tag="TOMs panel")
 
             self.iface.mapCanvas().unsetMapTool(self.mapTool)
+            #self.mapTool.deactivate()
+
             self.mapTool = None
             self.actionCreateRestriction.setChecked(False)
             self.gpsMapTool = False
@@ -371,7 +397,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                 self.detailsMapToolDict[self.currLayer] =  self.mapTool
 
             self.mapTool.setAction(self.actionRestrictionDetails)
-            self.iface.mapCanvas().setMapTool(self.mapTool)
+            #self.iface.mapCanvas().setMapTool(self.mapTool)
             #self.gpsMapTool = True
             self.mapTool.deactivated.connect(functools.partial(self.deactivateAction, self.actionRestrictionDetails))
             #signsLayer.editingStarted.connect(functools.partial(self.createRestrictionStarted))
@@ -379,6 +405,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.canvas.mapToolSet.connect(self.changeMapTool)
 
             self.mapTool.notifyFeatureFound.connect(self.showRestrictionDetails)
+
+            self.iface.mapCanvas().setMapTool(self.mapTool)
 
         else:
 
@@ -551,11 +579,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
             self.actionCreateSign.setChecked(False)
 
-            #self.mapTool = CreatePointTool(self.iface, self.signsLayer)
             self.mapTool.setAction(self.actionCreateSign)
             self.iface.mapCanvas().setMapTool(self.mapTool)
 
-        #self.gpsMapTool = True
 
     def doCreateMTR(self):
 
@@ -652,13 +678,15 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
     def gpsStopped(self):
         QgsMessageLog.logMessage("In enableTools - GPS connection stopped ",
                                      tag="TOMs panel")
+
         self.gps_thread.deleteLater()
-        self.gps_thread.quit()
-        self.gps_thread.wait()
-        #gps_thread.deleteLater()
+        self.thread.quit()
+        self.thread.wait()
+        self.thread.deleteLater()
 
         if self.gpsAvailable:
             if self.canvas is not None:
+                self.marker.hide()
                 self.canvas.scene().removeItem(self.marker)
 
         """self.actionCreateRestriction.setEnabled(False)

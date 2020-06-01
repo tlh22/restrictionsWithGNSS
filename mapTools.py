@@ -625,6 +625,11 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         QgsMessageLog.logMessage(("In CreateRestrictionTool - activated."), tag="TOMs panel")
         self.alreadyExists = True"""
 
+    def deactivate(self):
+        QgsMessageLog.logMessage(("In CreateRestrictionTool - deactivated."), tag="TOMs panel")
+        QgsMapTool.deactivate(self)
+        self.deactivated.emit()
+
 class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
 
     def __init__(self, iface, layer):
