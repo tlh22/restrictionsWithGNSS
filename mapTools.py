@@ -40,6 +40,7 @@ from qgis.PyQt.QtCore import (
 from qgis.PyQt.QtWidgets import QMenu, QAction, QDockWidget, QMessageBox, QToolTip
 
 from qgis.core import (
+    Qgis,
     QgsGeometry,
     QgsGeometryCollection,
     QgsCurve,
@@ -69,7 +70,9 @@ from qgis.gui import (
     QgsMapToolEmitPoint
 )
 
+
 from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin
+#from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 import functools
 
@@ -486,10 +489,10 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         if self.nrPoints > 0:
 
-            if self.layer.startEditing() == False:
+            """if self.layer.startEditing() == False:
                 reply = QMessageBox.information(None, "Information",
                                                 "Could not start transaction on " + self.layer.name(),
-                                                QMessageBox.Ok)
+                                                QMessageBox.Ok)"""
 
             # take points from the rubber band and copy them into the "feature"
 

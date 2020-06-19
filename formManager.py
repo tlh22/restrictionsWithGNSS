@@ -68,6 +68,7 @@ from .mapTools import CreateRestrictionTool, CreatePointTool
 from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
 from .SelectTool import GeometryInfoMapTool
 from .MTR_Tools import getLinkDetailsMapTool
+from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 import functools
 

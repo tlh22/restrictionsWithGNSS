@@ -43,6 +43,7 @@ from qgis.PyQt.QtCore import (
 )
 
 from qgis.core import (
+    Qgis,
     QgsExpressionContextUtils,
     QgsExpression,
     QgsFeatureRequest,
@@ -53,7 +54,9 @@ from qgis.core import (
     QgsApplication
 )
 
+#from TOMs.core.TOMsMessageLog import TOMsMessageLog
 from .manage_feature_creation import captureGPSFeatures
+
 
 import os.path
 import time

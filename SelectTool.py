@@ -63,6 +63,7 @@ from qgis.core import (
 )
 from qgis.core import *
 from qgis.gui import *
+#from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 #from .formUtils import demandFormUtils
 
@@ -181,9 +182,9 @@ class GeometryInfoMapTool(QgsMapToolIdentify):
                                      tag="TOMs panel")
 
             feature, layer = self.getFeatureDetails(featureList, layerList)
-
-            QgsMessageLog.logMessage("In findNearestFeatureAt: feature: " + str(feature.attribute('id')),
-                                     tag="TOMs panel")
+            # TODO: Need to pick up primary key(s)
+            """QgsMessageLog.logMessage("In findNearestFeatureAt: feature: " + str(feature.attribute('id')),
+                                     tag="TOMs panel")"""
 
             return feature, layer
 
@@ -231,8 +232,9 @@ class GeometryInfoMapTool(QgsMapToolIdentify):
             QgsMessageLog.logMessage("In getFeatureDetails: idx = " + str(idxList), tag="TOMs panel")
 
             if idxList >= 0:
-                QgsMessageLog.logMessage("In getFeatureDetails: feat = " + str(featureList[idxList].attribute('id')),
-                                         tag="TOMs panel")
+                # TODO: need to be careful here so that we use primary key
+                """QgsMessageLog.logMessage("In getFeatureDetails: feat = " + str(featureList[idxList].attribute('id')),
+                                         tag="TOMs panel")"""
                 return featureList[idxList], layerList[idxList]
 
         QgsMessageLog.logMessage(("In getFeatureDetails. No action found."), tag="TOMs panel")
