@@ -54,7 +54,7 @@ from qgis.core import (
     QgsApplication
 )
 
-#from TOMs.core.TOMsMessageLog import TOMsMessageLog
+from TOMs.core.TOMsMessageLog import TOMsMessageLog
 from .manage_feature_creation import captureGPSFeatures
 
 
@@ -112,6 +112,10 @@ class featuresWithGPS:
             self.filename = os.path.join(logFilePath, logfile)
             QgsMessageLog.logMessage("Sorting out log file" + self.filename, tag="TOMs panel")
             QgsApplication.instance().messageLog().messageReceived.connect(self.write_log_message)
+
+        # Set up local logging
+        #loggingUtils = TOMsMessageLog()
+        #loggingUtils.setLogFile()
 
         QgsMessageLog.logMessage("Finished init", tag="TOMs panel")
         #self.toolbar = self.iface.addToolBar(u'Test5Class')
@@ -194,7 +198,6 @@ class featuresWithGPS:
 
             self.closeGPSTools()
 
-        pass
 
     def openGPSTools(self):
         # actions when the Proposals Panel is closed or the toolbar "start" is toggled
@@ -233,7 +236,7 @@ class featuresWithGPS:
 
         self.gpsTools.disableFeaturesWithGPSToolbarItems()
 
-        pass
+
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""

@@ -48,7 +48,7 @@ from qgis.core import (
     QgsExpressionContextUtils,
     QgsExpression,
     QgsFeatureRequest,
-    TOMsMessageLog,
+    QgsMessageLog,
     QgsFeature,
     QgsGeometry,
     QgsTransaction,
@@ -64,8 +64,8 @@ import os
 #import cv2
 
 from abc import ABCMeta
-from .generateGeometryUtils import generateGeometryUtils
-#from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers, originalFeature, RestrictionTypeUtilsMixin)
+from TOMs.generateGeometryUtils import generateGeometryUtils
+from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers, originalFeature, RestrictionTypeUtilsMixin)
 
 from TOMs.ui.TOMsCamera import (formCamera)
 try:
@@ -76,13 +76,13 @@ except ImportError:
     cv2_available = False
 
 import uuid
-#from TOMs.core.TOMsMessageLog import TOMsMessageLog
+from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 class gpsLayers(TOMsLayers):
     def __init__(self, iface):
         TOMsLayers.__init__(self, iface)
         self.iface = iface
-        TOMsMessageLog.logMessage("In gpsLayers.init ...", level=Qgis.Info)
+        #TOMsMessageLog.logMessage("In gpsLayers.init ...", level=Qgis.Info)
         # TODO: Load these from a local file - or database
         self.TOMsLayerList = [
             "Bays",
@@ -114,16 +114,16 @@ class gpsParams(TOMsParams):
         TOMsParams.__init__(self)
         #self.iface = iface
 
-        TOMsMessageLog.logMessage("In gpsParams.init ...", level=Qgis.Info)
+        #TOMsMessageLog.logMessage("In gpsParams.init ...", level=Qgis.Info)
 
         self.TOMsParamsList.extend([
                           "gpsPort",
                           "cameraNr"
                                ])
 
-class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
+class FieldRestrictionTypeUtilsMixin():
     def __init__(self, iface):
-        RestrictionTypeUtilsMixin.__init__(self)
+        #RestrictionTypeUtilsMixin.__init__(self, iface)
         self.iface = iface
         self.settings = QgsSettings()
 
@@ -137,13 +137,17 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
 
         try:
             currRestriction.setAttribute("CreateDateTime", currDate)
-        except Exception:
+        except Exception as e:
             None
 
-        generateGeometryUtils.setRoadName(currRestriction)
-        if currRestrictionLayer.geometryType() == 1:  # Line or Bay
+        try:
+            generateGeometryUtils.setRoadName(currRestriction)
+        except Exception as e:
+            None
+
+        """if currRestrictionLayer.geometryType() == 1:  # Line or Bay
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
-            currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
+            currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())"""
 
 
         #currentCPZ, cpzWaitingTimeID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
@@ -161,6 +165,9 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
             #currRestriction.setAttribute("CreateDateTime", currDate)
             currRestriction.setAttribute("UnacceptableTypeID", self.readLastUsedDetails("Lines", "UnacceptableTypeID", None))
 
+            generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
+            currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
+
         elif currRestrictionLayer.name() == "Bays":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Bays", "RestrictionTypeID", 101))  # 28 = Permit Holders Bays (Bays)
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Bays", "GeomShapeID", 1)) # 21 = Parallel Bay (Polygon)
@@ -171,6 +178,8 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
             #currRestriction.setAttribute("NoReturnID", ptaNoReturnTimeID)
             #currRestriction.setAttribute("ParkingTariffArea", currentPTA)
             #currRestriction.setAttribute("CreateDateTime", currDate)
+            generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
+            currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
         elif currRestrictionLayer.name() == "Signs":
             currRestriction.setAttribute("SignType_1", self.readLastUsedDetails("Signs", "SignType_1", 28))  # 28 = Permit Holders Only (Signs)
@@ -201,9 +210,13 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
         self.origFeature.setFeature(currRestriction)
 
         if restrictionDialog is None:
+            reply = QMessageBox.information(None, "Error",
+                                            "setupFieldRestrictionDialog. Correct form not found",
+                                            QMessageBox.Ok)
             TOMsMessageLog.logMessage(
                 "In setupRestrictionDialog. dialog not found",
                 level=Qgis.Warning)
+            return
 
         restrictionDialog.attributeForm().disconnectButtonBox()
         button_box = restrictionDialog.findChild(QDialogButtonBox, "button_box")
@@ -212,6 +225,7 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
             TOMsMessageLog.logMessage(
                 "In setupRestrictionDialog. button box not found",
                 level=Qgis.Warning)
+            return
 
         button_box.accepted.connect(functools.partial(self.onSaveFieldRestrictionDetails, currRestriction,
                                       currRestrictionLayer, restrictionDialog))
@@ -220,7 +234,7 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
 
         restrictionDialog.attributeForm().attributeChanged.connect(functools.partial(self.onAttributeChangedClass2_local, currRestriction, currRestrictionLayer))
 
-        self.photoDetails(restrictionDialog, currRestrictionLayer, currRestriction)
+        self.photoDetails_field(restrictionDialog, currRestrictionLayer, currRestriction)
 
         """def onSaveRestrictionDetailsFromForm(self):
         TOMsMessageLog.logMessage("In onSaveRestrictionDetailsFromForm", level=Qgis.Info)
@@ -251,13 +265,6 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
         self.storeLastUsedDetails(layer.name(), fieldName, value)
 
         return
-
-        """def onSaveFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, dialog):
-        TOMsMessageLog.logMessage("In onSaveFieldRestrictionDetails: " + str(currRestriction.attribute("GeometryID")), level=Qgis.Info)
-
-        status = dialog.attributeForm().save()
-        currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
-        #currRestrictionLayer.updateFeature(currRestriction)  # TH (added for v3)"""
 
     def onSaveFieldRestrictionDetails(self, currFeature, currFeatureLayer, dialog):
         TOMsMessageLog.logMessage("In onSaveFieldRestrictionDetails: ", level=Qgis.Info)
@@ -310,7 +317,7 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
                                  level=Qgis.Info)"""
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currActiveLayer: " + str(currFeatureLayer.name()),
                                  level=Qgis.Info)
-        currFeatureLayer
+        #currFeatureLayer
         #Test
         #status = dialog.attributeForm().save()
         #status = dialog.accept()
@@ -353,7 +360,7 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
 
         status = dialog.close()
         #self.mapTool = None
-        self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
+        #self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
 
     def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog, currFeatureLayer):
         TOMsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", level=Qgis.Info)
@@ -370,12 +377,7 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
 
         #del self.mapTool
 
-        """def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog):
-        TOMsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", level=Qgis.Info)
-
-        restrictionDialog.reject()"""
-
-    def photoDetails(self, restrictionDialog, currRestrictionLayer, currRestriction):
+    def photoDetails_field(self, restrictionDialog, currRestrictionLayer, currRestriction):
 
         # Function to deal with photo fields
 
@@ -446,6 +448,7 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
                                      level=Qgis.Info)
             if self.currFeature[idx1]:
                 newPhotoFileName1 = os.path.join(path_absolute, self.currFeature[idx1])
+                TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(newPhotoFileName1), level=Qgis.Warning)
             else:
                 newPhotoFileName1 = None
 
@@ -473,6 +476,7 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
                                      level=Qgis.Info)
             if self.currFeature[idx2]:
                 newPhotoFileName2 = os.path.join(path_absolute, self.currFeature[idx2])
+                TOMsMessageLog.logMessage("In photoDetails. Photo1: " + str(newPhotoFileName2), level=Qgis.Info)
             else:
                 newPhotoFileName2 = None
 
@@ -503,6 +507,7 @@ class FieldRestrictionTypeUtilsMixin(RestrictionTypeUtilsMixin):
 
             if self.currFeature[idx3]:
                 newPhotoFileName3 = os.path.join(path_absolute, self.currFeature[idx3])
+                TOMsMessageLog.logMessage("In photoDetails. Photo1: " + str(newPhotoFileName3), level=Qgis.Info)
             else:
                 newPhotoFileName3 = None
 
