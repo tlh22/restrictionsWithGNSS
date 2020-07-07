@@ -119,8 +119,8 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
             if closestLayer.geometryType() == QgsWkbTypes.LineGeometry:
                 TOMsMessageLog.logMessage(("In Info - canvasReleaseEvent. line layer type "), level=Qgis.Info)
 
-            self.notifyFeatureFound.emit(closestLayer, closestFeature)
-            #self.showRestrictionDetails(closestLayer, closestFeature)
+            #self.notifyFeatureFound.emit(closestLayer, closestFeature)
+            self.showRestrictionDetails(closestLayer, closestFeature)
 
             """TOMsMessageLog.logMessage(
                 "In GeometryInfoMapTool - releaseEvent. currRestrictionLayer: " + str(closestLayer.name()),
@@ -262,11 +262,6 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
         pass
 
         return idx
-
-        """def deactivate(self):
-        TOMsMessageLog.logMessage(("In GeometryInfoMapTool - deactivated."), level=Qgis.Info)
-        QgsMapTool.deactivate(self)
-        self.deactivated.emit()"""
 
     def showRestrictionDetails(self, closestLayer, closestFeature):
 

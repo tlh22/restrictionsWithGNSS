@@ -384,22 +384,12 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         if event.button() == Qt.LeftButton:
             if not self.isCapturing():
                 self.startCapturing()
-            #self.result = self.addVertex(self.toMapCoordinates(event.pos()))
             checkSnapping = event.isSnapped
             TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: checkSnapping = " + str(checkSnapping), level=Qgis.Info)
-
-            """tolerance_nearby = 0.5
-            tolerance = tolerance_nearby
-
-            searchRect = QgsRectangle(self.currPoint.x() - tolerance,
-                                      self.currPoint.y() - tolerance,
-                                      self.currPoint.x() + tolerance,
-                                      self.currPoint.y() + tolerance)"""
 
             #locator = self.snappingUtils.snapToMap(self.currPoint)
 
             # Now wanting to add point(s) to new shape. Take account of snapping and tracing
-            # self.toLayerCoordinates(self.layer, event.pos())
             self.currPoint = event.snapPoint()    #  1 is value of QgsMapMouseEvent.SnappingMode (not sure where this is defined)
             self.lastEvent = event
             # If this is the first point, add and k
@@ -414,33 +404,6 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
             else:
 
-                # check for shortest line
-                """resVectorList = self.TOMsTracer.findShortestPath(self.lastPoint, self.currPoint)
-
-                TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: traceList" + str(resVectorList), level=Qgis.Info)
-                TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: traceList" + str(resVectorList[1]), level=Qgis.Info)
-                if resVectorList[1] == 0:
-                    # path found, add the points to the list
-                    TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent (found path) ", level=Qgis.Info)
-
-                    #self.points.extend(resVectorList)
-                    initialPoint = True
-                    for point in resVectorList[0]:
-                        if not initialPoint:
-
-                            TOMsMessageLog.logMessage(("In CreateRestrictionTool - cadCanvasReleaseEvent (found path) X:" + str(
-                                point.x()) + " Y: " + str(point.y())), level=Qgis.Info)
-
-                            self.result = self.addVertex(point)
-
-                        initialPoint = False
-
-                    TOMsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent (added shortest path)"),
-                                             level=Qgis.Info)
-
-                else:"""
-                    # error encountered, add just the curr point ??
-
                 self.result = self.addVertex(self.currPoint)
                 TOMsMessageLog.logMessage(("In CreateRestrictionTool - (adding shortest path) X:" + str(self.currPoint.x()) + " Y: " + str(self.currPoint.y())), level=Qgis.Info)
 
@@ -450,7 +413,6 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         elif (event.button() == Qt.RightButton):
             # Stop capture when right button or escape key is pressed
-            #points = self.getCapturedPoints()
             self.getPointsCaptured()
 
             # Need to think about the default action here if none of these buttons/keys are pressed.
@@ -483,11 +445,6 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         if self.nrPoints > 0:
 
-            """if self.layer.startEditing() == False:
-                reply = QMessageBox.information(None, "Information",
-                                                "Could not start transaction on " + self.layer.name(),
-                                                QMessageBox.Ok)"""
-
             # take points from the rubber band and copy them into the "feature"
 
             fields = self.layer.dataProvider().fields()
@@ -507,10 +464,6 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
                 TOMsMessageLog.logMessage(("In CreateRestrictionTool - no geometry type found"), level=Qgis.Info)
                 return
 
-            # Currently geometry is not being created correct. Might be worth checking co-ord values ...
-
-            #self.valid = feature.isValid()
-
             TOMsMessageLog.logMessage(("In Create - getPointsCaptured; geometry prepared; " + str(feature.geometry().asWkt())),
                                      level=Qgis.Info)
 
@@ -522,29 +475,8 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
                 self.setDefaultFieldRestrictionDetails(feature, self.layer, QDate.currentDate())
 
-                # is there any other tidying to do ??
-
-                #self.layer.startEditing()
-                #dialog = self.iface.getFeatureForm(self.layer, feature)
-
-                #currForm = dialog.attributeForm()
-                #currForm.disconnectButtonBox()
-
                 TOMsMessageLog.logMessage("In CreateRestrictionTool - getPointsCaptured. currRestrictionLayer: " + str(self.layer.name()),
                                          level=Qgis.Info)
-
-                #button_box = currForm.findChild(QDialogButtonBox, "button_box")
-                #button_box.accepted.disconnect(currForm.accept)
-
-                # Disconnect the signal that QGIS has wired up for the dialog to the button box.
-                # button_box.accepted.disconnect(restrictionsDialog.accept)
-                # Wire up our own signals.
-                #button_box.accepted.connect(functools.partial(RestrictionTypeUtils.onSaveRestrictionDetails, feature, self.layer, currForm))
-                #button_box.rejected.connect(dialog.reject)
-
-                # To allow saving of the original feature, this function follows changes to attributes within the table and records them to the current feature
-                #currForm.attributeChanged.connect(functools.partial(self.onAttributeChanged, feature))
-                # Can we now implement the logic from the form code ???
 
                 #newRestrictionID = str(uuid.uuid4())
                 #feature[self.layer.fields().indexFromName("GeometryID")] = newRestrictionID
@@ -556,50 +488,8 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
                 self.inProcess = False
                 dialog.show()
-                #self.iface.openFeatureForm(self.layer, feature, False, False)
 
             pass
-
-        #def onAttributeChanged(self, feature, fieldName, value):
-        # TOMsMessageLog.logMessage("In restrictionFormOpen:onAttributeChanged - layer: " + str(layer.name()) + " (" + str(feature.attribute("RestrictionID")) + "): " + fieldName + ": " + str(value), level=Qgis.Info)
-
-        #feature.setAttribute(fieldName, value)
-
-    """def prepareCurrentRestriction(self):
-
-        fields = self.layer.dataProvider().fields()
-        feature = QgsFeature()
-        feature.setFields(fields)
-
-        TOMsMessageLog.logMessage(
-            ("In CreateRestrictionTool. getPointsCaptured, layerType: " + str(self.layer.geometryType())),
-            level=Qgis.Info)
-
-        if self.layer.geometryType() == 0:  # Point
-            feature.setGeometry(QgsGeometry.fromPointXY(self.sketchPoints[0]))
-        elif self.layer.geometryType() == 1:  # Line
-            feature.setGeometry(QgsGeometry.fromPolylineXY(self.sketchPoints))
-        elif self.layer.geometryType() == 2:  # Polygon
-            feature.setGeometry(QgsGeometry.fromPolygonXY([self.sketchPoints]))
-            # feature.setGeometry(QgsGeometry.fromPolygonXY(self.sketchPoints))
-        else:
-            TOMsMessageLog.logMessage(("In CreateRestrictionTool - no geometry type found"), level=Qgis.Info)
-            return
-
-        TOMsMessageLog.logMessage(
-            ("In Create - getPointsCaptured; geometry prepared; " + str(feature.geometry().asWkt())),
-            level=Qgis.Info)
-
-        if self.layer.name() == "ConstructionLines":
-            self.layer.addFeature(feature)
-            pass
-        else:
-
-            TOMsMessageLog.logMessage(
-                "In CreateRestrictionTool - getPointsCaptured. currRestrictionLayer: " + str(self.layer.name()),
-                level=Qgis.Info)
-
-            self.layer.addFeature(feature)  # TH (added for v3)"""
 
 
     def addPointFromGPS(self, curr_gps_location, curr_gps_info):
@@ -612,19 +502,6 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         # TODO: opportunity to add details about GPS point to another table
 
         return status
-
-        """def deactivated(self):
-        TOMsMessageLog.logMessage(("In CreateRestrictionTool - deactivated."), level=Qgis.Info)
-        self.deActivatedInProcess.emit(self.inProcess)"""
-
-        """def activated(self):
-        TOMsMessageLog.logMessage(("In CreateRestrictionTool - activated."), level=Qgis.Info)
-        self.alreadyExists = True"""
-
-        """def deactivate(self):
-        TOMsMessageLog.logMessage(("In CreateRestrictionTool - deactivated."), level=Qgis.Info)
-        #QgsMapTool.deactivate(self)
-        self.deactivated.emit()"""
 
 class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
 
