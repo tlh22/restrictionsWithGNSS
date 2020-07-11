@@ -220,45 +220,28 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
             time.sleep(1.0)
 
-            if self.gpsConnection:
-                TOMsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems - GPS connection found ",
-                                         level=Qgis.Info)
-
-                reply = QMessageBox.information(None, "Information",
-                                                "Connection found",
-                                                QMessageBox.Ok)
-
-                #self.actionCreateRestriction.setEnabled(True)
-                #self.actionAddGPSLocation.setEnabled(True)
-
-            else:
-                reply = QMessageBox.information(None, "Error",
-                                        "Connection NOT found",
-                                        QMessageBox.Ok)
-
         self.enableToolbarItems()
 
         self.createMapToolDict = {}
-        #self.detailsMapToolDict = {}
-        #self.deleteMapToolDict = {}
 
     def enableToolbarItems(self):
+        TOMsMessageLog.logMessage("In enableToolbarItems", level=Qgis.Warning)
         self.actionCreateRestriction.setEnabled(True)
         self.actionRestrictionDetails.setEnabled(True)
         self.actionRemoveRestriction.setEnabled(True)
         self.actionCreateSign.setEnabled(True)
         self.actionCreateMTR.setEnabled(True)
 
-        if self.gpsConnection:
-            self.actionAddGPSLocation.setEnabled(True)
-            self.lastCentre = QgsPointXY(0,0)
-            #self.canvas.extentsChanged.connect(self.sync)
-
         self.currMapTool = None
         self.theCurrentMapTool = None
 
         self.iface.currentLayerChanged.connect(self.changeCurrLayer2)
         self.canvas.mapToolSet.connect(self.changeMapTool2)
+
+    def enableGnssToolbarItem(self):
+        if self.gpsConnection:
+            self.actionAddGPSLocation.setEnabled(True)
+            self.lastCentre = QgsPointXY(0,0)
 
     def disableToolbarItems(self):
 
@@ -270,8 +253,6 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         if self.gpsConnection:
             self.actionAddGPSLocation.setEnabled(False)
-            #self.canvas.extentsChanged.disconnect(self.sync)
-
 
     def setCloseTOMsFlag(self):
         self.closeTOMs = True
@@ -282,8 +263,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
     def disableFeaturesWithGPSToolbarItems(self):
 
-        TOMsMessageLog.logMessage("In disablefeaturesWithGPSToolbarItems", level=Qgis.Info)
-        #if not self.closeCaptureGPSFeatures:
+        TOMsMessageLog.logMessage("In disablefeaturesWithGPSToolbarItems", level=Qgis.Warning)
         if self.gpsConnection and not self.closeTOMs:
             self.gps_thread.endGPS()
 
@@ -314,8 +294,6 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                     e),
                 level=Qgis.Warning)
 
-    """def sync(self):
-        self.canvas.refresh()"""
 
     def onGroupTriggered(self, action):
         # hold the current action
@@ -391,6 +369,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         TOMsMessageLog.logMessage("In doCreateRestriction. Here 4", level=Qgis.Warning)
 
+    """ 
+        Using signals for ChangeTool and ChangeLayer to manage the tools - with the following functions
+    """
     def isGnssTool(self, mapTool):
 
         if (isinstance(mapTool, CreateRestrictionTool) or
@@ -434,7 +415,11 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             "In changeLayer2. finished.", level=Qgis.Warning)
         print('layer changed')
 
+    # -- end of tools for signals
+
     def doAddGPSLocation(self):
+
+        # need to have a addPointFromGPS function within each tool
 
         TOMsMessageLog.logMessage("In doAddGPSLocation", level=Qgis.Info)
 
@@ -458,7 +443,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                                             QMessageBox.Ok)
 
     def doRestrictionDetails(self):
-        """ Select point and then display details. Assume that there is only one of these map tools in existence at any one time ??
+        """
+            Select point and then display details. Assume that there is only one of these map tools in existence at any one time ??
         """
         TOMsMessageLog.logMessage("In doRestrictionDetails", level=Qgis.Info)
 
@@ -525,6 +511,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         self.dialog.show()
 
+    """
+        Decided that it is best to use the QGIS select/delete tools to manage removals. So these functions are not used
+    """
     def doRemoveRestriction(self):
 
         TOMsMessageLog.logMessage("In doRemoveRestriction", level=Qgis.Info)
@@ -610,6 +599,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         else:
             TOMsMessageLog.logMessage("In removeRestriction: changes committed", level=Qgis.Info)
 
+    """
+        This is a tool for adding a point feature. currently only used for signs, but could be used for any point
+    """
     def doCreateSign(self):
 
         TOMsMessageLog.logMessage("In doCreateSign", level=Qgis.Info)
@@ -631,7 +623,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
             self.iface.mapCanvas().setMapTool(self.createPointMapTool)
 
-
+    """
+        Not currently used, but want to develop ...
+    """
     def doCreateMTR(self):
 
         TOMsMessageLog.logMessage("In doCreateMTR", level=Qgis.Info)
@@ -677,6 +671,10 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             "In generateFirstStageForm::selectionchange.  " + text, level=Qgis.Info)
         res = mtrFormFactory.prepareForm(self.iface, self.dbConn, self.dialog, text)
 
+    """
+        Used with the createSign tool to reinstate the last used maptool, i.e., to allow the interupt of feature creation
+    """
+
     def reinstateMapTool(self):
 
         TOMsMessageLog.logMessage("In reinstateMapTool ... ", level=Qgis.Info)
@@ -693,7 +691,6 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
             self.iface.mapCanvas().setMapTool(self.currMapTool)
 
-
     #@pyqtSlot(QgsGpsConnection)
     def gpsStarted(self, connection):
         TOMsMessageLog.logMessage("In enableTools - GPS connection found ",
@@ -708,17 +705,10 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.marker.setIconType(QgsVertexMarker.ICON_CIRCLE)
         self.marker.setPenWidth(3)
 
-        """reply = QMessageBox.information(None, "Error",
+        self.enableGnssToolbarItem()
+        reply = QMessageBox.information(None, "Information",
                                             "Connection found",
-                                            QMessageBox.Ok)"""
-
-        """self.actionCreateRestriction.setEnabled(True)
-        self.actionAddGPSLocation.setEnabled(True)
-        self.actionRestrictionDetails.setEnabled(True)
-        self.actionRemoveRestriction.setEnabled(True)
-        self.actionCreateSign.setEnabled(True)"""
-
-        self.enableToolbarItems()
+                                            QMessageBox.Ok)
 
     #@pyqtSlot()
     def gpsStopped(self):
@@ -737,15 +727,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         self.gpsConnection = None
 
-        """self.actionCreateRestriction.setEnabled(False)
-        self.actionAddGPSLocation.setEnabled(False)
-        self.actionRestrictionDetails.setEnabled(False)
-        self.actionRemoveRestriction.setEnabled(False)"""
-
-        #self.disableToolbarItems()
-
     #@pyqtSlot()
-    #def gpsPositionProvided(self):
     def gpsPositionProvided(self, mapPointXY, gpsInfo):
         """reply = QMessageBox.information(None, "Information",
                                             "Position provided",
