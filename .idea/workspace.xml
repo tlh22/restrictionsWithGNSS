@@ -1,9 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="2094ee45-18da-4c12-b946-fd1ca9d6b40e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/DATAMODEL/0006_islington_indexes.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/TOMs_Test_Field.qgz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/TOMs_Test_Field_officeArea.qgz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Bays_field.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Lines_field.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/MovingTrafficPolygons_190507.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/restrictionBayDetails_dialog_base2_qt5.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/restrictionLineDetails_dialog_base2_qt5.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/restrictionPolygonDetails_dialog_base_qt5.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/restrictionSignsDetails_dialog_base_qt5.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manage_feature_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage_feature_creation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mapTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/mapTools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources.qrc" beforeDir="false" afterPath="$PROJECT_DIR$/resources.qrc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,12 +47,15 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1dzUKkqC2cmIXEukdfBUlmTXOQx" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -37,14 +73,28 @@
     </task>
     <servers />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
   <component name="WindowStateProjectService">
     <state x="589" y="222" key="RollbackChangesDialog" timestamp="1593501025479">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="589" y="222" key="RollbackChangesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1593501025479" />
-    <state x="666" y="253" width="773" height="710" key="find.popup" timestamp="1593463718515">
+    <state x="666" y="253" width="773" height="710" key="find.popup" timestamp="1594961275058">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="666" y="253" width="773" height="710" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1593463718515" />
+    <state x="666" y="253" width="773" height="710" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1594961275058" />
   </component>
 </project>

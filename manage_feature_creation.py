@@ -58,6 +58,7 @@ import os, time
 
 # from .CadNodeTool.TOMsNodeTool import TOMsNodeTool
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
+from TOMs.search_bar import searchBar
 from .mapTools import CreateRestrictionTool, CreatePointTool
 #from TOMsUtils import *
 
@@ -153,17 +154,17 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.actionCreateSign.setEnabled(False)
         #self.actionCreateMTR.setEnabled(False)
 
+        self.searchBar = searchBar(self.iface, self.featuresWithGPSToolbar)
+        self.searchBar.disableSearchBar()
+
         self.mapTool = None
+        self.currGnssAction = None
 
     def enableFeaturesWithGPSToolbarItems(self):
 
-        TOMsMessageLog.logMessage("In enablefeaturesWithGPSToolbarItems", level=Qgis.Info)
+        TOMsMessageLog.logMessage("In enablefeaturesWithGPSToolbarItems", level=Qgis.Warning)
         self.gpsAvailable = False
         self.closeTOMs = False
-        #self.closeCaptureGPSFeatures = False
-
-        #self.gps_thread.gpsActivated.connect(functools.partial(self.gpsStarted))
-        #self.gps_thread.gpsDeactivated.connect(functools.partial(self.gpsStopped))
 
         self.tableNames = gpsLayers(self.iface)
         self.params = gpsParams()
@@ -175,7 +176,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.prj = QgsProject().instance()
         self.dest_crs = self.prj.crs()
         TOMsMessageLog.logMessage("In captureGPSFeatures::init project CRS is " + self.dest_crs.description(),
-                                 level=Qgis.Info)
+                                 level=Qgis.Warning)
         self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4326"), self.dest_crs,
                                                      self.prj)
 
@@ -190,7 +191,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         # Now check to see if the port is set. If not assume that just normal tools
 
         gpsPort = self.params.setParam("gpsPort")
-        TOMsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems: GPS port is: {}".format(gpsPort), level=Qgis.Info)
+        TOMsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems: GPS port is: {}".format(gpsPort), level=Qgis.Warning)
         self.gpsConnection = None
 
         if gpsPort:
@@ -232,11 +233,14 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.actionCreateSign.setEnabled(True)
         self.actionCreateMTR.setEnabled(True)
 
+        self.searchBar.enableSearchBar()
+
         self.currMapTool = None
         self.theCurrentMapTool = None
 
         self.iface.currentLayerChanged.connect(self.changeCurrLayer2)
         self.canvas.mapToolSet.connect(self.changeMapTool2)
+        self.canvas.extentsChanged.connect(self.changeExtents)
 
     def enableGnssToolbarItem(self):
         if self.gpsConnection:
@@ -251,11 +255,14 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.actionCreateSign.setEnabled(False)
         self.actionCreateMTR.setEnabled(False)
 
+        self.searchBar.disableSearchBar()
+
         if self.gpsConnection:
             self.actionAddGPSLocation.setEnabled(False)
 
     def setCloseTOMsFlag(self):
         self.closeTOMs = True
+        QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Now closing TOMs ..."))
 
     def setCloseCaptureGPSFeaturesFlag(self):
         self.closeCaptureGPSFeatures = True
@@ -294,6 +301,13 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                     e),
                 level=Qgis.Warning)
 
+        try:
+            self.canvas.extentsChanged.disconnect(self.changeExtents)
+        except Exception as e:
+            TOMsMessageLog.logMessage(
+                "In disableFeaturesWithGPSToolbarItems. Issue with disconnects for extentsChanged {}".format(
+                    e),
+                level=Qgis.Warning)
 
     def onGroupTriggered(self, action):
         # hold the current action
@@ -416,6 +430,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         print('layer changed')
 
     # -- end of tools for signals
+
+    def changeExtents(self):
+        TOMsMessageLog.logMessage("In changeExtents ... ", level=Qgis.Warning)
 
     def doAddGPSLocation(self):
 
@@ -694,7 +711,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
     #@pyqtSlot(QgsGpsConnection)
     def gpsStarted(self, connection):
         TOMsMessageLog.logMessage("In enableTools - GPS connection found ",
-                                     level=Qgis.Warning)
+                                     level=Qgis.Info)
 
         self.gpsConnection = connection
 
@@ -754,10 +771,16 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.marker.setColor(QColor(255, 0, 0))
         self.marker.setCenter(mapPointXY)
         self.marker.show()
-        self.canvas.setCenter(mapPointXY)
+        #self.canvas.setCenter(mapPointXY)
 
+        """TOMsMessageLog.logMessage("In enableTools: distance from last fix: {}".format(self.lastCentre.distance(mapPointXY)),
+                                     level=Qgis.Info)"""
         if self.lastCentre.distance(mapPointXY) > 5.0:
             self.lastCentre = mapPointXY
+            self.canvas.setCenter(mapPointXY)
+            TOMsMessageLog.logMessage(
+                "In enableTools: distance from last fix: {}".format(self.lastCentre.distance(mapPointXY)),
+                level=Qgis.Warning)
             self.canvas.refresh()
 
         # TODO: populate message bar with details about satellites, etc

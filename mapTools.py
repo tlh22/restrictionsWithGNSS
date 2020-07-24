@@ -261,7 +261,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         elif layer.geometryType() == 2: # PolygonGeometry:
             captureMode = (CreateRestrictionTool.CapturePolygon)
         else:
-            TOMsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), level=Qgis.Info)
+            TOMsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), level=Qgis.Warning)
             return
 
         QgsMapToolCapture.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
@@ -474,13 +474,14 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
                 # set any geometry related attributes ...
 
                 self.setDefaultFieldRestrictionDetails(feature, self.layer, QDate.currentDate())
-
+                self.layer.addFeature(feature)  # TH (added for v3)
+                #self.layer.reload()
                 TOMsMessageLog.logMessage("In CreateRestrictionTool - getPointsCaptured. currRestrictionLayer: " + str(self.layer.name()),
                                          level=Qgis.Info)
 
                 #newRestrictionID = str(uuid.uuid4())
                 #feature[self.layer.fields().indexFromName("GeometryID")] = newRestrictionID
-                self.layer.addFeature(feature)  # TH (added for v3)
+
 
                 dialog = self.iface.getFeatureForm(self.layer, feature)
 

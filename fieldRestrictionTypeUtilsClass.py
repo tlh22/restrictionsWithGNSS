@@ -21,7 +21,8 @@ from qgis.PyQt.QtWidgets import (
     QDialog,
     QLabel,
     QPushButton,
-    QApplication
+    QApplication,
+    QComboBox
 )
 
 from qgis.PyQt.QtGui import (
@@ -35,7 +36,7 @@ from qgis.PyQt.QtCore import (
     QTimer,
     QThread,
     pyqtSignal,
-    pyqtSlot
+    pyqtSlot, Qt
 )
 
 from qgis.PyQt.QtSql import (
@@ -60,7 +61,7 @@ from qgis.core import (
 from qgis.gui import *
 import functools
 import time, datetime
-import os
+import os, uuid
 #import cv2
 
 from abc import ABCMeta
@@ -96,16 +97,30 @@ class gpsLayers(TOMsLayers):
             "RoadCentreLine",
             "RoadCasement",
             # "RestrictionTypes",
+            "AdditionalConditionTypes",
             "BayLineTypes",
-            # "BayTypes",
-            # "LineTypes",
-            # "RestrictionPolygonTypes",
+            "BayTypesInUse",
+            "BayTypesInUse_View",
+            "LineTypesInUse",
+            "LineTypesInUse_View",
+            "RestrictionPolygonTypes",
+            "RestrictionPolygonTypesInUse",
+            "RestrictionPolygonTypesInUse_View",
             "LengthOfTime",
             "PaymentTypes",
-            "RestrictionShapeTypes",
+            #"RestrictionShapeTypes",
+            "MHTC_CheckIssueTypes",
+            #"MHTC_CheckStatus",
+            "SignConditionTypes",
+            "SignIlluminationTypes",
+            "SignOrientationTypes",
             "SignTypes",
+            "SignTypesInUse",
+            "SignTypesInUse_View",
             "TimePeriods",
-            "UnacceptabilityTypes"
+            "TimePeriodsInUse",
+            "TimePeriodsInUse_View",
+            "UnacceptableTypes"
                          ]
         self.TOMsLayerDict = {}
 
@@ -118,7 +133,7 @@ class gpsParams(TOMsParams):
 
         self.TOMsParamsList.extend([
                           "gpsPort",
-                          "cameraNr"
+                          "CameraNr"
                                ])
 
 class FieldRestrictionTypeUtilsMixin():
@@ -130,36 +145,43 @@ class FieldRestrictionTypeUtilsMixin():
         #self.TOMsUtils = RestrictionTypeUtilsMixin(self.iface)
 
     def setDefaultFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, currDate):
-        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: ", level=Qgis.Info)
+        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: {}".format(currRestrictionLayer.name()), level=Qgis.Info)
 
         # TODO: Need to check whether or not these fields exist. Also need to retain the last values and reuse
         # gis.stackexchange.com/questions/138563/replacing-action-triggered-script-by-one-supplied-through-qgis-plugin
 
         try:
-            currRestriction.setAttribute("CreateDateTime", currDate)
+            currRestriction.setAttribute("LastUpdateDateTime", currDate)
         except Exception as e:
-            None
+            TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. Problem with setting LastUpdateDateTime: {}".format(e),
+                                      level=Qgis.Info)
 
         try:
             generateGeometryUtils.setRoadName(currRestriction)
         except Exception as e:
-            None
+            TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. Problem with setting Road Name: {}".format(e),
+                                      level=Qgis.Info)
 
         """if currRestrictionLayer.geometryType() == 1:  # Line or Bay
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())"""
 
 
-        #currentCPZ, cpzWaitingTimeID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
-
+        currentCPZ, cpzWaitingTimeID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
+        TOMsMessageLog.logMessage(
+            "In setDefaultFieldRestrictionDetails. CPZ found: {}: control: {}".format(currentCPZ, cpzWaitingTimeID),
+            level=Qgis.Warning)
         #currRestriction.setAttribute("CPZ", currentCPZ)
 
-        #currDate = self.proposalsManager.date()
+        newRestrictionID = str(uuid.uuid4())
+        currRestriction.setAttribute("RestrictionID", newRestrictionID)
+        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. newRestID: {}, {}".format(newRestrictionID, currRestriction[currRestrictionLayer.fields().indexFromName("RestrictionID")]),
+                                  level=Qgis.Info)
 
         if currRestrictionLayer.name() == "Lines":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Lines", "RestrictionTypeID", 201))  # 10 = SYL (Lines)
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 10))   # 10 = Parallel Line
-            currRestriction.setAttribute("NoWaitingTimeID", self.readLastUsedDetails("Lines", "NoWaitingTimeID", None))
+            currRestriction.setAttribute("NoWaitingTimeID", cpzWaitingTimeID)
             currRestriction.setAttribute("NoLoadingTimeID", self.readLastUsedDetails("Lines", "NoLoadingTimeID", None))
             #currRestriction.setAttribute("NoWTimeID", cpzWaitingTimeID)
             #currRestriction.setAttribute("CreateDateTime", currDate)
@@ -168,11 +190,16 @@ class FieldRestrictionTypeUtilsMixin():
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
+            currRestriction.setAttribute("CPZ", currentCPZ)
+
+            currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
+            currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
+
         elif currRestrictionLayer.name() == "Bays":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Bays", "RestrictionTypeID", 101))  # 28 = Permit Holders Bays (Bays)
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Bays", "GeomShapeID", 1)) # 21 = Parallel Bay (Polygon)
             currRestriction.setAttribute("NrBays", -1)
-            currRestriction.setAttribute("TimePeriodID", self.readLastUsedDetails("Bays", "TimePeriodID", None))
+            currRestriction.setAttribute("TimePeriodID", cpzWaitingTimeID)
 
             #currRestriction.setAttribute("MaxStayID", ptaMaxStayID)
             #currRestriction.setAttribute("NoReturnID", ptaNoReturnTimeID)
@@ -181,12 +208,26 @@ class FieldRestrictionTypeUtilsMixin():
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
+            currRestriction.setAttribute("CPZ", currentCPZ)
+
+            currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
+            currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
+
         elif currRestrictionLayer.name() == "Signs":
             currRestriction.setAttribute("SignType_1", self.readLastUsedDetails("Signs", "SignType_1", 28))  # 28 = Permit Holders Only (Signs)
+            currRestriction.setAttribute("SignOrientationTypeID", NULL)
+            currRestriction.setAttribute("SignConditionTypeID", 1)  # 1 = Good
+            currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
 
         elif currRestrictionLayer.name() == "RestrictionPolygons":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("RestrictionPolygons", "RestrictionTypeID", 4))  # 28 = Residential mews area (RestrictionPolygons)
+            currRestriction.setAttribute("CPZ", currentCPZ)
 
+            currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
+            currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
+
+        # update feature
+        #currRestrictionLayer.updateFeature(currRestriction)
 
     def storeLastUsedDetails(self, layer, field, value):
         entry = '{layer}/{field}'.format(layer=layer, field=field)
@@ -236,6 +277,8 @@ class FieldRestrictionTypeUtilsMixin():
 
         self.photoDetails_field(restrictionDialog, currRestrictionLayer, currRestriction)
 
+        self.addScrollBars(restrictionDialog)
+
         """def onSaveRestrictionDetailsFromForm(self):
         TOMsMessageLog.logMessage("In onSaveRestrictionDetailsFromForm", level=Qgis.Info)
         self.onSaveRestrictionDetails(self.currRestriction,
@@ -255,7 +298,7 @@ class FieldRestrictionTypeUtilsMixin():
             currFeature[layer.fields().indexFromName(fieldName)] = value
             #currFeature.setAttribute(layer.fields().indexFromName(fieldName), value)
 
-        except:
+        except Exception as e:
 
             reply = QMessageBox.information(None, "Error",
                                                 "onAttributeChangedClass2. Update failed for: " + str(layer.name()) + " (" + fieldName + "): " + str(value),
@@ -278,17 +321,19 @@ class FieldRestrictionTypeUtilsMixin():
 
         attrs1 = currFeature.attributes()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currRestriction: " + str(attrs1),
-                                 level=Qgis.Info)
+                                 level=Qgis.Warning)
 
         TOMsMessageLog.logMessage(
             ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().asWkt())),
-            level=Qgis.Info)
+            level=Qgis.Warning)
 
         currFeatureID = currFeature.id()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currFeatureID: " + str(currFeatureID),
-                                 level=Qgis.Info)
+                                 level=Qgis.Warning)
 
         status = currFeatureLayer.updateFeature(currFeature)
+        TOMsMessageLog.logMessage("In onSaveDemandDetails: feature updated: " + str(currFeatureID),
+                                 level=Qgis.Warning)
         """if currFeatureID > 0:   # Not sure what this value should if the feature has not been created ...
 
             # TODO: Sort out this for UPDATE
@@ -300,59 +345,16 @@ class FieldRestrictionTypeUtilsMixin():
             status = currFeatureLayer.addFeature(currFeature)
             TOMsMessageLog.logMessage("In onSaveDemandDetails: added Feature: " + str(status), level=Qgis.Info)"""
 
-        TOMsMessageLog.logMessage("In onSaveDemandDetails: Before commit", level=Qgis.Info)
-
-        """reply = QMessageBox.information(None, "Information",
-                                        "Wait a moment ...",
-                                        QMessageBox.Ok)"""
-        attrs1 = currFeature.attributes()
-        TOMsMessageLog.logMessage("In onSaveDemandDetails: currRestriction: " + str(attrs1),
-                                 level=Qgis.Info)
-
-        TOMsMessageLog.logMessage(
-            ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().asWkt())),
-            level=Qgis.Info)
-
-        """TOMsMessageLog.logMessage("In onSaveDemandDetails: currActiveLayer: " + str(self.iface.activeLayer().name()),
-                                 level=Qgis.Info)"""
-        TOMsMessageLog.logMessage("In onSaveDemandDetails: currActiveLayer: " + str(currFeatureLayer.name()),
-                                 level=Qgis.Info)
-        #currFeatureLayer
-        #Test
-        #status = dialog.attributeForm().save()
-        #status = dialog.accept()
-        #status = dialog.accept()
-
-        """reply = QMessageBox.information(None, "Information",
-                                        "And another ... iseditable: " + str(currFeatureLayer.isEditable()),
-                                        QMessageBox.Ok)"""
-
-        #currFeatureLayer.blockSignals(True)
-
-        """if currFeatureID == 0:
-            self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
-            TOMsMessageLog.logMessage("In onSaveDemandDetails: mapTool unset",
-                                     level=Qgis.Info)"""
-
-        """try:
-            currFeatureLayer.commitChanges()
-        except:
-            reply = QMessageBox.information(None, "Information", "Problem committing changes" + str(currFeatureLayer.commitErrors()), QMessageBox.Ok)
-
-        #currFeatureLayer.blockSignals(False)
-
-        TOMsMessageLog.logMessage("In onSaveDemandDetails: changes committed", level=Qgis.Info)
-
-        status = dialog.close()"""
-
-        status = dialog.attributeForm().save()
+        status = dialog.attributeForm().close()
+        TOMsMessageLog.logMessage("In onSaveDemandDetails: dialog saved: " + str(currFeatureID),
+                                 level=Qgis.Warning)
         #currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
-        currFeatureLayer.updateFeature(currFeature)  # TH (added for v3)
+        #status = currFeatureLayer.updateFeature(currFeature)  # TH (added for v3)
 
         try:
             currFeatureLayer.commitChanges()
-        except:
-            reply = QMessageBox.information(None, "Information", "Problem committing changes" + str(currFeatureLayer.commitErrors()), QMessageBox.Ok)
+        except Exception as e:
+            reply = QMessageBox.information(None, "Information", "Problem committing changes: {}".format(e), QMessageBox.Ok)
 
         #currFeatureLayer.blockSignals(False)
 
@@ -394,13 +396,6 @@ class FieldRestrictionTypeUtilsMixin():
         photoPath = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('PhotoPath')
         projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_folder')
 
-        try:
-            cameraNr = int(self.params.setParam("cameraNr"))
-        except Exception as e:
-            TOMsMessageLog.logMessage("In formCamera:init: cameraNr issue: {}".format(e), level=Qgis.Info)
-            cameraNr = 0
-        TOMsMessageLog.logMessage("In formCamera:init: cameraNr is: {}".format(cameraNr), level=Qgis.Info)
-
         """ v2.18
         photoPath = QgsExpressionContextUtils.projectScope().variable('PhotoPath')
         projectFolder = QgsExpressionContextUtils.projectScope().variable('project_folder')
@@ -416,6 +411,23 @@ class FieldRestrictionTypeUtilsMixin():
             reply = QMessageBox.information(None, "Information", "PhotoPath folder " + str(
                 path_absolute) + " does not exist. Please check value.", QMessageBox.Ok)
             return
+
+        # if cv2 is available, check camera nr
+        """try:
+            cameraNr = int(self.params.setParam("cameraNr"))
+        except Exception as e:
+            TOMsMessageLog.logMessage("In formCamera:init: cameraNr issue: {}".format(e), level=Qgis.Info)
+            cameraNr = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
+            #cameraNr = 0
+            return"""
+
+        if cv2_available:
+            cameraNr = int(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('CameraNr'))
+            if cameraNr == None:
+                reply = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
+                return
+
+        TOMsMessageLog.logMessage("In formCamera:init: cameraNr is: {}".format(cameraNr), level=Qgis.Warning)
 
         layerName = self.currDemandLayer.name()
 
@@ -536,6 +548,26 @@ class FieldRestrictionTypeUtilsMixin():
             self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
 
         pass
+
+    def addScrollBars(self, restrictionDialog):
+        TOMsMessageLog.logMessage("In addScrollBars", level=Qgis.Info)
+
+        # find any combo boxes in the form and add the scroll bar
+
+        childWidgetList = restrictionDialog.findChildren(QComboBox)
+        #button_box = restrictionDialog.findChild(QDialogButtonBox, "button_box")
+
+        for formWidget in childWidgetList:
+
+            TOMsMessageLog.logMessage("In addScrollBars: widget type {}".format(type(formWidget)), level=Qgis.Info)
+
+            if isinstance(formWidget, QComboBox):
+                #print('WidgetName: {}'.format(formWidget.objectName()))
+                formWidget.setStyleSheet("QComboBox { combobox-popup: 0; }")
+                formWidget.setMaxVisibleItems(10)
+                formWidget.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+        return
 
     def getLookupDescription(self, lookupLayer, code):
 

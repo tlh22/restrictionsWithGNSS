@@ -8,4 +8,7 @@
         <file>resources/mActionSetEndPoint.svg</file>
         <file>resources/UK_traffic_sign_606F.svg</file>
     </qresource>
+    <qresource prefix="/plugins/TOMs" >
+        <file>resources/magnifyingGlass.png</file>
+    </qresource>
 </RCC>
