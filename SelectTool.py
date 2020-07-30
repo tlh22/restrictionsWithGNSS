@@ -68,7 +68,7 @@ from qgis.gui import (
 #from qgis.core import *
 #from qgis.gui import *
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
-from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin
+from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
 
 #from .formUtils import demandFormUtils
 
@@ -177,7 +177,7 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
             featureList.append(f)
             layerList.append(self.currLayer)
 
-        TOMsMessageLog.logMessage("In findNearestFeatureAt: nrFeatures: " + str(len(featureList)), level=Qgis.Info)
+        TOMsMessageLog.logMessage("In findNearestFeatureAt: nrFeatures: " + str(len(featureList)), level=Qgis.Warning)
 
         if len(featureList) == 0:
             return None, None

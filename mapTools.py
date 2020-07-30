@@ -411,13 +411,15 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
             TOMsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent (AddVertex/Line) Result: " + str(self.result) + " X:" + str(self.currPoint.x()) + " Y:" + str(self.currPoint.y())), level=Qgis.Info)
 
+            if self.layer.geometryType() == 0:
+                self.getPointsCaptured()
+
         elif (event.button() == Qt.RightButton):
             # Stop capture when right button or escape key is pressed
             self.getPointsCaptured()
 
             # Need to think about the default action here if none of these buttons/keys are pressed.
 
-        pass
 
     def keyPressEvent(self, event):
         if (event.key() == Qt.Key_Backspace) or (event.key() == Qt.Key_Delete) or (event.key() == Qt.Key_Escape):
@@ -504,22 +506,56 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         return status
 
-class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
+class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
     def __init__(self, iface, layer):
 
         TOMsMessageLog.logMessage(("In CreatePointTool - init."), level=Qgis.Info)
 
+        if layer.geometryType() == 0: # PointGeometry:
+            captureMode = (CreateRestrictionTool.CapturePoint)
+        else:
+            TOMsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), level=Qgis.Warning)
+            return
+
+        QgsMapToolCapture.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
+        FieldRestrictionTypeUtilsMixin.__init__(self, iface)
+
+        # TODO: change pointer type so that know in this tool
+
         self.iface = iface
         self.canvas = iface.mapCanvas()
         self.currLayer = layer
 
-        QgsMapToolEmitPoint.__init__(self, iface.mapCanvas())
-        FieldRestrictionTypeUtilsMixin.__init__(self, iface)
+        self.lastPoint = None
+
+        self.setAutoSnapEnabled(True)
 
     def canvasReleaseEvent(self, event):
 
         TOMsMessageLog.logMessage(("In CreatePointTool - canvasReleaseEvent."), level=Qgis.Info)
+
+        if not self.isCapturing():
+            self.startCapturing()
+
+        self.currPoint = event.snapPoint()  # 1 is value of QgsMapMouseEvent.SnappingMode (not sure where this is defined)
+        #self.lastEvent = event
+        # If this is the first point, add and k
+
+        nrPoints = self.size()
+        #checkSnapping = event.isSnapped
+        #self.lastPoint = self.currPoint
+        self.result = self.addVertex(self.currPoint)
+
+        self.sketchPoints = self.points()
+
+        for point in self.sketchPoints:
+            TOMsMessageLog.logMessage(
+                ("In CreateRestrictionTool - getPointsCaptured X:" + str(point.x()) + " Y: " + str(point.y())),
+                level=Qgis.Info)
+
+        # stop capture activity
+        self.stopCapturing()
 
         self.currLayer.startEditing()  # doesn't return true when editing started - and so using isEditable
 
@@ -528,16 +564,17 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
                                             "Could not start transaction on " + self.currLayer.name(),
                                             QMessageBox.Ok)
 
-        x = event.pos().x()
-        y = event.pos().y()
-        pointLocation = self.canvas.getCoordinateTransform().toMapCoordinates(x, y)
-        TOMsMessageLog.logMessage("In CreatePointTool - location" + " X: " +str(pointLocation.x()) + " Y: " + str(pointLocation.y()), level=Qgis.Info)
+        #x = event.pos().x()
+        #y = event.pos().y()
+        #pointLocation = self.canvas.getCoordinateTransform().toMapCoordinates(x, y)
+
+        #TOMsMessageLog.logMessage("In CreatePointTool - location" + " X: " +str(pointLocation.x()) + " Y: " + str(pointLocation.y()), level=Qgis.Info)
 
         fields = self.currLayer.dataProvider().fields()
         feature = QgsFeature()
         feature.setFields(fields)
-
-        feature.setGeometry(QgsGeometry.fromPointXY(pointLocation))
+        feature.setGeometry(QgsGeometry.fromPointXY(self.sketchPoints[0]))
+        #feature.setGeometry(QgsGeometry.fromPointXY(pointLocation))
 
         self.setDefaultFieldRestrictionDetails(feature, self.currLayer, QDate.currentDate())
 

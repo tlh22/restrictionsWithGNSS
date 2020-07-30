@@ -20,23 +20,68 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2094ee45-18da-4c12-b946-fd1ca9d6b40e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/DATAMODEL/0006_islington_indexes.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/QGIS/TOMs_Test_Field.qgz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/QGIS/TOMs_Test_Field_officeArea.qgz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/Bays_field.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/Lines_field.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/MovingTrafficPolygons_190507.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/restrictionBayDetails_dialog_base2_qt5.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/restrictionLineDetails_dialog_base2_qt5.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/restrictionPolygonDetails_dialog_base_qt5.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/restrictionSignsDetails_dialog_base_qt5.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/QGIS3_Customisation_200728_operator.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/Acknowledgements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/bench-svgrepo-com.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/bicycle.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/bin.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/bollard-bw.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/bollard.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/box.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/bump.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/bus.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/camera.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/crossing.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/cycleParking.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/displayBoard.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/dustbin-svgrepo-com.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/furniture.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/pedestrianRailings.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/plug.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/questionMark.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/recycling.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/right_of_way.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/signPost.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/stop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/telephone.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/toilets.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/traffic-light.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/trafficLights.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/transport_bus_station.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/trash-bin.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/unidentifiedStaticObject.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/walking.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/wifi.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/zebra_crossing.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QGIS/icons/zigzag.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Benches.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Bins.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Bollards.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Bus_Shelter.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/CCTV_Cameras.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Communication_Cabinets.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/CrossingPoints.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Cycle_Parking.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Display_Boards.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/EV_Charging_Points.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/End_of_Street_Markings.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/ISL_Electrical_Items.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Pedestrian_Railings.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/StreetNamePlates.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Subterranean_Features.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Traffic_Calming.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Traffic_Signals.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Unidentified_Static_Object.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Vehicle_Barriers.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SelectTool.py" beforeDir="false" afterPath="$PROJECT_DIR$/SelectTool.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manage_feature_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage_feature_creation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mapTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/mapTools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources.qrc" beforeDir="false" afterPath="$PROJECT_DIR$/resources.qrc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/Bays_field.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Bays_field.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/Lines_field.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Lines_field.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/MovingTrafficPolygons_190507.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/MovingTrafficPolygons_190507.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619.ui" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,6 +128,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
@@ -92,9 +138,9 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="589" y="222" key="RollbackChangesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1593501025479" />
-    <state x="666" y="253" width="773" height="710" key="find.popup" timestamp="1594961275058">
+    <state x="666" y="253" width="773" height="710" key="find.popup" timestamp="1596096324586">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="666" y="253" width="773" height="710" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1594961275058" />
+    <state x="666" y="253" width="773" height="710" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1596096324586" />
   </component>
 </project>

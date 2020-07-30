@@ -399,7 +399,7 @@
         </widget>
        </item>
        <item row="5" column="1" colspan="3">
-        <widget class="QDateTimeEdit" name="SurveyDate">
+        <widget class="QDateTimeEdit" name="LastUpdateDateTime">
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -564,25 +564,35 @@
        <item row="0" column="1">
         <widget class="QComboBox" name="ComplianceRoadMarkingsFaded"/>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QLabel" name="label_9">
          <property name="text">
           <string>Restriction-&gt;Sign:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="1">
         <widget class="QComboBox" name="ComplianceRestrictionSignIssue"/>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
           <string>Compliance notes:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="QTextEdit" name="ComplianceNotes"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Loading Markings Condition:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="ComplianceLoadingMarkingsFaded"/>
        </item>
       </layout>
      </widget>

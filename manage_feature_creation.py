@@ -309,6 +309,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                     e),
                 level=Qgis.Warning)
 
+        self.tableNames.removePathFromLayerForms()
+
     def onGroupTriggered(self, action):
         # hold the current action
         self.currGnssAction = action

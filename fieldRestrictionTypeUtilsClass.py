@@ -69,9 +69,9 @@ from TOMs.generateGeometryUtils import generateGeometryUtils
 from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers, originalFeature, RestrictionTypeUtilsMixin)
 
 from TOMs.ui.TOMsCamera import (formCamera)
+cv2_available = True
 try:
     import cv2
-    cv2_available = True
 except ImportError:
     QgsMessageLog.logMessage("Not able to import cv2 ...", tag="TOMs panel")
     cv2_available = False
@@ -120,7 +120,27 @@ class gpsLayers(TOMsLayers):
             "TimePeriods",
             "TimePeriodsInUse",
             "TimePeriodsInUse_View",
-            "UnacceptableTypes"
+            "UnacceptableTypes",
+            "Benches",
+            "Bins",
+            "Bollards (point)",
+            "CCTV_Cameras",
+            "CommunicationCabinets",
+            "CycleParking",
+            "DisplayBoards",
+            "EV_ChargingPoints",
+            "StreetNamePlates",
+            "SubterraneanFeatures",
+            "TrafficSignals",
+            "UnidentifiedStaticObjects",
+            "VehicleBarriers",
+            "Bollards (in a line)",
+            "BusShelters",
+            "EndOfStreetMarkings",
+            "PedestrianRailings",
+            "TrafficCalming",
+            "ISL_Electrical_Items"
+
                          ]
         self.TOMsLayerDict = {}
 
@@ -141,6 +161,8 @@ class FieldRestrictionTypeUtilsMixin():
         #RestrictionTypeUtilsMixin.__init__(self, iface)
         self.iface = iface
         self.settings = QgsSettings()
+
+        self.params = gpsParams()
 
         #self.TOMsUtils = RestrictionTypeUtilsMixin(self.iface)
 
@@ -182,7 +204,7 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Lines", "RestrictionTypeID", 201))  # 10 = SYL (Lines)
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 10))   # 10 = Parallel Line
             currRestriction.setAttribute("NoWaitingTimeID", cpzWaitingTimeID)
-            currRestriction.setAttribute("NoLoadingTimeID", self.readLastUsedDetails("Lines", "NoLoadingTimeID", None))
+            #currRestriction.setAttribute("NoLoadingTimeID", self.readLastUsedDetails("Lines", "NoLoadingTimeID", None))
             #currRestriction.setAttribute("NoWTimeID", cpzWaitingTimeID)
             #currRestriction.setAttribute("CreateDateTime", currDate)
             currRestriction.setAttribute("UnacceptableTypeID", self.readLastUsedDetails("Lines", "UnacceptableTypeID", None))
@@ -215,7 +237,7 @@ class FieldRestrictionTypeUtilsMixin():
 
         elif currRestrictionLayer.name() == "Signs":
             currRestriction.setAttribute("SignType_1", self.readLastUsedDetails("Signs", "SignType_1", 28))  # 28 = Permit Holders Only (Signs)
-            currRestriction.setAttribute("SignOrientationTypeID", NULL)
+            #currRestriction.setAttribute("SignOrientationTypeID", NULL)
             currRestriction.setAttribute("SignConditionTypeID", 1)  # 1 = Good
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
 
@@ -245,6 +267,8 @@ class FieldRestrictionTypeUtilsMixin():
         #self.currRestrictionLayer = currRestrictionLayer
         #self.currRestriction = currRestriction
         #self.restrictionTransaction = restrictionTransaction
+
+        self.params.getParams()
 
         # Create a copy of the feature
         self.origFeature = originalFeature()
@@ -413,21 +437,22 @@ class FieldRestrictionTypeUtilsMixin():
             return
 
         # if cv2 is available, check camera nr
-        """try:
-            cameraNr = int(self.params.setParam("cameraNr"))
+        try:
+            cameraNr = int(self.params.setParam("CameraNr"))
         except Exception as e:
-            TOMsMessageLog.logMessage("In formCamera:init: cameraNr issue: {}".format(e), level=Qgis.Info)
-            cameraNr = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
-            #cameraNr = 0
-            return"""
+            TOMsMessageLog.logMessage("In formCamera:init: cameraNr issue: {}".format(e), level=Qgis.Warning)
+            if cv2_available:
+                cameraNr = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
+            cameraNr = None
+            #return
 
-        if cv2_available:
+        """if cv2_available:
             cameraNr = int(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('CameraNr'))
             if cameraNr == None:
                 reply = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
-                return
+                return"""
 
-        TOMsMessageLog.logMessage("In formCamera:init: cameraNr is: {}".format(cameraNr), level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In photoDetails_field: cameraNr is: {}".format(cameraNr), level=Qgis.Warning)
 
         layerName = self.currDemandLayer.name()
 
@@ -449,11 +474,18 @@ class FieldRestrictionTypeUtilsMixin():
         """
 
         TOMsMessageLog.logMessage("In photoDetails. idx1: " + str(idx1) + "; " + str(idx2) + "; " + str(idx3),
-                                 level=Qgis.Info)
+                                 level=Qgis.Warning)
         # if currFeatureFeature[idx1]:
         # TOMsMessageLog.logMessage("In photoDetails. photo1: " + str(currFeatureFeature[idx1]), level=Qgis.Info)
         # TOMsMessageLog.logMessage("In photoDetails. photo2: " + str(currFeatureFeature.attribute(idx2)), level=Qgis.Info)
         # TOMsMessageLog.logMessage("In photoDetails. photo3: " + str(currFeatureFeature.attribute(idx3)), level=Qgis.Info)
+
+        if cameraNr is not None:
+            TOMsMessageLog.logMessage("Camera TRUE", level=Qgis.Warning)
+            takePhoto = True
+        else:
+            TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Warning)
+            takePhoto = False
 
         if FIELD1:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 1 exisits",
@@ -474,14 +506,15 @@ class FieldRestrictionTypeUtilsMixin():
                 FIELD1.setScaledContents(True)
                 TOMsMessageLog.logMessage("In photoDetails. Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
 
-            START_CAMERA_1 = self.demandDialog.findChild(QPushButton, "startCamera1")
-            TAKE_PHOTO_1 = self.demandDialog.findChild(QPushButton, "getPhoto1")
-            TAKE_PHOTO_1.setEnabled(False)
+            if takePhoto:
+                START_CAMERA_1 = self.demandDialog.findChild(QPushButton, "startCamera1")
+                TAKE_PHOTO_1 = self.demandDialog.findChild(QPushButton, "getPhoto1")
+                TAKE_PHOTO_1.setEnabled(False)
 
-            self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr)
-            START_CAMERA_1.clicked.connect(
-                functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1, FIELD1))
-            self.camera1.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
+                self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr)
+                START_CAMERA_1.clicked.connect(
+                    functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1, FIELD1))
+                self.camera1.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
 
         if FIELD2:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 2 exisits",
@@ -504,14 +537,15 @@ class FieldRestrictionTypeUtilsMixin():
                 FIELD2.setScaledContents(True)
                 TOMsMessageLog.logMessage("In photoDetails. Photo2: " + str(newPhotoFileName2), level=Qgis.Info)
 
-            START_CAMERA_2 = self.demandDialog.findChild(QPushButton, "startCamera2")
-            TAKE_PHOTO_2 = self.demandDialog.findChild(QPushButton, "getPhoto2")
-            TAKE_PHOTO_2.setEnabled(False)
+            if takePhoto:
+                START_CAMERA_2 = self.demandDialog.findChild(QPushButton, "startCamera2")
+                TAKE_PHOTO_2 = self.demandDialog.findChild(QPushButton, "getPhoto2")
+                TAKE_PHOTO_2.setEnabled(False)
 
-            self.camera2 = formCamera(path_absolute, newPhotoFileName2, cameraNr)
-            START_CAMERA_2.clicked.connect(
-                functools.partial(self.camera2.useCamera, START_CAMERA_2, TAKE_PHOTO_2, FIELD2))
-            self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
+                self.camera2 = formCamera(path_absolute, newPhotoFileName2, cameraNr)
+                START_CAMERA_2.clicked.connect(
+                    functools.partial(self.camera2.useCamera, START_CAMERA_2, TAKE_PHOTO_2, FIELD2))
+                self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
 
         if FIELD3:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 3 exisits",
@@ -538,14 +572,15 @@ class FieldRestrictionTypeUtilsMixin():
                 FIELD3.setScaledContents(True)
                 TOMsMessageLog.logMessage("In photoDetails. Photo3: " + str(newPhotoFileName3), level=Qgis.Info)
 
-            START_CAMERA_3 = self.demandDialog.findChild(QPushButton, "startCamera3")
-            TAKE_PHOTO_3 = self.demandDialog.findChild(QPushButton, "getPhoto3")
-            TAKE_PHOTO_3.setEnabled(False)
+            if takePhoto:
+                START_CAMERA_3 = self.demandDialog.findChild(QPushButton, "startCamera3")
+                TAKE_PHOTO_3 = self.demandDialog.findChild(QPushButton, "getPhoto3")
+                TAKE_PHOTO_3.setEnabled(False)
 
-            self.camera3 = formCamera(path_absolute, newPhotoFileName3, cameraNr)
-            START_CAMERA_3.clicked.connect(
-                functools.partial(self.camera3.useCamera, START_CAMERA_3, TAKE_PHOTO_3, FIELD3))
-            self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
+                self.camera3 = formCamera(path_absolute, newPhotoFileName3, cameraNr)
+                START_CAMERA_3.clicked.connect(
+                    functools.partial(self.camera3.useCamera, START_CAMERA_3, TAKE_PHOTO_3, FIELD3))
+                self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
 
         pass
 
