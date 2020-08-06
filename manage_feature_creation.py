@@ -318,7 +318,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
     def doCreateRestriction(self):
 
-        TOMsMessageLog.logMessage("In doCreateRestriction", level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In doCreateRestriction", level=Qgis.Info)
 
         self.currLayer = self.iface.activeLayer()
         if not self.currLayer:
@@ -330,23 +330,23 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         if self.actionCreateRestriction.isChecked():
 
-            TOMsMessageLog.logMessage("In doCreateRestriction - tool activated", level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In doCreateRestriction - tool activated", level=Qgis.Info)
             TOMsMessageLog.logMessage(
                 "In doCreateRestriction: current map tool {}".format(type(self.iface.mapCanvas().mapTool()).__name__),
-                level=Qgis.Warning)
+                level=Qgis.Info)
 
             self.createRestrictionMapTool = self.createMapToolDict.get(self.currLayer)
 
             if not self.createRestrictionMapTool:
-                TOMsMessageLog.logMessage("In doCreateRestriction. creating new map tool", level=Qgis.Warning)
+                TOMsMessageLog.logMessage("In doCreateRestriction. creating new map tool", level=Qgis.Info)
                 self.createRestrictionMapTool = CreateRestrictionTool(self.iface, self.currLayer)
                 self.createMapToolDict[self.currLayer] = self.createRestrictionMapTool
 
-            TOMsMessageLog.logMessage("In doCreateRestriction. Here 1", level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In doCreateRestriction. Here 1", level=Qgis.Info)
 
             self.iface.mapCanvas().setMapTool(self.createRestrictionMapTool)
 
-            TOMsMessageLog.logMessage("In doCreateRestriction. Here 2", level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In doCreateRestriction. Here 2", level=Qgis.Info)
 
             if not self.createRestrictionMapTool.isCapturing():
                 if self.currLayer.isEditable() == True:
@@ -367,7 +367,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                                                         QMessageBox.Ok)
                         return
 
-            TOMsMessageLog.logMessage("In doCreateRestriction. Here 3", level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In doCreateRestriction. Here 3", level=Qgis.Info)
 
         else:
 
@@ -383,7 +383,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
             # TODO: stop editting on layers??
 
-        TOMsMessageLog.logMessage("In doCreateRestriction. Here 4", level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In doCreateRestriction. Here 4", level=Qgis.Info)
 
     """ 
         Using signals for ChangeTool and ChangeLayer to manage the tools - with the following functions
@@ -399,42 +399,42 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
     def changeMapTool2(self):
         TOMsMessageLog.logMessage(
-            "In changeMapTool2 ...", level=Qgis.Warning)
+            "In changeMapTool2 ...", level=Qgis.Info)
 
         currMapTool = self.iface.mapCanvas().mapTool()
 
         if not self.isGnssTool(currMapTool):
             TOMsMessageLog.logMessage(
-                "In changeMapTool2. Unchecking action ...", level=Qgis.Warning)
+                "In changeMapTool2. Unchecking action ...", level=Qgis.Info)
             self.currGnssAction.setChecked(False)
         else:
             TOMsMessageLog.logMessage(
-            "In changeMapTool2. No action for gnssTools.", level=Qgis.Warning)
+            "In changeMapTool2. No action for gnssTools.", level=Qgis.Info)
 
         TOMsMessageLog.logMessage(
-            "In changeMapTool2. finished.", level=Qgis.Warning)
+            "In changeMapTool2. finished.", level=Qgis.Info)
         print('tool unset')
 
     def changeCurrLayer2(self):
-        TOMsMessageLog.logMessage("In changeLayer2 ... ", level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In changeLayer2 ... ", level=Qgis.Info)
 
         currMapTool = self.iface.mapCanvas().mapTool()
 
         if self.isGnssTool(currMapTool):
-            TOMsMessageLog.logMessage("In changeLayer2. Action triggered ... ", level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In changeLayer2. Action triggered ... ", level=Qgis.Info)
             self.currGnssAction.trigger()  # assumption is that there is an action associated with the tool
         else:
             TOMsMessageLog.logMessage(
-            "In changeLayer2. No action for currentMapTool.", level=Qgis.Warning)
+            "In changeLayer2. No action for currentMapTool.", level=Qgis.Info)
 
         TOMsMessageLog.logMessage(
-            "In changeLayer2. finished.", level=Qgis.Warning)
+            "In changeLayer2. finished.", level=Qgis.Info)
         print('layer changed')
 
     # -- end of tools for signals
 
     def changeExtents(self):
-        TOMsMessageLog.logMessage("In changeExtents ... ", level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In changeExtents ... ", level=Qgis.Info)
 
     def doAddGPSLocation(self):
 

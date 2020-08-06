@@ -139,7 +139,32 @@ class gpsLayers(TOMsLayers):
             "EndOfStreetMarkings",
             "PedestrianRailings",
             "TrafficCalming",
-            "ISL_Electrical_Items"
+            "ISL_Electrical_Items",
+            "ISL_Electrical_Item_Types",
+            "AssetConditionTypes",
+            "BinTypes",
+            "BollardTypes",
+            "CommunicationCabinetTypes",
+            "CrossingPointTypes",
+            "CycleParkingTypes",
+            "DisplayBoardTypes",
+            "EV_ChargingPointTypes",
+            "EndOfStreetMarkingTypes",
+            "PedestrianRailingsTypes",
+            "SubterraneanFeatureTypes",
+            "TrafficCalmingTypes",
+            "VehicleBarrierTypes",
+            "AccessRestrictions",
+            "CarriagewayMarkingTypesInUse",
+            "CarriagewayMarkingTypesInUse_View",
+            "CarriagewayMarkings",
+            "HighwayDedications",
+            "RestrictionsForVehicles",
+            "StructureTypeValues",
+            "SpecialDesignations",
+            "TurnRestrictions",
+            "vehicleQualifiers",
+            "MHTC_RoadLinks"
 
                          ]
         self.TOMsLayerDict = {}
@@ -190,9 +215,9 @@ class FieldRestrictionTypeUtilsMixin():
 
 
         currentCPZ, cpzWaitingTimeID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
-        TOMsMessageLog.logMessage(
+        """TOMsMessageLog.logMessage(
             "In setDefaultFieldRestrictionDetails. CPZ found: {}: control: {}".format(currentCPZ, cpzWaitingTimeID),
-            level=Qgis.Warning)
+            level=Qgis.Warning)"""
         #currRestriction.setAttribute("CPZ", currentCPZ)
 
         newRestrictionID = str(uuid.uuid4())
@@ -244,9 +269,22 @@ class FieldRestrictionTypeUtilsMixin():
         elif currRestrictionLayer.name() == "RestrictionPolygons":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("RestrictionPolygons", "RestrictionTypeID", 4))  # 28 = Residential mews area (RestrictionPolygons)
             currRestriction.setAttribute("CPZ", currentCPZ)
-
+            currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 50))   # 10 = Parallel Line
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
+
+        # set compliance defaults
+        try:
+            currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
+        except Exception as e:
+            TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. Problem with setting ComplianceRoadMarkingsFaded: {}".format(e),
+                                      level=Qgis.Info)
+
+        try:
+            currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
+        except Exception as e:
+            TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. Problem with setting ComplianceRestrictionSignIssue: {}".format(e),
+                                      level=Qgis.Info)
 
         # update feature
         #currRestrictionLayer.updateFeature(currRestriction)
@@ -452,7 +490,7 @@ class FieldRestrictionTypeUtilsMixin():
                 reply = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
                 return"""
 
-        TOMsMessageLog.logMessage("In photoDetails_field: cameraNr is: {}".format(cameraNr), level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In photoDetails_field: cameraNr is: {}".format(cameraNr), level=Qgis.Info)
 
         layerName = self.currDemandLayer.name()
 
@@ -474,7 +512,7 @@ class FieldRestrictionTypeUtilsMixin():
         """
 
         TOMsMessageLog.logMessage("In photoDetails. idx1: " + str(idx1) + "; " + str(idx2) + "; " + str(idx3),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
         # if currFeatureFeature[idx1]:
         # TOMsMessageLog.logMessage("In photoDetails. photo1: " + str(currFeatureFeature[idx1]), level=Qgis.Info)
         # TOMsMessageLog.logMessage("In photoDetails. photo2: " + str(currFeatureFeature.attribute(idx2)), level=Qgis.Info)
