@@ -20,16 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2094ee45-18da-4c12-b946-fd1ca9d6b40e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/ui/AccessRestrictions.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/CarriagwayMarkings.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/HighwayDedications.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/MHTC_RoadLink.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/RestrictionForVehicles.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/SpecialDesignations.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/TurnRestrictions.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/Postboxes.ui" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/TelephoneBoxes.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manage_feature_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage_feature_creation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/Bollards.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Bollards.ui" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
