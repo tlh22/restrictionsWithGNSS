@@ -406,7 +406,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         if not self.isGnssTool(currMapTool):
             TOMsMessageLog.logMessage(
                 "In changeMapTool2. Unchecking action ...", level=Qgis.Info)
-            self.currGnssAction.setChecked(False)
+            if self.currGnssAction:
+                self.currGnssAction.setChecked(False)
         else:
             TOMsMessageLog.logMessage(
             "In changeMapTool2. No action for gnssTools.", level=Qgis.Info)
@@ -816,10 +817,11 @@ class GPS_Thread(QObject):
             self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4326"), self.dest_crs,
                                                          QgsProject.instance())
             self.gpsCon = None
-            TOMsMessageLog.logMessage("In GPS_Thread - initialised ... ",
+            TOMsMessageLog.logMessage("In GPS_Thread.__init__ - initialised ... ",
                                      level=Qgis.Info)
+            self.retry_attempts = 0
         except Exception as e:
-            TOMsMessageLog.logMessage(("In GPS - exception: " + str(e)), level=Qgis.Warning)
+            TOMsMessageLog.logMessage(("In GPS_Thread.__init__ - exception: " + str(e)), level=Qgis.Warning)
             self.gpsError.emit(e)
 
         self.gpsPort = gpsPort
@@ -827,7 +829,7 @@ class GPS_Thread(QObject):
     def startGPS(self):
 
         try:
-            TOMsMessageLog.logMessage("In GPS_Thread - running ... ",
+            TOMsMessageLog.logMessage("In GPS_Thread.startGPS - running ... ",
                                      level=Qgis.Info)
             self.gpsCon = None
             #self.port = "COM3"  # TODO: Add menu to select port
@@ -838,24 +840,24 @@ class GPS_Thread(QObject):
             self.gpsDetector.advance()
 
         except Exception as e:
-            TOMsMessageLog.logMessage(("In GPS - exception: " + str(e)),
+            TOMsMessageLog.logMessage(("In GPS_Thread.startGPS - exception: " + str(e)),
                                      level=Qgis.Warning)
             self.gpsError.emit(e)
 
     def endGPS(self):
         try:
-            TOMsMessageLog.logMessage(("In GPS - GPS deactivated ...."),
+            TOMsMessageLog.logMessage(("In GPS_Thread.endGPS - GPS deactivated ...."),
                                      level=Qgis.Info)
             self.gps_active = False
 
         except Exception as e:
-            TOMsMessageLog.logMessage(("In GPS - exception: " + str(e)),
+            TOMsMessageLog.logMessage(("In GPS_Thread.endGPS - exception: " + str(e)),
                                      level=Qgis.Warning)
             self.gpsError.emit(e)
 
     def connection_succeed(self, connection):
         try:
-            TOMsMessageLog.logMessage(("In GPS - GPS connected ...."),
+            TOMsMessageLog.logMessage(("In GPS_Thread.connection_succeed - GPS connected ...."),
                                      level=Qgis.Info)
             self.gps_active = True
             self.gpsCon = connection
@@ -866,13 +868,13 @@ class GPS_Thread(QObject):
             self.gpsActivated.emit(connection)
 
         except Exception as e:
-            TOMsMessageLog.logMessage(("In GPS - exception: " + str(e)),
+            TOMsMessageLog.logMessage(("In GPS_Thread.connection_succeed - exception: " + str(e)),
                                      level=Qgis.Warning)
             self.gpsError.emit(e)
 
     def connection_failed(self):
         if not self.gps_active:
-            TOMsMessageLog.logMessage(("In GPS - GPS connection failed ...."),
+            TOMsMessageLog.logMessage(("In GPS_Thread.connection_failed - GPS connection failed ...."),
                                      level=Qgis.Warning)
             self.endGPS()
             self.gpsDeactivated.emit()
@@ -880,6 +882,7 @@ class GPS_Thread(QObject):
     def status_changed(self,gpsInfo):
         if self.gps_active:
             try:
+                self.retry_attempts = self.retry_attempts + 1
                 if self.gpsCon.status() == 3: #data received
                     """TOMsMessageLog.logMessage(("In GPS - fixMode:" + str(gpsInfo.fixMode)),
                                              level=Qgis.Info)
@@ -904,12 +907,14 @@ class GPS_Thread(QObject):
 
                     TOMsMessageLog.logMessage(("In GPS - location:" + mapPointXY.asWkt()),
                                              level=Qgis.Info)
+                    self.retry_attempts = 0
 
                 else:
-                    self.gps_active = False
+                    if self.retry_attempts > 5:
+                        self.gps_active = False
 
             except Exception as e:
-                TOMsMessageLog.logMessage(("In GPS - exception: " + str(e)),
+                TOMsMessageLog.logMessage(("In GPS_Thread.status_changed - exception: " + str(e)),
                                          level=Qgis.Warning)
                 self.gpsError.emit(e)
             return
