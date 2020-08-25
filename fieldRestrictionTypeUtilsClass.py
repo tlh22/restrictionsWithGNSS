@@ -63,6 +63,7 @@ import functools
 import time, datetime
 import os, uuid
 #import cv2
+import math
 
 from abc import ABCMeta
 from TOMs.generateGeometryUtils import generateGeometryUtils
@@ -168,7 +169,8 @@ class gpsLayers(TOMsLayers):
             "SpecialDesignations",
             "TurnRestrictions",
             "vehicleQualifiers",
-            "MHTC_RoadLinks"
+            "MHTC_RoadLinks",
+            "GNSS_Pts"
 
                          ]
         self.TOMsLayerDict = {}
@@ -182,7 +184,8 @@ class gpsParams(TOMsParams):
 
         self.TOMsParamsList.extend([
                           "gpsPort",
-                          "CameraNr"
+                          "CameraNr",
+                          "roamDistance"
                                ])
 
 class FieldRestrictionTypeUtilsMixin():
@@ -678,4 +681,49 @@ class FieldRestrictionTypeUtilsMixin():
                 reply = QMessageBox.information(None, "Error",
                                                 "savePhotoTaken. problem changing attrib value",
                                                 QMessageBox.Ok)
+
+    def store_gnss_pts(self, curr_gps_location, curr_gps_info):
+
+        TOMsMessageLog.logMessage("In gnssTools.store_gnss_pts ",
+                                     level=Qgis.Info)
+
+        GNSS_Pts_Layer = self.tableNames.setLayer("GNSS_Pts")
+        try:
+            GNSS_Pts_Layer.startEditing()
+        except Exception as e:
+            reply = QMessageBox.information(None, "Information", "Problem starting edit session on GNSS_Pts: {}".format(e), QMessageBox.Ok)
+            TOMsMessageLog.logMessage("Problem starting edit session on GNSS_Pts: {}".format(e), level=Qgis.Warning)
+            return False
+
+        fields = GNSS_Pts_Layer.fields()
+        feature = QgsFeature()
+        feature.setFields(fields)
+        feature.setGeometry(QgsGeometry.fromPointXY(curr_gps_location))
+
+        for gnssField in dir(curr_gps_info):
+            #TOMsMessageLog.logMessage ('Attribute: {}'.format(gnssField), level=Qgis.Warning)
+            if gnssField in fields.names():
+                value = getattr(curr_gps_info, gnssField)
+
+                TOMsMessageLog.logMessage ('** Found {}: {}'.format(gnssField, value), level=Qgis.Info)
+
+                if GNSS_Pts_Layer.fields().field(gnssField).isNumeric():
+                    if math.isnan(value):   # https://stackoverflow.com/questions/944700/how-can-i-check-for-nan-values
+                        value = None
+                feature[GNSS_Pts_Layer.fields().indexFromName(gnssField)] = value
+
+        #attrs = feature.attributes()
+        #TOMsMessageLog.logMessage('--Attribs {}'.format(attrs), level=Qgis.Warning)
+
+        GNSS_Pts_Layer.addFeatures([feature])
+
+        try:
+            GNSS_Pts_Layer.commitChanges()
+        except Exception as e:
+            reply = QMessageBox.information(None, "Information", "Problem committing changes to GNSS_Pts: {}".format(e), QMessageBox.Ok)
+            TOMsMessageLog.logMessage("Problem committing changes to GNSS_Pts: {}".format(e), level=Qgis.Warning)
+
+            return False
+
+        return True
 

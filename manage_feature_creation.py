@@ -95,7 +95,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.actionCreateRestriction.setCheckable(True)
 
         self.actionAddGPSLocation = QAction(QIcon(":/plugins/featureswithgps/resources/greendot3.png"),
-                               QCoreApplication.translate("MyPlugin", "Add vertex"),
+                               QCoreApplication.translate("MyPlugin", "Add vertex from gnss"),
                                self.iface.mainWindow())
         #self.actionAddGPSLocation.setCheckable(True)
 
@@ -111,7 +111,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.gnssToolGroup.addAction(self.actionRestrictionDetails)
 
         self.actionCreateSign = QAction(QIcon(":/plugins/featureswithgps/resources/mActionSetEndPoint.svg"),
-                                                    QCoreApplication.translate("MyPlugin", "Create sign"),
+                                                    QCoreApplication.translate("MyPlugin", "Create sign from gnss"),
                                                     self.iface.mainWindow())
         self.actionCreateSign.setCheckable(True)
 
@@ -221,6 +221,12 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
             time.sleep(1.0)
 
+            try:
+                self.roamDistance = float(self.params.setParam("roamDistance"))
+            except Exception as e:
+                TOMsMessageLog.logMessage("In enableFeaturesWithGPSToolbarItems:init: roamDistance issue: {}".format(e), level=Qgis.Warning)
+                self.roamDistance = 5.0
+
         self.enableToolbarItems()
 
         self.createMapToolDict = {}
@@ -229,9 +235,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         TOMsMessageLog.logMessage("In enableToolbarItems", level=Qgis.Warning)
         self.actionCreateRestriction.setEnabled(True)
         self.actionRestrictionDetails.setEnabled(True)
-        self.actionRemoveRestriction.setEnabled(True)
-        self.actionCreateSign.setEnabled(True)
-        self.actionCreateMTR.setEnabled(True)
+        #self.actionRemoveRestriction.setEnabled(True)
+        #self.actionCreateSign.setEnabled(True)
+        #self.actionCreateMTR.setEnabled(True)
 
         self.searchBar.enableSearchBar()
 
@@ -245,6 +251,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
     def enableGnssToolbarItem(self):
         if self.gpsConnection:
             self.actionAddGPSLocation.setEnabled(True)
+            self.actionCreateSign.setEnabled(True)
             self.lastCentre = QgsPointXY(0,0)
 
     def disableToolbarItems(self):
@@ -633,6 +640,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.signsLayer = self.tableNames.setLayer("Signs")
 
             self.iface.setActiveLayer(self.signsLayer)
+
             self.createPointMapTool = CreatePointTool(self.iface, self.signsLayer)
 
             TOMsMessageLog.logMessage("In doCreateSign - tool activated", level=Qgis.Info)
@@ -642,6 +650,16 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.actionCreateSign.setChecked(False)
 
             self.iface.mapCanvas().setMapTool(self.createPointMapTool)
+
+            """ add the point from the gnss """
+            try:
+                status = self.canvas.mapTool().addPointFromGPS(self.curr_gps_location, self.curr_gps_info)
+            except Exception as e:
+                TOMsMessageLog.logMessage("In doCreateSign: Problem adding gnss location: {}".format(e),
+                                          level=Qgis.Warning)
+                reply = QMessageBox.information(self.iface.mainWindow(), "Error",
+                                                "Problem adding gnss location ... ",
+                                                QMessageBox.Ok)
 
     """
         Not currently used, but want to develop ...
@@ -778,7 +796,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         """TOMsMessageLog.logMessage("In enableTools: distance from last fix: {}".format(self.lastCentre.distance(mapPointXY)),
                                      level=Qgis.Info)"""
-        if self.lastCentre.distance(mapPointXY) > 5.0:
+        if self.lastCentre.distance(mapPointXY) > self.roamDistance:
             self.lastCentre = mapPointXY
             self.canvas.setCenter(mapPointXY)
             TOMsMessageLog.logMessage(
@@ -795,6 +813,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         """self.actionCreateRestriction.setEnabled(False)
         self.actionAddGPSLocation.setEnabled(False)"""
         self.disableToolbarItems()
+
 
 class GPS_Thread(QObject):
 

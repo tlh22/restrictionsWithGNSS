@@ -70,8 +70,7 @@ from qgis.gui import (
     QgsMapToolEmitPoint
 )
 
-
-from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin
+from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 import functools
@@ -271,6 +270,9 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         self.canvas = iface.mapCanvas()
         self.iface = iface
         self.layer = layer
+
+        self.tableNames = gpsLayers(self.iface)
+        self.tableNames.getLayers()
 
         #self.inProcess = True
 
@@ -497,12 +499,13 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
     def addPointFromGPS(self, curr_gps_location, curr_gps_info):
         TOMsMessageLog.logMessage(
-            "In CreateFeatureWithGPSTool - addPointFromGPS",
-            level=Qgis.Info)
+            "In CreateRestrictionTool - addPointFromGPS",
+            level=Qgis.Warning)
 
         status = self.addVertex(curr_gps_location)
 
         # TODO: opportunity to add details about GPS point to another table
+        self.store_gnss_pts(curr_gps_location, curr_gps_info)
 
         return status
 
@@ -531,9 +534,12 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         self.setAutoSnapEnabled(True)
 
+        self.tableNames = gpsLayers(self.iface)
+        self.tableNames.getLayers()
+
     def canvasReleaseEvent(self, event):
 
-        TOMsMessageLog.logMessage(("In CreatePointTool - canvasReleaseEvent."), level=Qgis.Info)
+        TOMsMessageLog.logMessage(("In CreatePointTool.canvasReleaseEvent."), level=Qgis.Info)
 
         if not self.isCapturing():
             self.startCapturing()
@@ -547,12 +553,20 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         #self.lastPoint = self.currPoint
         self.result = self.addVertex(self.currPoint)
 
+        self.processPoint()
+
+    def processPoint(self):
+        TOMsMessageLog.logMessage(
+            "In CreatePointTool.processPoint",
+            level=Qgis.Warning)
+
         self.sketchPoints = self.points()
+        nrPoints = self.size()
 
         for point in self.sketchPoints:
             TOMsMessageLog.logMessage(
                 ("In CreateRestrictionTool - getPointsCaptured X:" + str(point.x()) + " Y: " + str(point.y())),
-                level=Qgis.Info)
+                level=Qgis.Warning)
 
         # stop capture activity
         self.stopCapturing()
@@ -585,6 +599,23 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         self.setupFieldRestrictionDialog(dialog, self.currLayer, feature)  # connects signals, etc
 
         dialog.show()
+
+    def addPointFromGPS(self, curr_gps_location, curr_gps_info):
+        TOMsMessageLog.logMessage(
+            "In CreatePointTool.addPointFromGPS",
+            level=Qgis.Info)
+
+        if not self.isCapturing():
+            self.startCapturing()
+
+        status = self.addVertex(curr_gps_location)
+
+        # TODO: opportunity to add details about GPS point to another table
+        self.store_gnss_pts(curr_gps_location, curr_gps_info)
+
+        self.processPoint()
+
+        return status
 
     def deactivate(self):
         TOMsMessageLog.logMessage(("In CreatePointTool - deactivated."), level=Qgis.Info)

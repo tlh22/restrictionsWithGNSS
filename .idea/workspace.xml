@@ -21,7 +21,10 @@
   <component name="ChangeListManager">
     <list default="true" id="2094ee45-18da-4c12-b946-fd1ca9d6b40e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manage_feature_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage_feature_creation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mapTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/mapTools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/AccessRestrictions.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/AccessRestrictions.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/Bays_field.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Bays_field.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/Benches.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Benches.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/Bins.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Bins.ui" afterDir="false" />
@@ -109,9 +112,20 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="589" y="222" key="RollbackChangesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1593501025479" />
-    <state x="666" y="253" width="773" height="710" key="find.popup" timestamp="1596096324586">
+    <state x="666" y="253" width="773" height="710" key="find.popup" timestamp="1598295584731">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="666" y="253" width="773" height="710" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1596096324586" />
+    <state x="666" y="253" width="773" height="710" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1598295584731" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py</url>
+          <line>14</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
