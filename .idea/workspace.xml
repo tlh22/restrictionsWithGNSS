@@ -22,40 +22,7 @@
     <list default="true" id="2094ee45-18da-4c12-b946-fd1ca9d6b40e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manage_feature_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage_feature_creation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mapTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/mapTools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/AccessRestrictions.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/AccessRestrictions.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Bays_field.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Bays_field.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Benches.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Benches.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Bins.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Bins.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Bollards.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Bollards.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Bus_Shelter.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Bus_Shelter.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/CCTV_Cameras.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/CCTV_Cameras.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/CarriagwayMarkings.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/CarriagwayMarkings.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Communication_Cabinets.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Communication_Cabinets.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/CrossingPoints.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/CrossingPoints.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Cycle_Parking.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Cycle_Parking.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Display_Boards.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Display_Boards.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/EV_Charging_Points.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/EV_Charging_Points.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/End_of_Street_Markings.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/End_of_Street_Markings.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/HighwayDedications.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/HighwayDedications.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/ISL_Electrical_Items.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/ISL_Electrical_Items.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Lines_field.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Lines_field.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/MHTC_RoadLink.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/MHTC_RoadLink.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/MovingTrafficPolygons_190507.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/MovingTrafficPolygons_190507.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Pedestrian_Railings.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Pedestrian_Railings.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Postboxes.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Postboxes.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/RestrictionForVehicles.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/RestrictionForVehicles.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/SpecialDesignations.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/SpecialDesignations.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/StreetNamePlates.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/StreetNamePlates.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Subterranean_Features.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Subterranean_Features.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/TelephoneBoxes.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/TelephoneBoxes.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Traffic_Calming.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Traffic_Calming.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Traffic_Signals.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Traffic_Signals.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/TurnRestrictions.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/TurnRestrictions.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Unidentified_Static_Object.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Unidentified_Static_Object.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/Vehicle_Barriers.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Vehicle_Barriers.ui" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

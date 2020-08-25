@@ -280,6 +280,10 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
 
+        elif currRestrictionLayer.name() == "CrossingPoints":
+            generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
+            currRestriction.setAttribute("GeomShapeID", 35)  # 35 = Crossover
+
         # set compliance defaults
         try:
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
