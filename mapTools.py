@@ -573,7 +573,7 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         self.currLayer.startEditing()  # doesn't return true when editing started - and so using isEditable
 
-        if self.currLayer.isEditable() == False:
+        if self.currLayer.isEditable() == False:   # removed so that "public" users are not effected
             reply = QMessageBox.information(None, "Information",
                                             "Could not start transaction on " + self.currLayer.name(),
                                             QMessageBox.Ok)

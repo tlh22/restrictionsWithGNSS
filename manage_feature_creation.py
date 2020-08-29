@@ -522,7 +522,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             else:
                 TOMsMessageLog.logMessage("In showRestrictionDetails: changes committed", level=Qgis.Info)
 
-        if self.iface.activeLayer().readOnly() == True:
+        """if self.iface.activeLayer().readOnly() == True:
             TOMsMessageLog.logMessage("In showSignDetails - Not able to start transaction ...",
                                      level=Qgis.Info)
         else:
@@ -530,7 +530,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                 reply = QMessageBox.information(None, "Information",
                                                 "Could not start transaction on " + self.currLayer.name(),
                                                 QMessageBox.Ok)
-                return
+                return"""
 
         self.dialog = self.iface.getFeatureForm(closestLayer, closestFeature)
         #self.TOMsUtils.setupRestrictionDialog(self.dialog, closestLayer, closestFeature)

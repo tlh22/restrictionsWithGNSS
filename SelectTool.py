@@ -280,7 +280,8 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
             else:
                 TOMsMessageLog.logMessage("In showRestrictionDetails: changes committed", level=Qgis.Info)
 
-        if self.iface.activeLayer().readOnly() == True:
+        status = self.iface.activeLayer().startEditing()
+        """if self.iface.activeLayer().readOnly() == True:
             TOMsMessageLog.logMessage("In showSignDetails - Not able to start transaction ...",
                                      level=Qgis.Info)
         else:
@@ -288,7 +289,7 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
                 reply = QMessageBox.information(None, "Information",
                                                 "Could not start transaction on " + self.currLayer.name(),
                                                 QMessageBox.Ok)
-                return
+                return"""
 
         dialog = self.iface.getFeatureForm(closestLayer, closestFeature)
         #self.TOMsUtils.setupRestrictionDialog(self.dialog, closestLayer, closestFeature)
