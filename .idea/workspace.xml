@@ -20,10 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2094ee45-18da-4c12-b946-fd1ca9d6b40e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619__2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ui/imageLabel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SelectTool.py" beforeDir="false" afterPath="$PROJECT_DIR$/SelectTool.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manage_feature_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage_feature_creation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mapTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/mapTools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619__2.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/MovingTrafficSigns_200619__2.ui" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +46,13 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/ui" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\marie_000\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\restrictionsWithGNSS\ui" />
+    </key>
   </component>
   <component name="SvnConfiguration">
     <configuration />

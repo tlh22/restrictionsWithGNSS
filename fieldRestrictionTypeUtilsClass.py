@@ -22,7 +22,7 @@ from qgis.PyQt.QtWidgets import (
     QLabel,
     QPushButton,
     QApplication,
-    QComboBox
+    QComboBox, QSizePolicy, QGridLayout
 )
 
 from qgis.PyQt.QtGui import (
@@ -70,6 +70,8 @@ from TOMs.generateGeometryUtils import generateGeometryUtils
 from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers, originalFeature, RestrictionTypeUtilsMixin)
 
 from TOMs.ui.TOMsCamera import (formCamera)
+from .ui.imageLabel import (imageLabel)
+
 cv2_available = True
 try:
     import cv2
@@ -463,6 +465,8 @@ class FieldRestrictionTypeUtilsMixin():
         TOMsMessageLog.logMessage("In photoDetails", level=Qgis.Info)
 
         FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
+        if not FIELD1:
+            TOMsMessageLog.logMessage("FIELD 1 is NOT found", level=Qgis.Warning)
         FIELD2 = self.demandDialog.findChild(QLabel, "Photo_Widget_02")
         FIELD3 = self.demandDialog.findChild(QLabel, "Photo_Widget_03")
 
@@ -536,9 +540,25 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Warning)
             takePhoto = False
 
+        photo_Widget = imageLabel()
+        sizePolicy = QSizePolicy( QSizePolicy.MinimumExpanding,
+            QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        #sizePolicy.setHeightForWidth(self.Photo_Widget_01.sizePolicy().hasHeightForWidth())
+        photo_Widget.setSizePolicy(sizePolicy)
+        #photo_Widget.setMaximumSize(QtCore.QSize(640, 480))
+        photo_Widget.setAutoFillBackground(True)
+        photo_Widget.setObjectName("Photo_Widget_01")
+        grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
+        grid.addWidget(photo_Widget, 0, 0, 1, 1)
+        photo_Widget.setText("No photo")
+
+        FIELD1 = photo_Widget
+
         if FIELD1:
-            TOMsMessageLog.logMessage("In photoDetails. FIELD 1 exisits",
-                                     level=Qgis.Info)
+            TOMsMessageLog.logMessage("In photoDetails. FIELD 1 exists",
+                                     level=Qgis.Warning)
             if self.currFeature[idx1]:
                 newPhotoFileName1 = os.path.join(path_absolute, self.currFeature[idx1])
                 TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(newPhotoFileName1), level=Qgis.Warning)
@@ -553,7 +573,8 @@ class FieldRestrictionTypeUtilsMixin():
             else:
                 FIELD1.setPixmap(pixmap1)
                 FIELD1.setScaledContents(True)
-                TOMsMessageLog.logMessage("In photoDetails. Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
+                #FIELD1.set_image(pixmap1)
+                TOMsMessageLog.logMessage("In photoDetails. FIELD 1 Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
 
             if takePhoto:
                 START_CAMERA_1 = self.demandDialog.findChild(QPushButton, "startCamera1")
