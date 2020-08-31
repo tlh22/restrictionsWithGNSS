@@ -36,12 +36,13 @@ class imageLabel(QtWidgets.QLabel):
         """self.setSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding,
             QtWidgets.QSizePolicy.MinimumExpanding
-        )
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        )"""
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Photo_Widget_01.sizePolicy().hasHeightForWidth())
-        self.setSizePolicy(sizePolicy)"""
+        #sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
+        self.setSizePolicy(sizePolicy)
+        self.setAutoFillBackground(True)
 
     def setPixmap(self, image):
         TOMsMessageLog.logMessage("In imageLabel.setPixmap ... ", level=Qgis.Info)
@@ -51,17 +52,6 @@ class imageLabel(QtWidgets.QLabel):
         if image and not image.isNull():
             self._empty = False
             self._displayed_pixmap = image
-
-    """def set_image(self, image):
-        self.origImage = image
-        self._zoom = 0
-        if image and not image.isNull():
-            self._empty = False
-            self._displayed_pixmap = image
-            # scale image to fit label
-            #self._displayed_pixmap.scaled(self.width(), self.height(), QtCore.Qt.KeepAspectRatio)
-            #self.setScaledContents(True)
-            #self.setMinimumSize(640, 480)"""
 
     def update_image(self, image):
         self._displayed_pixmap = image
@@ -113,8 +103,8 @@ class imageLabel(QtWidgets.QLabel):
                         self.top_left_corner.setX(0)
                         self.top_left_corner.setY(0)
                     else:
-                        self.top_left_corner.setX(self.top_left_corner.x() + curr_x - (curr_x * factor))
-                        self.top_left_corner.setY(self.top_left_corner.y() + curr_y - (curr_y * factor))
+                        self.top_left_corner.setX(self.top_left_corner.x() * factor + curr_x - (curr_x * factor))
+                        self.top_left_corner.setY(self.top_left_corner.y() * factor `+ curr_y - (curr_y * factor))
 
                     TOMsMessageLog.logMessage(
                             "In imageLabel.wheelEvent ... tl new 2 {}:{}".format(self.top_left_corner.x(),
