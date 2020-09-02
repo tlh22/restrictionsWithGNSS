@@ -26,8 +26,8 @@ ZOOM_LIMIT = 5
 class imageLabel(QtWidgets.QLabel):
     photoClicked = QtCore.pyqtSignal(QtCore.QPoint)
 
-    def __init__(self):
-        super(imageLabel, self).__init__()
+    def __init__(self, parent=None):
+        super(imageLabel, self).__init__(parent)
         self._empty = True
         self.top_left_corner = QtCore.QPoint(0, 0)
         #self.screenpoint = QtCore.QPoint(0, 0)

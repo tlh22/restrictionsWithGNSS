@@ -514,26 +514,35 @@ class FieldRestrictionTypeUtilsMixin():
                                  level=Qgis.Info)
 
         if cameraNr is not None:
-            TOMsMessageLog.logMessage("Camera TRUE", level=Qgis.Warning)
+            TOMsMessageLog.logMessage("Camera TRUE", level=Qgis.Info)
             takePhoto = True
         else:
-            TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Warning)
+            TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Info)
             takePhoto = False
+
+        FIELD1.setParent(None)
 
         photo_Widget1 = imageLabel()
         photo_Widget1.setObjectName("Photo_Widget_01")
         grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
-        grid.addWidget(photo_Widget1, 0, 0, 1, 1)
-        photo_Widget1.setText("No photo")
+        grid.addWidget(photo_Widget1, 0, 0, -1, -1)
+        photo_Widget1.setText("No photo is here")
+
+        sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        #sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
+        photo_Widget1.setSizePolicy(sizePolicy)
+        photo_Widget1.setAutoFillBackground(True)
 
         FIELD1 = photo_Widget1
 
         if FIELD1:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 1 exists",
-                                     level=Qgis.Warning)
+                                     level=Qgis.Info)
             if self.currFeature[idx1]:
                 newPhotoFileName1 = os.path.join(path_absolute, self.currFeature[idx1])
-                TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(newPhotoFileName1), level=Qgis.Warning)
+                TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(newPhotoFileName1), level=Qgis.Info)
             else:
                 newPhotoFileName1 = None
 
@@ -558,14 +567,14 @@ class FieldRestrictionTypeUtilsMixin():
                     functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1, FIELD1))
                 self.camera1.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
 
-        photo_Widget2 = imageLabel()
+        """photo_Widget2 = imageLabel()
 
         photo_Widget2.setObjectName("Photo_Widget_02")
         grid = self.demandDialog.findChild(QGridLayout, "gridLayout_4")
         grid.addWidget(photo_Widget2, 0, 0, 1, 1)
         photo_Widget2.setText("No photo")
 
-        FIELD2 = photo_Widget2
+        FIELD2 = photo_Widget2"""
 
         if FIELD2:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 2 exisits",
@@ -598,14 +607,14 @@ class FieldRestrictionTypeUtilsMixin():
                     functools.partial(self.camera2.useCamera, START_CAMERA_2, TAKE_PHOTO_2, FIELD2))
                 self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
 
-        photo_Widget3 = imageLabel()
+        """photo_Widget3 = imageLabel()
 
         photo_Widget3.setObjectName("Photo_Widget_03")
         grid = self.demandDialog.findChild(QGridLayout, "gridLayout_3")
         grid.addWidget(photo_Widget3, 0, 0, 1, 1)
         photo_Widget3.setText("No photo")
 
-        FIELD3 = photo_Widget3
+        FIELD3 = photo_Widget3"""
 
         if FIELD3:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 3 exisits",
