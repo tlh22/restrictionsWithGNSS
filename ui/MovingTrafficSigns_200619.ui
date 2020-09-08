@@ -200,19 +200,6 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
-        <widget class="QLineEdit" name="Notes">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-        </widget>
-       </item>
        <item row="11" column="1">
         <widget class="QLineEdit" name="AssetReference"/>
        </item>
@@ -245,6 +232,9 @@
           <string>Attached to:</string>
          </property>
         </widget>
+       </item>
+       <item row="12" column="1">
+        <widget class="QTextEdit" name="Notes"/>
        </item>
       </layout>
      </widget>

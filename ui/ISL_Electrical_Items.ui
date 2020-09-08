@@ -135,19 +135,6 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="QLineEdit" name="Notes">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="1">
         <widget class="QComboBox" name="Type_Description"/>
        </item>
@@ -167,6 +154,9 @@
           <string>Type Description:</string>
          </property>
         </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QTextEdit" name="Notes"/>
        </item>
       </layout>
      </widget>

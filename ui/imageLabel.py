@@ -43,6 +43,7 @@ class imageLabel(QtWidgets.QLabel):
         #sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
         self.setSizePolicy(sizePolicy)
         self.setAutoFillBackground(True)
+        self.setMouseTracking(True)
 
     def setPixmap(self, image):
         TOMsMessageLog.logMessage("In imageLabel.setPixmap ... ", level=Qgis.Info)
@@ -104,7 +105,7 @@ class imageLabel(QtWidgets.QLabel):
                         self.top_left_corner.setY(0)
                     else:
                         self.top_left_corner.setX(self.top_left_corner.x() * factor + curr_x - (curr_x * factor))
-                        self.top_left_corner.setY(self.top_left_corner.y() * factor `+ curr_y - (curr_y * factor))
+                        self.top_left_corner.setY(self.top_left_corner.y() * factor + curr_y - (curr_y * factor))
 
                     TOMsMessageLog.logMessage(
                             "In imageLabel.wheelEvent ... tl new 2 {}:{}".format(self.top_left_corner.x(),

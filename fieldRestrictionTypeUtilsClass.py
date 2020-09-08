@@ -70,7 +70,7 @@ from TOMs.generateGeometryUtils import generateGeometryUtils
 from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers, originalFeature, RestrictionTypeUtilsMixin)
 
 from TOMs.ui.TOMsCamera import (formCamera)
-from TOMs.ui.imageLabel import (imageLabel)
+from .ui.imageLabel import (imageLabel)
 
 cv2_available = True
 try:
@@ -127,6 +127,7 @@ class gpsLayers(TOMsLayers):
             "Benches",
             "Bins",
             "Bollards (point)",
+            "BusStopSigns",
             "CCTV_Cameras",
             "CommunicationCabinets",
             "CycleParking (point)",
@@ -520,22 +521,27 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Info)
             takePhoto = False
 
+        """tab = FIELD1.parentWidget()
+        grid = FIELD1.parentWidget().layout()
         FIELD1.setParent(None)
 
-        photo_Widget1 = imageLabel()
+        photo_Widget1 = imageLabel(tab)
         photo_Widget1.setObjectName("Photo_Widget_01")
-        grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
-        grid.addWidget(photo_Widget1, 0, 0, -1, -1)
-        photo_Widget1.setText("No photo is here")
+        #grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
+        grid.addWidget(photo_Widget1, 0, 0, 1, 1)
+        #grid.replaceWidget(FIELD1, photo_Widget1)
+        photo_Widget1.setText("No photo is here")"""
 
-        sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        """sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         #sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
         photo_Widget1.setSizePolicy(sizePolicy)
-        photo_Widget1.setAutoFillBackground(True)
+        photo_Widget1.setAutoFillBackground(True)"""
 
-        FIELD1 = photo_Widget1
+        #FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
+        #FIELD1 = photo_Widget1
+        #QtGui.QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
 
         if FIELD1:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 1 exists",

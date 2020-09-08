@@ -81,26 +81,10 @@ class featuresWithGPS:
         self.iface = iface
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
-        # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'Test5Class_{}.qm'.format(locale))
 
-        if os.path.exists(locale_path):
-            self.translator = QTranslator()
-            self.translator.load(locale_path)
-
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
-
-        # Declare instance attributes
         self.actions = []   # ?? check - assume it initialises array of actions
-        
-        # self.menu = self.tr(u'&Test5')
-        # TODO: We are going to let the user set this up in a future iteration
 
+        self.closeGPSToolsFlag = False
         # Set up log file and collect any relevant messages
         logFilePath = os.environ.get('QGIS_LOGFILE_PATH')
 
@@ -127,26 +111,11 @@ class featuresWithGPS:
         with open(self.filename, 'a') as logfile:
             logfile.write('{dateDetails}:: {message}\n'.format(dateDetails= time.strftime("%Y%m%d:%H%M%S"), message=message))
 
-    # noinspection PyMethodMayBeStatic
-    def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
-        """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('Test5Class', message)
-
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         QgsMessageLog.logMessage("Registering expression functions ... ", tag="TOMs panel")
 
-        self.hideMenusToolbars()
+        #self.hideMenusToolbars()
 
         # set up menu. Is there a generic way to do this? from an xml file?
 
@@ -173,43 +142,23 @@ class featuresWithGPS:
         #self.gpsTools.disableFeaturesWithGPSToolbarItems()
 
     def onInitGPSTools(self):
-        """Filter main layer based on date and state options"""
 
         QgsMessageLog.logMessage("In onInitGPSTools", tag="TOMs panel")
-
-        # print "** STARTING ProposalPanel"
-
-        # dockwidget may not exist if:
-        #    first run of plugin
-        #    removed on close (see self.onClosePlugin method)
-
-        # self.TOMSLayers.TOMsStartupFailure.connect(self.setCloseTOMsFlag)
-        # self.RestrictionTypeUtilsMixin.tableNames.TOMsStartupFailure.connect(self.closeTOMsTools)
 
         if self.actionGPSToolbar.isChecked():
 
             QgsMessageLog.logMessage("In onInitGPSTools. Activating ...", tag="TOMs panel")
-
             self.openGPSTools()
 
         else:
 
             QgsMessageLog.logMessage("In onInitGPSTools. Deactivating ...", tag="TOMs panel")
-
             self.closeGPSTools()
-
 
     def openGPSTools(self):
         # actions when the Proposals Panel is closed or the toolbar "start" is toggled
 
         QgsMessageLog.logMessage("In openGPSTools. Activating ...", tag="TOMs panel")
-        self.closeGPSToolsFlag = False
-
-        # Check that tables are present
-        QgsMessageLog.logMessage("In openGPSTools. Checking tables", tag="TOMs panel")
-        #self.tableNames.TOMsLayersNotFound.connect(self.setCloseTOMsFlag)
-
-        #self.tableNames.getLayers()
 
         if self.closeGPSToolsFlag:
             QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Unable to start GPSTools ..."))
@@ -236,8 +185,6 @@ class featuresWithGPS:
 
         self.gpsTools.disableFeaturesWithGPSToolbarItems()
 
-
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
 
@@ -249,71 +196,4 @@ class featuresWithGPS:
         #self.restoreMenusToolbars()
 
         QgsMessageLog.logMessage("Unload comnpleted ... ", tag="TOMs panel")
-
-    def hideMenusToolbars(self):
-        ''' Remove the menus and toolbars that we don't want (e.g., the Edit menu)
-            There should be a more elegant way to do this by checking the collection of menu items and removing certain ones.
-            This will do for the moment  !?! - See http://gis.stackexchange.com/questions/227876/finding-name-of-qgis-toolbar-in-python
-        '''
-
-        # Menus not required are Processing, Raster, Vector, Layer and Edit
-
-        # databaseMenu = self.iface.databaseMenu()
-        # databaseMenu.menuAction().setVisible( False )
-
-        #rasterMenu = self.iface.rasterMenu()
-        #rasterMenu.menuAction().setVisible( False )
-
-        # Toolbars not required are Vector, Managing Layers, File, Digitizing, Attributes, 
-        #digitizeToolBar = self.iface.digitizeToolBar()
-        #digitizeToolBar.setVisible( False )
-
-        #advancedDigitizeToolBar = self.iface.advancedDigitizeToolBar()
-        #advancedDigitizeToolBar.setVisible( False )
-
-        # Panels not required are Browser, Layer Order
-		
-        for x in self.iface.mainWindow().findChildren(QDockWidget):
-            QgsMessageLog.logMessage("Dockwidgets: " + str(x.objectName()), tag="TOMs panel")
-
-        # for x in self.iface.mainWindow().findChildren(QMenu): 
-        #     QgsMessageLog.logMessage("Menus: " + str(x.objectName()), tag="TOMs panel")
-
-        # rasterMenu = self.iface.rasterMenu()
-        # databaseMenu.menuAction().setVisible( False )
-        pass
-
-
-    def restoreMenusToolbars(self):
-        ''' Remove the menus and toolbars that we don't want (e.g., the Edit menu)
-            There should be a more elegant way to do this by checking the collection of menu items and removing certain ones.
-            This will do for the moment  !?! - See http://gis.stackexchange.com/questions/227876/finding-name-of-qgis-toolbar-in-python
-        '''
-
-        # Menus not required are Processing, Raster, Vector, Layer and Edit
-
-        databaseMenu = self.iface.databaseMenu()
-        databaseMenu.menuAction().setVisible( True )
-
-        rasterMenu = self.iface.rasterMenu()
-        rasterMenu.menuAction().setVisible( True )
-
-        # Toolbars not required are Vector, Managing Layers, File, Digitizing, Attributes, 
-        digitizeToolBar = self.iface.digitizeToolBar()
-        digitizeToolBar.setVisible( True )
-
-        advancedDigitizeToolBar = self.iface.advancedDigitizeToolBar()
-        advancedDigitizeToolBar.setVisible( True )
-
-        # Panels not required are Browser, Layer Order
-		
-        for x in self.iface.mainWindow().findChildren(QDockWidget): 
-            QgsMessageLog.logMessage("Dockwidgets: " + str(x.objectName()), tag="TOMs panel")
-
-        # for x in self.iface.mainWindow().findChildren(QMenu): 
-        #     QgsMessageLog.logMessage("Menus: " + str(x.objectName()), tag="TOMs panel")
-
-        # rasterMenu = self.iface.rasterMenu()
-        # databaseMenu.menuAction().setVisible( True )
-
 
