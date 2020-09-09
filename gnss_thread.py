@@ -54,7 +54,7 @@ import os, time
 
 class GPS_Thread(QObject):
 
-    # https://gis.stackexchange.com/questions/307209/accessing-gps-via-pyqgis
+    #https://gis.stackexchange.com/questions/307209/accessing-gps-via-pyqgis
 
     gpsActivated = pyqtSignal(QgsGpsConnection)
     """ signal will be emitted when gps is activated"""
@@ -66,96 +66,93 @@ class GPS_Thread(QObject):
         self.prj=QgsProject().instance()
         self.connectionRegistry = QgsApplication.gpsConnectionRegistry()
         super(GPS_Thread, self).__init__()
-
         try:
+            self.gps_active = False
             # set up transformation
             self.dest_crs = self.prj.crs()
             self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4326"), self.dest_crs,
                                                          QgsProject.instance())
-
+            self.gpsCon = None
             TOMsMessageLog.logMessage("In GPS_Thread.__init__ - initialised ... ",
                                      level=Qgis.Info)
-
+            self.retry_attempts = 0
         except Exception as e:
             TOMsMessageLog.logMessage(("In GPS_Thread.__init__ - exception: " + str(e)), level=Qgis.Warning)
             self.gpsError.emit(e)
 
-        self.gps_active = False
-        self.gpsConnection = None
         self.gpsPort = gpsPort
-        self.retry_attempts = 0
 
     def startGPS(self):
 
-        if not self.gps_active:
-            try:
-                TOMsMessageLog.logMessage("In GPS_Thread.startGPS on port {} - starting ... ".format(self.gpsPort),
-                                         level=Qgis.Info)
-                self.gpsConnection = None
-                self.gpsDetector = QgsGpsDetector(self.gpsPort)
-                self.gpsDetector.detected[QgsGpsConnection].connect(self.connection_succeed)
-                self.gpsDetector.detectionFailed.connect(self.connection_failed)
+        try:
+            TOMsMessageLog.logMessage("In GPS_Thread.startGPS - running ... ",
+                                     level=Qgis.Info)
+            self.gpsCon = None
+            #self.port = "COM3"  # TODO: Add menu to select port
+            self.gpsDetector = QgsGpsDetector(self.gpsPort)
+            self.gpsDetector.detected[QgsGpsConnection].connect(self.connection_succeed)
+            self.gpsDetector.detectionFailed.connect(self.connection_failed)
 
-                self.gpsDetector.advance()
+            self.gpsDetector.advance()
 
-            except Exception as e:
-                TOMsMessageLog.logMessage(("In GPS_Thread.startGPS - exception: " + str(e)),
-                                         level=Qgis.Warning)
-                self.gpsError.emit(e)
+        except Exception as e:
+            TOMsMessageLog.logMessage(("In GPS_Thread.startGPS - exception: " + str(e)),
+                                     level=Qgis.Warning)
+            self.gpsError.emit(e)
 
     def endGPS(self):
-        #self.gpsDetector.connDestroyed(self.gpsConnection)
-        # shutdown the receiver
-
+        TOMsMessageLog.logMessage(("In GPS_Thread.endGPS ...."),
+                                  level=Qgis.Warning)
         self.gps_active = False
 
-        if self.gpsConnection:
-            self.gpsConnection.stateChanged.disconnect(self.status_changed)
-            self.gpsConnection.close()
-            del self.gpsConnection
-            self.gpsConnection = None
-
+        # shutdown the receiver
+        if self.gpsCon is not None:
+            self.gpsCon.close()
+        TOMsMessageLog.logMessage(("In GPS_Thread.status_changed - deactivating gnss ... "),
+                                  level=Qgis.Warning)
+        self.connectionRegistry.unregisterConnection(self.gpsCon)
+        self.gpsDeactivated.emit()
 
     def connection_succeed(self, connection):
         try:
             TOMsMessageLog.logMessage(("In GPS_Thread.connection_succeed - GPS connected ...."),
-                                     level=Qgis.Info)
+                                     level=Qgis.Warning)
             self.gps_active = True
-            self.gpsConnection = connection
-
-            self.gpsConnection.stateChanged.connect(self.status_changed)
+            self.gpsCon = connection
             self.connectionRegistry.registerConnection(connection)
-
             self.gpsActivated.emit(connection)
+
+            self.gpsCon.stateChanged.connect(self.status_changed)
 
         except Exception as e:
             TOMsMessageLog.logMessage(("In GPS_Thread.connection_succeed - exception: " + str(e)),
                                      level=Qgis.Warning)
             self.gpsError.emit(e)
 
+            """while self.gps_active:
+            TOMsMessageLog.logMessage(
+                "In GPS_Thread:connection_succeed: checking status ... {}".format(self.attempts),
+                level=Qgis.Warning)
+            time.sleep(1.0)
+            self.attempts = self.attempts + 1
+            if self.attempts > 5:
+                TOMsMessageLog.logMessage(
+                    ("In GPS_Thread:status_changed: problem receiving gnss position ... exiting ... "),
+                    level=Qgis.Warning)
+                self.endGPS()"""
+
     def connection_failed(self):
         TOMsMessageLog.logMessage(("In GPS_Thread.connection_failed - GPS connection failed ...."),
-                                 level=Qgis.Warning)
+                                  level=Qgis.Warning)
         self.endGPS()
-        self.gpsDeactivated.emit()
-
-        """else:
-            # try again
-
-            self.retry_attempts = self.retry_attempts + 1
-
-            if self.retry_attempts > 5:
-                QMessageBox.information(self.iface.mainWindow(), "ERROR", ("GNSS connection lost ..."))
-                self.endGPS()
-                self.gpsDeactivated.emit()
-                #else:
-                #self.gpsDetector.advance()"""
 
     def status_changed(self,gpsInfo):
+        TOMsMessageLog.logMessage(("In GPS_Thread.status_changed ...."),
+                                  level=Qgis.Warning)
         if self.gps_active:
             try:
-                self.retry_attempts = self.retry_attempts + 1
-                if self.gpsConnection.status() == 3: #data received
+                #self.retry_attempts = self.retry_attempts + 1
+                if self.gpsCon.status() == 3: #data received
                     """TOMsMessageLog.logMessage(("In GPS - fixMode:" + str(gpsInfo.fixMode)),
                                              level=Qgis.Info)
                     TOMsMessageLog.logMessage(("In GPS - pdop:" + str(gpsInfo.pdop)),
@@ -178,14 +175,16 @@ class GPS_Thread(QObject):
                     time.sleep(1)
 
                     TOMsMessageLog.logMessage(("In GPS - location:" + mapPointXY.asWkt()),
-                                             level=Qgis.Info)
-                    self.retry_attempts = 0
+                                             level=Qgis.Warning)
+                    self.attempts = 0
 
-                else:
+                    """else:
+                    TOMsMessageLog.logMessage(("In GPS_Thread:status_changed: problem receiving gnss position ... "),
+                                              level=Qgis.Info)
                     if self.retry_attempts > 5:
-                        QMessageBox.information(self.iface.mainWindow(), "ERROR", ("GNSS connection lost ..."))
-                        self.gps_active = False
-                        self.connection_failed()
+                        TOMsMessageLog.logMessage(("In GPS_Thread:status_changed: problem receiving gnss position ... exiting ... "),
+                                                  level=Qgis.Info)
+                        self.gps_active = False"""
 
             except Exception as e:
                 TOMsMessageLog.logMessage(("In GPS_Thread.status_changed - exception: " + str(e)),
@@ -193,19 +192,12 @@ class GPS_Thread(QObject):
                 self.gpsError.emit(e)
             return
 
-        else:
-
-            self.endGPS()
-            #del self.gpsDetector
-            #self.connectionRegistry.unregisterConnection(self.gpsConnection)
-            self.gpsDeactivated.emit()
-
     def getLocationFromGPS(self):
         TOMsMessageLog.logMessage(
             "In CreateFeatureWithGPSTool - addPointFromGPS",
             level=Qgis.Info)
         # assume that GPS is connected and get current co-ords ...
-        GPSInfo = self.gpsConnection.currentGPSInformation()
+        GPSInfo = self.gpsCon.currentGPSInformation()
         lon = GPSInfo.longitude
         lat = GPSInfo.latitude
         TOMsMessageLog.logMessage(
@@ -219,12 +211,3 @@ class GPS_Thread(QObject):
         # opportunity to add details about GPS point to another table
 
         return gpsPt
-
-
-    # @pyqtSlot(Exception, str)
-    def gpsErrorEncountered(self, e):
-        TOMsMessageLog.logMessage("In enableTools - GPS connection has error ",
-                                  level=Qgis.Info)
-        QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Error encountered with GNSS. Closing tools ..."))
-
-        self.gnssStopped.emit()

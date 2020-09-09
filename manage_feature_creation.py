@@ -60,6 +60,7 @@ import os, time
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
 from TOMs.search_bar import searchBar
 from .mapTools import CreateRestrictionTool, CreatePointTool
+from .gnss_thread import GPS_Thread
 #from TOMsUtils import *
 
 from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
@@ -254,6 +255,10 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
             self.actionCreateSign.setEnabled(True)
             self.lastCentre = QgsPointXY(0,0)
 
+    def disableGnssToolbarItem(self):
+        self.actionAddGPSLocation.setEnabled(False)
+        self.actionCreateSign.setEnabled(False)
+
     def disableToolbarItems(self):
 
         self.actionCreateRestriction.setEnabled(False)
@@ -264,16 +269,12 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         self.searchBar.disableSearchBar()
 
-        if self.gpsConnection:
-            self.actionAddGPSLocation.setEnabled(False)
+        """if self.gpsConnection:
+            self.actionAddGPSLocation.setEnabled(False)"""
 
     def setCloseTOMsFlag(self):
         self.closeTOMs = True
         QMessageBox.information(self.iface.mainWindow(), "ERROR", ("Now closing TOMs ..."))
-
-    def setCloseCaptureGPSFeaturesFlag(self):
-        self.closeCaptureGPSFeatures = True
-        self.gpsAvailable = True
 
     def disableFeaturesWithGPSToolbarItems(self):
 
@@ -285,10 +286,11 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         # TODO: Need to delete any tools ...
         for layer, mapTool in self.createMapToolDict.items  ():
-            if layer.rollBack() == False:
+            status = layer.rollBack()
+            """if layer.rollBack() == False:
                 reply = QMessageBox.information(None, "Information",
                                                 "Problem rolling back changes" + str(self.currLayer.commitErrors()),
-                                                QMessageBox.Ok)
+                                                QMessageBox.Ok)"""
             del mapTool
 
         self.createMapToolDict = {}
@@ -318,10 +320,64 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         self.tableNames.removePathFromLayerForms()
 
+    def setCloseCaptureGPSFeaturesFlag(self):
+        self.closeCaptureGPSFeatures = True
+        self.gpsAvailable = True
+
     def onGroupTriggered(self, action):
         # hold the current action
         self.currGnssAction = action
-        TOMsMessageLog.logMessage("In onGroupTriggered: curr action is {}".format(action.text()), level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In onGroupTriggered: curr action is {}".format(action.text()), level=Qgis.Info)
+
+    """ 
+        Using signals for ChangeTool and ChangeLayer to manage the tools - with the following functions
+    """
+    def isGnssTool(self, mapTool):
+
+        if (isinstance(mapTool, CreateRestrictionTool) or
+           isinstance(mapTool, GeometryInfoMapTool) or
+           isinstance(mapTool, RemoveRestrictionTool)):
+            return True
+
+        return False
+
+    def changeMapTool2(self):
+        TOMsMessageLog.logMessage(
+            "In changeMapTool2 ...", level=Qgis.Info)
+
+        currMapTool = self.iface.mapCanvas().mapTool()
+
+        if not self.isGnssTool(currMapTool):
+            TOMsMessageLog.logMessage(
+                "In changeMapTool2. Unchecking action ...", level=Qgis.Info)
+            if self.currGnssAction:
+                self.currGnssAction.setChecked(False)
+        else:
+            TOMsMessageLog.logMessage(
+            "In changeMapTool2. No action for gnssTools.", level=Qgis.Info)
+
+        TOMsMessageLog.logMessage(
+            "In changeMapTool2. finished.", level=Qgis.Info)
+        #print('tool unset')
+
+    def changeCurrLayer2(self):
+        TOMsMessageLog.logMessage("In changeLayer2 ... ", level=Qgis.Info)
+
+        currMapTool = self.iface.mapCanvas().mapTool()
+
+        self.currGnssAction.setChecked(False)
+
+        """if self.isGnssTool(currMapTool):
+            TOMsMessageLog.logMessage("In changeLayer2. Action triggered ... ", level=Qgis.Info)
+            self.currGnssAction.trigger()  # assumption is that there is an action associated with the tool
+        else:
+            TOMsMessageLog.logMessage(
+            "In changeLayer2. No action for currentMapTool.", level=Qgis.Info)"""
+
+        TOMsMessageLog.logMessage(
+            "In changeLayer2. finished.", level=Qgis.Info)
+        print('layer changed')
+
 
     def doCreateRestriction(self):
 
@@ -392,52 +448,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         TOMsMessageLog.logMessage("In doCreateRestriction. Here 4", level=Qgis.Info)
 
-    """ 
-        Using signals for ChangeTool and ChangeLayer to manage the tools - with the following functions
-    """
-    def isGnssTool(self, mapTool):
 
-        if (isinstance(mapTool, CreateRestrictionTool) or
-           isinstance(mapTool, GeometryInfoMapTool) or
-           isinstance(mapTool, RemoveRestrictionTool)):
-            return True
-
-        return False
-
-    def changeMapTool2(self):
-        TOMsMessageLog.logMessage(
-            "In changeMapTool2 ...", level=Qgis.Info)
-
-        currMapTool = self.iface.mapCanvas().mapTool()
-
-        if not self.isGnssTool(currMapTool):
-            TOMsMessageLog.logMessage(
-                "In changeMapTool2. Unchecking action ...", level=Qgis.Info)
-            if self.currGnssAction:
-                self.currGnssAction.setChecked(False)
-        else:
-            TOMsMessageLog.logMessage(
-            "In changeMapTool2. No action for gnssTools.", level=Qgis.Info)
-
-        TOMsMessageLog.logMessage(
-            "In changeMapTool2. finished.", level=Qgis.Info)
-        print('tool unset')
-
-    def changeCurrLayer2(self):
-        TOMsMessageLog.logMessage("In changeLayer2 ... ", level=Qgis.Info)
-
-        currMapTool = self.iface.mapCanvas().mapTool()
-
-        if self.isGnssTool(currMapTool):
-            TOMsMessageLog.logMessage("In changeLayer2. Action triggered ... ", level=Qgis.Info)
-            self.currGnssAction.trigger()  # assumption is that there is an action associated with the tool
-        else:
-            TOMsMessageLog.logMessage(
-            "In changeLayer2. No action for currentMapTool.", level=Qgis.Info)
-
-        TOMsMessageLog.logMessage(
-            "In changeLayer2. finished.", level=Qgis.Info)
-        print('layer changed')
 
     # -- end of tools for signals
 
@@ -764,6 +775,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                 self.canvas.scene().removeItem(self.marker)
 
         self.gpsConnection = None
+        self.disableGnssToolbarItem()
 
     #@pyqtSlot()
     def gpsPositionProvided(self, mapPointXY, gpsInfo):
@@ -808,158 +820,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
     #@pyqtSlot(Exception, str)
     def gpsErrorEncountered(self, e):
-        TOMsMessageLog.logMessage("In enableTools - GPS connection has error ",
-                                     level=Qgis.Info)
+        TOMsMessageLog.logMessage("In enableTools - GPS connection has error {}".format(e),
+                                     level=Qgis.Warning)
         """self.actionCreateRestriction.setEnabled(False)
         self.actionAddGPSLocation.setEnabled(False)"""
-        self.disableToolbarItems()
+        self.disableGnssToolbarItem()
 
-
-class GPS_Thread(QObject):
-
-    #https://gis.stackexchange.com/questions/307209/accessing-gps-via-pyqgis
-
-    gpsActivated = pyqtSignal(QgsGpsConnection)
-    """ signal will be emitted when gps is activated"""
-    gpsDeactivated = pyqtSignal()
-    gpsError = pyqtSignal(Exception)
-    gpsPosition = pyqtSignal(object, object)
-
-    def __init__(self, dest_crs, gpsPort):
-        self.prj=QgsProject().instance()
-        self.connectionRegistry = QgsApplication.gpsConnectionRegistry()
-        super(GPS_Thread, self).__init__()
-        try:
-            self.gps_active = False
-            # set up transformation
-            self.dest_crs = self.prj.crs()
-            self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4326"), self.dest_crs,
-                                                         QgsProject.instance())
-            self.gpsCon = None
-            TOMsMessageLog.logMessage("In GPS_Thread.__init__ - initialised ... ",
-                                     level=Qgis.Info)
-            self.retry_attempts = 0
-        except Exception as e:
-            TOMsMessageLog.logMessage(("In GPS_Thread.__init__ - exception: " + str(e)), level=Qgis.Warning)
-            self.gpsError.emit(e)
-
-        self.gpsPort = gpsPort
-
-    def startGPS(self):
-
-        try:
-            TOMsMessageLog.logMessage("In GPS_Thread.startGPS - running ... ",
-                                     level=Qgis.Info)
-            self.gpsCon = None
-            #self.port = "COM3"  # TODO: Add menu to select port
-            self.gpsDetector = QgsGpsDetector(self.gpsPort)
-            self.gpsDetector.detected[QgsGpsConnection].connect(self.connection_succeed)
-            self.gpsDetector.detectionFailed.connect(self.connection_failed)
-
-            self.gpsDetector.advance()
-
-        except Exception as e:
-            TOMsMessageLog.logMessage(("In GPS_Thread.startGPS - exception: " + str(e)),
-                                     level=Qgis.Warning)
-            self.gpsError.emit(e)
-
-    def endGPS(self):
-        try:
-            TOMsMessageLog.logMessage(("In GPS_Thread.endGPS - GPS deactivated ...."),
-                                     level=Qgis.Info)
-            self.gps_active = False
-
-        except Exception as e:
-            TOMsMessageLog.logMessage(("In GPS_Thread.endGPS - exception: " + str(e)),
-                                     level=Qgis.Warning)
-            self.gpsError.emit(e)
-
-    def connection_succeed(self, connection):
-        try:
-            TOMsMessageLog.logMessage(("In GPS_Thread.connection_succeed - GPS connected ...."),
-                                     level=Qgis.Info)
-            self.gps_active = True
-            self.gpsCon = connection
-
-            self.gpsCon.stateChanged.connect(self.status_changed)
-
-            self.connectionRegistry.registerConnection(connection)
-            self.gpsActivated.emit(connection)
-
-        except Exception as e:
-            TOMsMessageLog.logMessage(("In GPS_Thread.connection_succeed - exception: " + str(e)),
-                                     level=Qgis.Warning)
-            self.gpsError.emit(e)
-
-    def connection_failed(self):
-        if not self.gps_active:
-            TOMsMessageLog.logMessage(("In GPS_Thread.connection_failed - GPS connection failed ...."),
-                                     level=Qgis.Warning)
-            self.endGPS()
-            self.gpsDeactivated.emit()
-
-    def status_changed(self,gpsInfo):
-        if self.gps_active:
-            try:
-                self.retry_attempts = self.retry_attempts + 1
-                if self.gpsCon.status() == 3: #data received
-                    """TOMsMessageLog.logMessage(("In GPS - fixMode:" + str(gpsInfo.fixMode)),
-                                             level=Qgis.Info)
-                    TOMsMessageLog.logMessage(("In GPS - pdop:" + str(gpsInfo.pdop)),
-                                             level=Qgis.Info)
-                    TOMsMessageLog.logMessage(("In GPS - satellitesUsed:" + str(gpsInfo.satellitesUsed)),
-                                             level=Qgis.Info)
-                    TOMsMessageLog.logMessage(("In GPS - longitude:" + str(gpsInfo.longitude)),
-                                             level=Qgis.Info)
-                    TOMsMessageLog.logMessage(("In GPS - latitude:" + str(gpsInfo.latitude)),
-                                             level=Qgis.Info)
-                    TOMsMessageLog.logMessage(("In GPS - ====="),
-                                             level=Qgis.Info)"""
-                    wgs84_pointXY = QgsPointXY(gpsInfo.longitude, gpsInfo.latitude)
-                    wgs84_point = QgsPoint(wgs84_pointXY)
-                    wgs84_point.transform(self.transformation)
-                    x = wgs84_point.x()
-                    y = wgs84_point.y()
-                    mapPointXY = QgsPointXY(x, y)
-                    self.gpsPosition.emit(mapPointXY, gpsInfo)
-                    time.sleep(1)
-
-                    TOMsMessageLog.logMessage(("In GPS - location:" + mapPointXY.asWkt()),
-                                             level=Qgis.Info)
-                    self.retry_attempts = 0
-
-                else:
-                    if self.retry_attempts > 5:
-                        self.gps_active = False
-
-            except Exception as e:
-                TOMsMessageLog.logMessage(("In GPS_Thread.status_changed - exception: " + str(e)),
-                                         level=Qgis.Warning)
-                self.gpsError.emit(e)
-            return
-
-        # shutdown the receiver
-        if self.gpsCon is not None:
-            self.gpsCon.close()
-        self.connectionRegistry.unregisterConnection(self.gpsCon)
-        self.gpsDeactivated.emit()
-
-    def getLocationFromGPS(self):
-        TOMsMessageLog.logMessage(
-            "In CreateFeatureWithGPSTool - addPointFromGPS",
-            level=Qgis.Info)
-        # assume that GPS is connected and get current co-ords ...
-        GPSInfo = self.gpsCon.currentGPSInformation()
-        lon = GPSInfo.longitude
-        lat = GPSInfo.latitude
-        TOMsMessageLog.logMessage(
-            "In CreateFeatureWithGPSTool:addPointFromGPS - lat: " + str(lat) + " lon: " + str(lon),
-            level=Qgis.Info)
-        # ** need to be able to convert from lat/long to Point
-        gpsPt = self.transformation.transform(QgsPointXY(lon,lat))
-
-        #self.gpsPosition.emit(gpsPt)
-
-        # opportunity to add details about GPS point to another table
-
-        return gpsPt
