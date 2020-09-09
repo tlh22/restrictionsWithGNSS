@@ -21,8 +21,8 @@
   <component name="ChangeListManager">
     <list default="true" id="2094ee45-18da-4c12-b946-fd1ca9d6b40e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gnss_thread.py" beforeDir="false" afterPath="$PROJECT_DIR$/gnss_thread.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manage_feature_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage_feature_creation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/ISL_Electrical_Items.ui" beforeDir="false" afterPath="$PROJECT_DIR$/ui/ISL_Electrical_Items.ui" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

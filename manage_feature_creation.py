@@ -365,7 +365,10 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         currMapTool = self.iface.mapCanvas().mapTool()
 
-        self.currGnssAction.setChecked(False)
+        try:
+            self.currGnssAction.setChecked(False)
+        except Exception as e:
+            None
 
         """if self.isGnssTool(currMapTool):
             TOMsMessageLog.logMessage("In changeLayer2. Action triggered ... ", level=Qgis.Info)
