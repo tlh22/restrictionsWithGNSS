@@ -93,88 +93,31 @@ class gpsLayers(TOMsLayers):
             "Lines",
             "Signs",
             "RestrictionPolygons",
-            # "ConstructionLines",
-            # "CPZs",
-            # "ParkingTariffAreas",
-            # "StreetGazetteerRecords",
             "RoadCentreLine",
             "RoadCasement",
-            # "RestrictionTypes",
             "AdditionalConditionTypes",
-            "BayLineTypes",
-            "BayTypesInUse",
             "BayTypesInUse_View",
-            "LineTypesInUse",
+            #"LineTypesInUse",
             "LineTypesInUse_View",
-            "RestrictionPolygonTypes",
-            "RestrictionPolygonTypesInUse",
+            #"RestrictionPolygonTypes",
+            #"RestrictionPolygonTypesInUse",
             "RestrictionPolygonTypesInUse_View",
             "LengthOfTime",
             "PaymentTypes",
             #"RestrictionShapeTypes",
-            "MHTC_CheckIssueTypes",
+            #"MHTC_CheckIssueTypes",
             #"MHTC_CheckStatus",
-            "SignConditionTypes",
-            "SignIlluminationTypes",
+            #"SignConditionTypes",
+            #"SignIlluminationTypes",
             "SignOrientationTypes",
-            "SignTypes",
-            "SignTypesInUse",
+            #"SignTypes",
+            #"SignTypesInUse",
             "SignTypesInUse_View",
-            "TimePeriods",
-            "TimePeriodsInUse",
+            #"TimePeriods",
+            #"TimePeriodsInUse",
             "TimePeriodsInUse_View",
             "UnacceptableTypes",
-            "Benches",
-            "Bins",
-            "Bollards (point)",
-            "BusStopSigns",
-            "CCTV_Cameras",
-            "CommunicationCabinets",
-            "CycleParking (point)",
-            "CycleParking (in a line)",
-            "DisplayBoards",
-            "EV_ChargingPoints",
-            "StreetNamePlates",
-            "SubterraneanFeatures",
-            "TrafficSignals",
-            "UnidentifiedStaticObjects",
-            "VehicleBarriers",
-            "Bollards (in a line)",
-            "BusShelters",
-            "CrossingPoints",
-            "EndOfStreetMarkings",
-            "PedestrianRailings",
-            "TrafficCalming",
-            "ISL_Electrical_Items",
-            "ISL_Electrical_Item_Types",
-            "AssetConditionTypes",
-            "BinTypes",
-            "BollardTypes",
-            "CommunicationCabinetTypes",
-            "CrossingPointTypes",
-            "CycleParkingTypes",
-            "DisplayBoardTypes",
-            "EV_ChargingPointTypes",
-            "EndOfStreetMarkingTypes",
-            "PedestrianRailingsTypes",
-            "Postboxes",
-            "SubterraneanFeatureTypes",
-            "TelephoneBoxes",
-            "TelegraphPoles",
-            "TrafficCalmingTypes",
-            "VehicleBarrierTypes",
-            "AccessRestrictions",
-            "CarriagewayMarkingTypesInUse",
-            "CarriagewayMarkingTypesInUse_View",
-            "CarriagewayMarkings",
-            "HighwayDedications",
-            "RestrictionsForVehicles",
-            "StructureTypeValues",
-            "SpecialDesignations",
-            "TurnRestrictions",
-            "vehicleQualifiers",
-            "MHTC_RoadLinks",
-            "MHTC_Kerblines",
+
             "GNSS_Pts"
 
                          ]
@@ -225,11 +168,18 @@ class FieldRestrictionTypeUtilsMixin():
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())"""
 
-        currentCPZ, cpzWaitingTimeID, cpzMatchDayTimePeriodID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
-        """TOMsMessageLog.logMessage(
-            "In setDefaultFieldRestrictionDetails. CPZ found: {}: control: {}".format(currentCPZ, cpzWaitingTimeID),
-            level=Qgis.Warning)"""
-        #currRestriction.setAttribute("CPZ", currentCPZ)
+
+        try:
+            currentCPZ, cpzWaitingTimeID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
+            """TOMsMessageLog.logMessage(
+                "In setDefaultFieldRestrictionDetails. CPZ found: {}: control: {}".format(currentCPZ, cpzWaitingTimeID),
+                level=Qgis.Warning)"""
+            #currRestriction.setAttribute("CPZ", currentCPZ)
+        except Exception as e:
+            TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. Problem with setting CPZ: {}".format(e),
+                                      level=Qgis.Info)
+            currentCPZ = None
+            cpzWaitingTimeID = None
 
         newRestrictionID = str(uuid.uuid4())
         currRestriction.setAttribute("RestrictionID", newRestrictionID)
@@ -245,11 +195,18 @@ class FieldRestrictionTypeUtilsMixin():
             #currRestriction.setAttribute("CreateDateTime", currDate)
             currRestriction.setAttribute("UnacceptableTypeID", self.readLastUsedDetails("Lines", "UnacceptableTypeID", None))
 
+            try:
+                if currRestriction.attribute("UnacceptableTypeID"):
+                    currRestriction.setAttribute("GeomShapeID", 35)
+            except Exception as e:
+                TOMsMessageLog.logMessage(
+                    "In setDefaultFieldRestrictionDetails. Problem with setting UnacceptableTypeID: {}".format(e),
+                    level=Qgis.Info)
+
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
             currRestriction.setAttribute("CPZ", currentCPZ)
-            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
 
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
@@ -268,20 +225,9 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
             currRestriction.setAttribute("CPZ", currentCPZ)
-            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
 
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
-
-            try:
-                payParkingAreasLayer = QgsProject.instance().mapLayersByName("PayParkingAreas")[0]
-                currPayParkingArea = generateGeometryUtils.getPolygonForRestriction(currRestriction,
-                                                                                    payParkingAreasLayer)
-                currRestriction.setAttribute("PayParkingAreaID", currPayParkingArea.attribute("Code"))
-            except Exception as e:
-                TOMsMessageLog.logMessage(
-                    "In setDefaultFieldRestrictionDetails. issue obtaining PayParkingAreaID: {}".format(e),
-                    level=Qgis.Info)
 
         elif currRestrictionLayer.name() == "Signs":
             currRestriction.setAttribute("SignType_1", self.readLastUsedDetails("Signs", "SignType_1", 28))  # 28 = Permit Holders Only (Signs)
@@ -291,10 +237,7 @@ class FieldRestrictionTypeUtilsMixin():
 
         elif currRestrictionLayer.name() == "RestrictionPolygons":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("RestrictionPolygons", "RestrictionTypeID", 4))  # 28 = Residential mews area (RestrictionPolygons)
-
             currRestriction.setAttribute("CPZ", currentCPZ)
-            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
-
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 50))   # 10 = Parallel Line
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
@@ -508,7 +451,7 @@ class FieldRestrictionTypeUtilsMixin():
         try:
             cameraNr = int(self.params.setParam("CameraNr"))
         except Exception as e:
-            TOMsMessageLog.logMessage("In photoDetails_field: cameraNr issue: {}".format(e), level=Qgis.Info)
+            TOMsMessageLog.logMessage("In formCamera:init: cameraNr issue: {}".format(e), level=Qgis.Warning)
             if cv2_available:
                 cameraNr = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
             cameraNr = None
