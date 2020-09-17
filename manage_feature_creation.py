@@ -286,11 +286,13 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         # TODO: Need to delete any tools ...
         for layer, mapTool in self.createMapToolDict.items  ():
-            status = layer.rollBack()
-            """if layer.rollBack() == False:
-                reply = QMessageBox.information(None, "Information",
-                                                "Problem rolling back changes" + str(self.currLayer.commitErrors()),
-                                                QMessageBox.Ok)"""
+            try:
+                status = layer.rollBack()
+            except Exception as e:
+                None
+                """reply = QMessageBox.information(None, "Information",
+                                                    "Problem rolling back changes" + str(self.currLayer.commitErrors()),
+                                                    QMessageBox.Ok)"""
             del mapTool
 
         self.createMapToolDict = {}
@@ -363,9 +365,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
     def changeCurrLayer2(self):
         TOMsMessageLog.logMessage("In changeLayer2 ... ", level=Qgis.Info)
 
-        currMapTool = self.iface.mapCanvas().mapTool()
-
         try:
+            currMapTool = self.iface.mapCanvas().mapTool()
             self.currGnssAction.setChecked(False)
         except Exception as e:
             None

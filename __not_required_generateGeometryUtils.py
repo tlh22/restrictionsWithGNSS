@@ -32,12 +32,12 @@ from qgis.utils import iface
 
 import math
 from cmath import rect, phase
-
-class generateGeometryUtils:
+#from TOMs.generateGeometryUtils import generateGeometryUtils as TOMsGenerateGeometryUtils
+class generateGeometryUtils(TOMsGenerateGeometryUtils):
     # https://gis.stackexchange.com/questions/95528/produce-line-from-components-length-and-angle?noredirect=1&lq=1
     # direction cosines function
 
-    @staticmethod
+    """@staticmethod
     def cosdir_azim(azim):
         az = math.radians(azim)
         cosa = math.sin(az)
@@ -95,6 +95,7 @@ class generateGeometryUtils:
         currAzA = generateGeometryUtils.checkDegrees(currAz + float(Turn))
 
         # QgsMessageLog.logMessage("In calcBisector: prevAzA: " + str(prevAzA) + " currAzA: " + str(currAzA), tag="TOMs panel")
+        """
 
         """
         if prevAz > 180:
@@ -103,6 +104,7 @@ class generateGeometryUtils:
             revPrevAz = prevAz + float(180)
         """
 
+        """
         # QgsMessageLog.logMessage("In calcBisector: revPrevAz: " + str(revPrevAz), tag="TOMs panel")
 
         diffAz = prevAzA - currAzA
@@ -133,6 +135,7 @@ class generateGeometryUtils:
 
         return newAz
 
+    """
     @staticmethod
     def setRoadName(feature):
 

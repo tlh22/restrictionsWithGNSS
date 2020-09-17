@@ -15,3 +15,10 @@ ORDER BY "LastUpdatePerson"
 	) AS s
 GROUP BY "LastUpdatePerson"
 ORDER BY "LastUpdatePerson"
+
+
+SELECT "LastUpdatePerson", MIN("LastUpdateDateTime"), MAX("LastUpdateDateTime"), MAX("LastUpdateDateTime") - MIN("LastUpdateDateTime") AS Hours
+FROM toms."Signs"
+WHERE date_trunc('day', "LastUpdateDateTime") = date_trunc('day', now() - interval '6 day')
+GROUP BY "LastUpdatePerson"
+ORDER BY "LastUpdatePerson"

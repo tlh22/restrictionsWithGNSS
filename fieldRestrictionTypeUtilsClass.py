@@ -160,6 +160,7 @@ class gpsLayers(TOMsLayers):
             "Postboxes",
             "SubterraneanFeatureTypes",
             "TelephoneBoxes",
+            "TelegraphPoles",
             "TrafficCalmingTypes",
             "VehicleBarrierTypes",
             "AccessRestrictions",
