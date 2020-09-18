@@ -189,7 +189,7 @@ class FieldRestrictionTypeUtilsMixin():
         if currRestrictionLayer.name() == "Lines":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Lines", "RestrictionTypeID", 201))  # 10 = SYL (Lines)
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 10))   # 10 = Parallel Line
-            currRestriction.setAttribute("NoWaitingTimeID", cpzWaitingTimeID)
+            currRestriction.setAttribute("NoWaitingTimeID", self.readLastUsedDetails("Lines", "NoWaitingTimeID", 1))  # 1 = 'At Any Time'
             #currRestriction.setAttribute("NoLoadingTimeID", self.readLastUsedDetails("Lines", "NoLoadingTimeID", None))
             #currRestriction.setAttribute("NoWTimeID", cpzWaitingTimeID)
             #currRestriction.setAttribute("CreateDateTime", currDate)
@@ -215,7 +215,7 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Bays", "RestrictionTypeID", 101))  # 28 = Permit Holders Bays (Bays)
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Bays", "GeomShapeID", 1)) # 21 = Parallel Bay (Polygon)
             currRestriction.setAttribute("NrBays", -1)
-            currRestriction.setAttribute("TimePeriodID", cpzWaitingTimeID)
+            currRestriction.setAttribute("TimePeriodID", self.readLastUsedDetails("Bays", "TimePeriodID", 1))  # 1 = 'At Any Time'
 
             #currRestriction.setAttribute("MaxStayID", ptaMaxStayID)
             #currRestriction.setAttribute("NoReturnID", ptaNoReturnTimeID)
