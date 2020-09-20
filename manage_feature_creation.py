@@ -160,6 +160,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         self.mapTool = None
         self.currGnssAction = None
+        self.gpsConnection = None
+        self.createMapToolDict = {}
 
     def enableFeaturesWithGPSToolbarItems(self):
 

@@ -225,7 +225,7 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())"""
 
 
-        currentCPZ, cpzWaitingTimeID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
+        currentCPZ, cpzWaitingTimeID, cpzMatchDayTimePeriodID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
         """TOMsMessageLog.logMessage(
             "In setDefaultFieldRestrictionDetails. CPZ found: {}: control: {}".format(currentCPZ, cpzWaitingTimeID),
             level=Qgis.Warning)"""
@@ -249,6 +249,7 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
             currRestriction.setAttribute("CPZ", currentCPZ)
+            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
 
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
@@ -267,6 +268,7 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
             currRestriction.setAttribute("CPZ", currentCPZ)
+            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
 
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
@@ -279,7 +281,10 @@ class FieldRestrictionTypeUtilsMixin():
 
         elif currRestrictionLayer.name() == "RestrictionPolygons":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("RestrictionPolygons", "RestrictionTypeID", 4))  # 28 = Residential mews area (RestrictionPolygons)
+
             currRestriction.setAttribute("CPZ", currentCPZ)
+            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
+
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 50))   # 10 = Parallel Line
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue

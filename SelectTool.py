@@ -177,7 +177,7 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
             featureList.append(f)
             layerList.append(self.currLayer)
 
-        TOMsMessageLog.logMessage("In findNearestFeatureAt: nrFeatures: " + str(len(featureList)), level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In findNearestFeatureAt: Considering layer: {}; nrFeatures: {}".format(self.currLayer.name(), len(featureList)), level=Qgis.Warning)
 
         if len(featureList) == 0:
             return None, None

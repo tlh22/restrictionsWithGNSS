@@ -21,11 +21,9 @@
   <component name="ChangeListManager">
     <list default="true" id="2094ee45-18da-4c12-b946-fd1ca9d6b40e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database Scripts/Check_Worked_Distances.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Database Scripts/Check_Worked_Distances.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SelectTool.py" beforeDir="false" afterPath="$PROJECT_DIR$/SelectTool.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/fieldRestrictionTypeUtilsClass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generateGeometryUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/__not_required_generateGeometryUtils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manage_feature_creation.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage_feature_creation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mapTools_218.py" beforeDir="false" afterPath="$PROJECT_DIR$/mapTools_218.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
