@@ -69,6 +69,8 @@ from qgis.gui import (
 
 #from .formUtils import demandFormUtils
 
+from TOMs.core.TOMsMessageLog import TOMsMessageLog
+
 #############################################################################
 
 class getLinkDetailsMapTool(QgsMapToolIdentify):

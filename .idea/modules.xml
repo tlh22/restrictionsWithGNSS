@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/featureswithgps.iml" filepath="$PROJECT_DIR$/.idea/featureswithgps.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/restrictionsWithGNSS.iml" filepath="$PROJECT_DIR$/.idea/restrictionsWithGNSS.iml" />
     </modules>
   </component>
 </project>

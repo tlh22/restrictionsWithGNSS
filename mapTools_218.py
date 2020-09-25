@@ -28,7 +28,7 @@ from PyQt4.QtGui import *
 
 from core.proposalsManager import *
 #from restrictionTypeUtils import RestrictionTypeUtils
-from generateGeometryUtils import generateGeometryUtils
+from TOMs.generateGeometryUtils import generateGeometryUtils
 from TOMs.restrictionTypeUtilsClass import RestrictionTypeUtilsMixin
 #from TOMs.CadNodeTool.TOMsNodeTool import originalFeature
 

@@ -40,6 +40,7 @@ from qgis.PyQt.QtCore import (
 from qgis.PyQt.QtWidgets import QMenu, QAction, QDockWidget, QMessageBox, QToolTip
 
 from qgis.core import (
+    Qgis,
     QgsGeometry,
     QgsGeometryCollection,
     QgsCurve,
@@ -69,7 +70,8 @@ from qgis.gui import (
     QgsMapToolEmitPoint
 )
 
-from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin
+from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
+from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 import functools
 
@@ -171,8 +173,8 @@ class MapToolMixin:
                     closestFeature = f
                     closestLayer = self.currLayer
 
-        #QgsMessageLog.logMessage("In findNearestFeatureAt: shortestDistance: " + str(shortestDistance), tag="TOMs panel")
-        QgsMessageLog.logMessage("In findNearestFeatureAt: nrFeatures: " + str(len(featureList)), tag="TOMs panel")
+        #QgsMessageLog.logMessage("In findNearestFeatureAt: shortestDistance: " + str(shortestDistance), level=Qgis.Info)
+        TOMsMessageLog.logMessage("In findNearestFeatureAt: nrFeatures: " + str(len(featureList)), level=Qgis.Info)
 
         if shortestDistance < float("inf"):
             return closestFeature, closestLayer
@@ -250,7 +252,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
     def __init__(self, iface, layer):
 
-        QgsMessageLog.logMessage(("In CreateRestrictionTool - init."), tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In CreateRestrictionTool - init."), level=Qgis.Info)
         if layer.geometryType() == 0: # PointGeometry:
             captureMode = (CreateRestrictionTool.CapturePoint)
         elif layer.geometryType() == 1: # LineGeometry:
@@ -258,16 +260,19 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         elif layer.geometryType() == 2: # PolygonGeometry:
             captureMode = (CreateRestrictionTool.CapturePolygon)
         else:
-            QgsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), tag="TOMs panel")
+            TOMsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), level=Qgis.Warning)
             return
 
         QgsMapToolCapture.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
         FieldRestrictionTypeUtilsMixin.__init__(self, iface)
 
         # https: // qgis.org / api / classQgsMapToolCapture.html
-        canvas = iface.mapCanvas()
+        self.canvas = iface.mapCanvas()
         self.iface = iface
         self.layer = layer
+
+        self.tableNames = gpsLayers(self.iface)
+        self.tableNames.getLayers()
 
         #self.inProcess = True
 
@@ -278,20 +283,10 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         elif self.layer.geometryType() == 2: # PolygonGeometry:
             self.captureMode(CreateRestrictionTool.CapturePolygon)
         else:
-            QgsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), tag="TOMs panel")
+            TOMsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), level=Qgis.Info)
             return"""
 
         #self.dialog = dialog
-        # Check that GPS is connected ... if not exit
-        """if self.getGPSConnection() is False:
-            QMessageBox.information(self.iface.mainWindow(), "ERROR",
-                                    ("GPS Connection is not present"))
-            # TODO: Need to set a signal to stop operations with this tool
-            return
-
-        # set up transformation
-        dest_crs = self.layer.sourceCrs()
-        self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem(4326), dest_crs, QgsProject.instance())"""
 
         #advancedDigitizingPanel = self.iface.AdvancedDigitizingTools()
 
@@ -314,9 +309,9 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         # I guess at this point, it is possible to set things like capture mode, snapping preferences, ... (not sure of all the elements that are required)
         # capture mode (... not sure if this has already been set? - or how to set it)
 
-        QgsMessageLog.logMessage("In CreateRestrictionTool - geometryType for " + str(self.layer.name()) + ": " + str(self.layer.geometryType()), tag="TOMs panel")
+        TOMsMessageLog.logMessage("In CreateRestrictionTool - geometryType for " + str(self.layer.name()) + ": " + str(self.layer.geometryType()), level=Qgis.Info)
 
-        QgsMessageLog.logMessage(("In CreateRestrictionTool - mode set."), tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In CreateRestrictionTool - mode set."), level=Qgis.Info)
 
         # Seems that this is important - or at least to create a point list that is used later to create Geometry
         self.sketchPoints = self.points()
@@ -329,7 +324,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         #self.currLayer = self.currentVectorLayer()
         self.currLayer = self.layer
 
-        QgsMessageLog.logMessage(("In CreateRestrictionTool - init. Curr layer is " + str(self.currLayer.name()) + "Incoming: " + str(self.layer)), tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In CreateRestrictionTool - init. Curr layer is " + str(self.currLayer.name()) + "Incoming: " + str(self.layer)), level=Qgis.Info)
 
         # set up snapping configuration   *******************
         """
@@ -367,7 +362,6 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         self.TOMsTracer.setExtent(tracerExtent)"""
 
-
         #self.TOMsTracer.setMaxFeatureCount(1000)
         self.lastPoint = None
 
@@ -379,30 +373,25 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         # set up function to be called when capture is complete
         #self.onCreateRestriction = onCreateRestriction
+        self.reset()
+
+    def reset(self):
+        #self.startPoint = self.endPoint = None
+        self.rb.reset(True)
 
     def cadCanvasReleaseEvent(self, event):
         QgsMapToolCapture.cadCanvasReleaseEvent(self, event)
-        QgsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent"), tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent"), level=Qgis.Info)
 
         if event.button() == Qt.LeftButton:
             if not self.isCapturing():
                 self.startCapturing()
-            #self.result = self.addVertex(self.toMapCoordinates(event.pos()))
             checkSnapping = event.isSnapped
-            QgsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: checkSnapping = " + str(checkSnapping), tag="TOMs panel")
-
-            """tolerance_nearby = 0.5
-            tolerance = tolerance_nearby
-
-            searchRect = QgsRectangle(self.currPoint.x() - tolerance,
-                                      self.currPoint.y() - tolerance,
-                                      self.currPoint.x() + tolerance,
-                                      self.currPoint.y() + tolerance)"""
+            TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: checkSnapping = " + str(checkSnapping), level=Qgis.Info)
 
             #locator = self.snappingUtils.snapToMap(self.currPoint)
 
             # Now wanting to add point(s) to new shape. Take account of snapping and tracing
-            # self.toLayerCoordinates(self.layer, event.pos())
             self.currPoint = event.snapPoint()    #  1 is value of QgsMapMouseEvent.SnappingMode (not sure where this is defined)
             self.lastEvent = event
             # If this is the first point, add and k
@@ -413,52 +402,26 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             if not self.lastPoint:
 
                 self.result = self.addVertex(self.currPoint)
-                QgsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: adding vertex 0 " + str(self.result), tag="TOMs panel")
+                TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: adding vertex 0 " + str(self.result), level=Qgis.Info)
 
             else:
 
-                # check for shortest line
-                """resVectorList = self.TOMsTracer.findShortestPath(self.lastPoint, self.currPoint)
-
-                QgsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: traceList" + str(resVectorList), tag="TOMs panel")
-                QgsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: traceList" + str(resVectorList[1]), tag="TOMs panel")
-                if resVectorList[1] == 0:
-                    # path found, add the points to the list
-                    QgsMessageLog.logMessage("In Create - cadCanvasReleaseEvent (found path) ", tag="TOMs panel")
-
-                    #self.points.extend(resVectorList)
-                    initialPoint = True
-                    for point in resVectorList[0]:
-                        if not initialPoint:
-
-                            QgsMessageLog.logMessage(("In CreateRestrictionTool - cadCanvasReleaseEvent (found path) X:" + str(
-                                point.x()) + " Y: " + str(point.y())), tag="TOMs panel")
-
-                            self.result = self.addVertex(point)
-
-                        initialPoint = False
-
-                    QgsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent (added shortest path)"),
-                                             tag="TOMs panel")
-
-                else:"""
-                    # error encountered, add just the curr point ??
-
                 self.result = self.addVertex(self.currPoint)
-                QgsMessageLog.logMessage(("In CreateRestrictionTool - (adding shortest path) X:" + str(self.currPoint.x()) + " Y: " + str(self.currPoint.y())), tag="TOMs panel")
+                TOMsMessageLog.logMessage(("In CreateRestrictionTool - (adding shortest path) X:" + str(self.currPoint.x()) + " Y: " + str(self.currPoint.y())), level=Qgis.Info)
 
             self.lastPoint = self.currPoint
 
-            QgsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent (AddVertex/Line) Result: " + str(self.result) + " X:" + str(self.currPoint.x()) + " Y:" + str(self.currPoint.y())), tag="TOMs panel")
+            TOMsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent (AddVertex/Line) Result: " + str(self.result) + " X:" + str(self.currPoint.x()) + " Y:" + str(self.currPoint.y())), level=Qgis.Info)
+
+            if self.layer.geometryType() == 0:
+                self.getPointsCaptured()
 
         elif (event.button() == Qt.RightButton):
             # Stop capture when right button or escape key is pressed
-            #points = self.getCapturedPoints()
             self.getPointsCaptured()
 
             # Need to think about the default action here if none of these buttons/keys are pressed.
 
-        pass
 
     def keyPressEvent(self, event):
         if (event.key() == Qt.Key_Backspace) or (event.key() == Qt.Key_Delete) or (event.key() == Qt.Key_Escape):
@@ -469,27 +432,22 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             # Need to think about the default action here if none of these buttons/keys are pressed. 
 
     def getPointsCaptured(self):
-        QgsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured"), tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured"), level=Qgis.Info)
 
         # Check the number of points
         self.nrPoints = self.size()
-        QgsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured; Stopping: " + str(self.nrPoints)),
-                                 tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured; Stopping: " + str(self.nrPoints)),
+                                 level=Qgis.Info)
 
         self.sketchPoints = self.points()
 
         for point in self.sketchPoints:
-            QgsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured X:" + str(point.x()) + " Y: " + str(point.y())), tag="TOMs panel")
+            TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured X:" + str(point.x()) + " Y: " + str(point.y())), level=Qgis.Info)
 
         # stop capture activity
         self.stopCapturing()
 
         if self.nrPoints > 0:
-
-            if self.layer.startEditing() == False:
-                reply = QMessageBox.information(None, "Information",
-                                                "Could not start transaction on " + self.layer.name(),
-                                                QMessageBox.Ok)
 
             # take points from the rubber band and copy them into the "feature"
 
@@ -497,7 +455,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             feature = QgsFeature()
             feature.setFields(fields)
 
-            QgsMessageLog.logMessage(("In CreateRestrictionTool. getPointsCaptured, layerType: " + str(self.layer.geometryType())), tag="TOMs panel")
+            TOMsMessageLog.logMessage(("In CreateRestrictionTool. getPointsCaptured, layerType: " + str(self.layer.geometryType())), level=Qgis.Info)
 
             if self.layer.geometryType() == 0:  # Point
                 feature.setGeometry(QgsGeometry.fromPointXY(self.sketchPoints[0]))
@@ -507,52 +465,27 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
                 feature.setGeometry(QgsGeometry.fromPolygonXY([self.sketchPoints]))
                 #feature.setGeometry(QgsGeometry.fromPolygonXY(self.sketchPoints))
             else:
-                QgsMessageLog.logMessage(("In CreateRestrictionTool - no geometry type found"), tag="TOMs panel")
+                TOMsMessageLog.logMessage(("In CreateRestrictionTool - no geometry type found"), level=Qgis.Info)
                 return
 
-            # Currently geometry is not being created correct. Might be worth checking co-ord values ...
-
-            #self.valid = feature.isValid()
-
-            QgsMessageLog.logMessage(("In Create - getPointsCaptured; geometry prepared; " + str(feature.geometry().asWkt())),
-                                     tag="TOMs panel")
+            TOMsMessageLog.logMessage(("In Create - getPointsCaptured; geometry prepared; " + str(feature.geometry().asWkt())),
+                                     level=Qgis.Info)
 
             if self.layer.name() == "ConstructionLines":
                 self.layer.addFeature(feature)
-                pass
             else:
 
                 # set any geometry related attributes ...
 
                 self.setDefaultFieldRestrictionDetails(feature, self.layer, QDate.currentDate())
-
-                # is there any other tidying to do ??
-
-                #self.layer.startEditing()
-                #dialog = self.iface.getFeatureForm(self.layer, feature)
-
-                #currForm = dialog.attributeForm()
-                #currForm.disconnectButtonBox()
-
-                QgsMessageLog.logMessage("In CreateRestrictionTool - getPointsCaptured. currRestrictionLayer: " + str(self.layer.name()),
-                                         tag="TOMs panel")
-
-                #button_box = currForm.findChild(QDialogButtonBox, "button_box")
-                #button_box.accepted.disconnect(currForm.accept)
-
-                # Disconnect the signal that QGIS has wired up for the dialog to the button box.
-                # button_box.accepted.disconnect(restrictionsDialog.accept)
-                # Wire up our own signals.
-                #button_box.accepted.connect(functools.partial(RestrictionTypeUtils.onSaveRestrictionDetails, feature, self.layer, currForm))
-                #button_box.rejected.connect(dialog.reject)
-
-                # To allow saving of the original feature, this function follows changes to attributes within the table and records them to the current feature
-                #currForm.attributeChanged.connect(functools.partial(self.onAttributeChanged, feature))
-                # Can we now implement the logic from the form code ???
-
-                newRestrictionID = str(uuid.uuid4())
-                feature[self.layer.fields().indexFromName("GeometryID")] = newRestrictionID
                 self.layer.addFeature(feature)  # TH (added for v3)
+                #self.layer.reload()
+                TOMsMessageLog.logMessage("In CreateRestrictionTool - getPointsCaptured. currRestrictionLayer: " + str(self.layer.name()),
+                                         level=Qgis.Info)
+
+                #newRestrictionID = str(uuid.uuid4())
+                #feature[self.layer.fields().indexFromName("GeometryID")] = newRestrictionID
+
 
                 dialog = self.iface.getFeatureForm(self.layer, feature)
 
@@ -560,103 +493,102 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
                 self.inProcess = False
                 dialog.show()
-                #self.iface.openFeatureForm(self.layer, feature, False, False)
 
             pass
-
-        #def onAttributeChanged(self, feature, fieldName, value):
-        # QgsMessageLog.logMessage("In restrictionFormOpen:onAttributeChanged - layer: " + str(layer.name()) + " (" + str(feature.attribute("RestrictionID")) + "): " + fieldName + ": " + str(value), tag="TOMs panel")
-
-        #feature.setAttribute(fieldName, value)
-
-    """def prepareCurrentRestriction(self):
-
-        fields = self.layer.dataProvider().fields()
-        feature = QgsFeature()
-        feature.setFields(fields)
-
-        QgsMessageLog.logMessage(
-            ("In CreateRestrictionTool. getPointsCaptured, layerType: " + str(self.layer.geometryType())),
-            tag="TOMs panel")
-
-        if self.layer.geometryType() == 0:  # Point
-            feature.setGeometry(QgsGeometry.fromPointXY(self.sketchPoints[0]))
-        elif self.layer.geometryType() == 1:  # Line
-            feature.setGeometry(QgsGeometry.fromPolylineXY(self.sketchPoints))
-        elif self.layer.geometryType() == 2:  # Polygon
-            feature.setGeometry(QgsGeometry.fromPolygonXY([self.sketchPoints]))
-            # feature.setGeometry(QgsGeometry.fromPolygonXY(self.sketchPoints))
-        else:
-            QgsMessageLog.logMessage(("In CreateRestrictionTool - no geometry type found"), tag="TOMs panel")
-            return
-
-        QgsMessageLog.logMessage(
-            ("In Create - getPointsCaptured; geometry prepared; " + str(feature.geometry().asWkt())),
-            tag="TOMs panel")
-
-        if self.layer.name() == "ConstructionLines":
-            self.layer.addFeature(feature)
-            pass
-        else:
-
-            QgsMessageLog.logMessage(
-                "In CreateRestrictionTool - getPointsCaptured. currRestrictionLayer: " + str(self.layer.name()),
-                tag="TOMs panel")
-
-            self.layer.addFeature(feature)  # TH (added for v3)"""
 
 
     def addPointFromGPS(self, curr_gps_location, curr_gps_info):
-        QgsMessageLog.logMessage(
-            "In CreateFeatureWithGPSTool - addPointFromGPS",
-            tag="TOMs panel")
+        TOMsMessageLog.logMessage(
+            "In CreateRestrictionTool - addPointFromGPS",
+            level=Qgis.Warning)
 
         status = self.addVertex(curr_gps_location)
 
         # TODO: opportunity to add details about GPS point to another table
+        self.store_gnss_pts(curr_gps_location, curr_gps_info)
 
         return status
 
-        """def deactivated(self):
-        QgsMessageLog.logMessage(("In CreateRestrictionTool - deactivated."), tag="TOMs panel")
-        self.deActivatedInProcess.emit(self.inProcess)"""
-
-        """def activated(self):
-        QgsMessageLog.logMessage(("In CreateRestrictionTool - activated."), tag="TOMs panel")
-        self.alreadyExists = True"""
-
-class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
+class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
     def __init__(self, iface, layer):
 
-        QgsMessageLog.logMessage(("In CreatePointTool - init."), tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In CreatePointTool - init."), level=Qgis.Info)
+
+        if layer.geometryType() == 0: # PointGeometry:
+            captureMode = (CreateRestrictionTool.CapturePoint)
+        else:
+            TOMsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), level=Qgis.Warning)
+            return
+
+        QgsMapToolCapture.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
+        FieldRestrictionTypeUtilsMixin.__init__(self, iface)
+
+        # TODO: change pointer type so that know in this tool
 
         self.iface = iface
         self.canvas = iface.mapCanvas()
         self.currLayer = layer
 
-        QgsMapToolEmitPoint.__init__(self, iface.mapCanvas())
-        FieldRestrictionTypeUtilsMixin.__init__(self, iface)
+        self.lastPoint = None
+
+        self.setAutoSnapEnabled(True)
+
+        self.tableNames = gpsLayers(self.iface)
+        self.tableNames.getLayers()
 
     def canvasReleaseEvent(self, event):
 
-        QgsMessageLog.logMessage(("In CreatePointTool - canvasReleaseEvent."), tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In CreatePointTool.canvasReleaseEvent."), level=Qgis.Info)
 
-        if self.currLayer.startEditing() == False:
+        if not self.isCapturing():
+            self.startCapturing()
+
+        self.currPoint = event.snapPoint()  # 1 is value of QgsMapMouseEvent.SnappingMode (not sure where this is defined)
+        #self.lastEvent = event
+        # If this is the first point, add and k
+
+        nrPoints = self.size()
+        #checkSnapping = event.isSnapped
+        #self.lastPoint = self.currPoint
+        self.result = self.addVertex(self.currPoint)
+
+        self.processPoint()
+
+    def processPoint(self):
+        TOMsMessageLog.logMessage(
+            "In CreatePointTool.processPoint",
+            level=Qgis.Warning)
+
+        self.sketchPoints = self.points()
+        nrPoints = self.size()
+
+        for point in self.sketchPoints:
+            TOMsMessageLog.logMessage(
+                ("In CreateRestrictionTool - getPointsCaptured X:" + str(point.x()) + " Y: " + str(point.y())),
+                level=Qgis.Warning)
+
+        # stop capture activity
+        self.stopCapturing()
+
+        self.currLayer.startEditing()  # doesn't return true when editing started - and so using isEditable
+
+        if self.currLayer.isEditable() == False:   # removed so that "public" users are not effected
             reply = QMessageBox.information(None, "Information",
                                             "Could not start transaction on " + self.currLayer.name(),
                                             QMessageBox.Ok)
 
-        x = event.pos().x()
-        y = event.pos().y()
-        pointLocation = self.canvas.getCoordinateTransform().toMapCoordinates(x, y)
-        QgsMessageLog.logMessage("In CreatePointTool - location" + " X: " +str(pointLocation.x()) + " Y: " + str(pointLocation.y()), tag="TOMs panel")
+        #x = event.pos().x()
+        #y = event.pos().y()
+        #pointLocation = self.canvas.getCoordinateTransform().toMapCoordinates(x, y)
+
+        #TOMsMessageLog.logMessage("In CreatePointTool - location" + " X: " +str(pointLocation.x()) + " Y: " + str(pointLocation.y()), level=Qgis.Info)
 
         fields = self.currLayer.dataProvider().fields()
         feature = QgsFeature()
         feature.setFields(fields)
-
-        feature.setGeometry(QgsGeometry.fromPointXY(pointLocation))
+        feature.setGeometry(QgsGeometry.fromPointXY(self.sketchPoints[0]))
+        #feature.setGeometry(QgsGeometry.fromPointXY(pointLocation))
 
         self.setDefaultFieldRestrictionDetails(feature, self.currLayer, QDate.currentDate())
 
@@ -667,6 +599,28 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolEmitPoint ):
         self.setupFieldRestrictionDialog(dialog, self.currLayer, feature)  # connects signals, etc
 
         dialog.show()
+
+    def addPointFromGPS(self, curr_gps_location, curr_gps_info):
+        TOMsMessageLog.logMessage(
+            "In CreatePointTool.addPointFromGPS",
+            level=Qgis.Info)
+
+        if not self.isCapturing():
+            self.startCapturing()
+
+        status = self.addVertex(curr_gps_location)
+
+        # TODO: opportunity to add details about GPS point to another table
+        self.store_gnss_pts(curr_gps_location, curr_gps_info)
+
+        self.processPoint()
+
+        return status
+
+    def deactivate(self):
+        TOMsMessageLog.logMessage(("In CreatePointTool - deactivated."), level=Qgis.Info)
+        #QgsMapTool.deactivate(self)
+        self.deactivated.emit()
 
 class getMTR_PointMapTool(QgsMapToolIdentify):
 
@@ -684,7 +638,7 @@ class getMTR_PointMapTool(QgsMapToolIdentify):
     def canvasReleaseEvent(self, event):
         # Return point under cursor
 
-        QgsMessageLog.logMessage(("In Info - canvasReleaseEvent."), tag="TOMs panel")
+        TOMsMessageLog.logMessage(("In Info - canvasReleaseEvent."), level=Qgis.Info)
 
         currPt = self.canvas.mouseLastXY()
 
@@ -711,4 +665,5 @@ class getMTR_PointMapTool(QgsMapToolIdentify):
 
 
         return nearestLink, nearestNode
+
 

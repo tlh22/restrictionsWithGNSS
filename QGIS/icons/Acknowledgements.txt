@@ -1,0 +1,4 @@
+Image licenses
+https://icons.getbootstrap.com/ (most ...)
+https://svgsilh.com/ (person walking)
+https://css.gg/ (Camera)
