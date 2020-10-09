@@ -225,7 +225,6 @@ class FieldRestrictionTypeUtilsMixin():
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())"""
 
-
         currentCPZ, cpzWaitingTimeID, cpzMatchDayTimePeriodID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
         """TOMsMessageLog.logMessage(
             "In setDefaultFieldRestrictionDetails. CPZ found: {}: control: {}".format(currentCPZ, cpzWaitingTimeID),
@@ -273,6 +272,16 @@ class FieldRestrictionTypeUtilsMixin():
 
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
+
+            try:
+                payParkingAreasLayer = QgsProject.instance().mapLayersByName("PayParkingAreas")[0]
+                currPayParkingArea = generateGeometryUtils.getPolygonForRestriction(currRestriction,
+                                                                                    payParkingAreasLayer)
+                currRestriction.setAttribute("PayParkingAreaID", currPayParkingArea.attribute("Code"))
+            except Exception as e:
+                TOMsMessageLog.logMessage(
+                    "In setDefaultFieldRestrictionDetails. issue obtaining PayParkingAreaID: {}".format(e),
+                    level=Qgis.Info)
 
         elif currRestrictionLayer.name() == "Signs":
             currRestriction.setAttribute("SignType_1", self.readLastUsedDetails("Signs", "SignType_1", 28))  # 28 = Permit Holders Only (Signs)
@@ -499,7 +508,7 @@ class FieldRestrictionTypeUtilsMixin():
         try:
             cameraNr = int(self.params.setParam("CameraNr"))
         except Exception as e:
-            TOMsMessageLog.logMessage("In formCamera:init: cameraNr issue: {}".format(e), level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In photoDetails_field: cameraNr issue: {}".format(e), level=Qgis.Info)
             if cv2_available:
                 cameraNr = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
             cameraNr = None

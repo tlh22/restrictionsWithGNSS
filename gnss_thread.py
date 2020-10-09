@@ -148,7 +148,7 @@ class GPS_Thread(QObject):
 
     def status_changed(self,gpsInfo):
         TOMsMessageLog.logMessage(("In GPS_Thread.status_changed ...."),
-                                  level=Qgis.Warning)
+                                  level=Qgis.Info)
         if self.gps_active:
             try:
                 #self.retry_attempts = self.retry_attempts + 1
@@ -175,7 +175,7 @@ class GPS_Thread(QObject):
                     time.sleep(1)
 
                     TOMsMessageLog.logMessage(("In GPS - location:" + mapPointXY.asWkt()),
-                                             level=Qgis.Warning)
+                                             level=Qgis.Info)
                     self.attempts = 0
 
                     """else:
