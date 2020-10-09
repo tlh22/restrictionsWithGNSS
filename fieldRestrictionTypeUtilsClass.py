@@ -174,6 +174,7 @@ class gpsLayers(TOMsLayers):
             "TurnRestrictions",
             "vehicleQualifiers",
             "MHTC_RoadLinks",
+            "MHTC_Kerblines",
             "GNSS_Pts"
 
                          ]
