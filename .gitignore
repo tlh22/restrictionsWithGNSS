@@ -4,3 +4,5 @@
 /venv/
 /__pychache__/
 
+.idea/workspace.xml
+__pycache__/fieldRestrictionTypeUtilsClass.cpython-37.pyc
