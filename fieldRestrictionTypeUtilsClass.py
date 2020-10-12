@@ -174,8 +174,8 @@ class gpsLayers(TOMsLayers):
             "TurnRestrictions",
             "vehicleQualifiers",
             "MHTC_RoadLinks",
-            "GNSS_Pts"
-
+            "GNSS_Pts",
+            "MHTC_Kerblines"
                          ]
         self.TOMsLayerDict = {}
 
