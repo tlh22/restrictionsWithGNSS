@@ -27,7 +27,7 @@ class imageLabel(QtWidgets.QLabel):
     photoClicked = QtCore.pyqtSignal(QtCore.QPoint)
 
     def __init__(self, parent=None):
-        super(imageLabel, self).__init__(parent)
+        super(imageLabel, self).__init__(parent=parent)
         self._empty = True
         self.top_left_corner = QtCore.QPoint(0, 0)
         #self.screenpoint = QtCore.QPoint(0, 0)
@@ -127,6 +127,7 @@ class imageLabel(QtWidgets.QLabel):
                                   level=Qgis.Warning)"""
 
     def paintEvent(self, paint_event):
+        super().paintEvent(paint_event)
         painter = QtGui.QPainter(self)
 
         painter.drawPixmap(self.top_left_corner.x(), self.top_left_corner.y(), self._displayed_pixmap)
