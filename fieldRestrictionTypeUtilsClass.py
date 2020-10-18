@@ -538,7 +538,7 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Info)
             takePhoto = False
 
-        """tab = FIELD1.parentWidget()
+        tab = FIELD1.parentWidget()
         grid = FIELD1.parentWidget().layout()
         FIELD1.setParent(None)
 
@@ -547,7 +547,7 @@ class FieldRestrictionTypeUtilsMixin():
         #grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
         grid.addWidget(photo_Widget1, 0, 0, 1, 1)
         #grid.replaceWidget(FIELD1, photo_Widget1)
-        photo_Widget1.setText("No photo is here")"""
+        photo_Widget1.setText("No photo is here")
 
         """sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
@@ -557,7 +557,7 @@ class FieldRestrictionTypeUtilsMixin():
         photo_Widget1.setAutoFillBackground(True)"""
 
         #FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
-        #FIELD1 = photo_Widget1
+        FIELD1 = photo_Widget1
         #QtGui.QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
 
         if FIELD1:
@@ -583,11 +583,11 @@ class FieldRestrictionTypeUtilsMixin():
                 ZOOM_IN_1 = self.demandDialog.findChild(QPushButton, "pb_zoomIn_01")
 
                 #self.FIELD1 = FIELD1
-                self.formZoom1 = formZoom(pixmap1)
-                #ZOOM_IN_1.clicked.connect(
+                #self.formZoom1 = formZoom(pixmap1)
+                ZOOM_IN_1.clicked.connect(FIELD1._zoomIn)
                 #    functools.partial(self.field_ZoomIn, self.FIELD1, pixmap1, orig_pixmap1))
                 ZOOM_OUT_1 = self.demandDialog.findChild(QPushButton, "pb_zoomOut_01")
-                self.formZoom1.setupZoom(ZOOM_IN_1, ZOOM_OUT_1, FIELD1)
+                #self.formZoom1.setupZoom(ZOOM_IN_1, ZOOM_OUT_1, FIELD1)
 
             if takePhoto:
                 START_CAMERA_1 = self.demandDialog.findChild(QPushButton, "startCamera1")
