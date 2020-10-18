@@ -127,6 +127,7 @@ class imageLabel(QtWidgets.QLabel):
                                   level=Qgis.Warning)"""
 
     def paintEvent(self, paint_event):
+        TOMsMessageLog.logMessage("In imageLabel::paintEvent ... ", level=Qgis.Warning)
         super().paintEvent(paint_event)
         painter = QtGui.QPainter(self)
 

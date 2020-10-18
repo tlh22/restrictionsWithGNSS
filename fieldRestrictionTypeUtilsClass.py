@@ -70,7 +70,7 @@ from TOMs.generateGeometryUtils import generateGeometryUtils
 from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers, originalFeature, RestrictionTypeUtilsMixin)
 
 from TOMs.ui.TOMsCamera import (formCamera)
-#from .ui.imageLabel import (imageLabel)
+from restrictionsWithGNSS.ui.imageLabel import (imageLabel)
 
 cv2_available = True
 try:
@@ -576,7 +576,7 @@ class FieldRestrictionTypeUtilsMixin():
                 # FIELD1.setText('Picture could not be opened ({path})'.format(path=newPhotoFileName1))
             else:
                 FIELD1.setPixmap(pixmap1)
-                FIELD1.setScaledContents(True)
+                #FIELD1.setScaledContents(True)
                 #orig_pixmap1 = pixmap1
                 #FIELD1.set_image(pixmap1)
                 TOMsMessageLog.logMessage("In photoDetails. FIELD 1 Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
@@ -798,7 +798,7 @@ class formZoom(QObject):
     def __init__(self, origPixmap):
         QObject.__init__(self)
         self.origPixmap = origPixmap
-
+        self._displayed_pixmap = QPixmap()
         self._zoom = 0
         self.top_left_corner = QtCore.QPoint(0, 0)
         self.top_left_corner.setX(0)
@@ -808,11 +808,12 @@ class formZoom(QObject):
     def displayZoomFrame(self, new_pixmap):
         TOMsMessageLog.logMessage("In formZoom::displayFrame ... ", level=Qgis.Warning)
         print ("New pixmap size: {}".format(new_pixmap.size()))
-        self.FIELD.setPixmap(new_pixmap)
+        #self.FIELD.setPixmap(new_pixmap)
         #self.FIELD.setScaledContents(True)
         QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
         #self.update()
         self.FIELD.update()
+        self.paintEvent()
 
     def setupZoom(self, ZOOM_IN_BUTTON, ZOOM_OUT_BUTTON, FIELD):
         TOMsMessageLog.logMessage("In formCamera::useCamera ... ", level=Qgis.Info)
@@ -834,8 +835,32 @@ class formZoom(QObject):
         self.FIELD.setAutoFillBackground(True)
         #self.setMouseTracking(True)
 
+        """tab = FIELD.parentWidget()
+        grid = FIELD.parentWidget().layout()
+        FIELD.setParent(None)
+
+        photo_Widget = imageLabel(tab)
+        #photo_Widget1.setObjectName("Photo_Widget_01")
+        #grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
+        grid.addWidget(photo_Widget, 0, 0, 1, 1)
+        #grid.replaceWidget(FIELD1, photo_Widget1)
+        photo_Widget.setText("No photo is here")"""
+
+        """sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        #sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
+        photo_Widget1.setSizePolicy(sizePolicy)
+        photo_Widget1.setAutoFillBackground(True)"""
+
+        #FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
+        #FIELD = photo_Widget
+        #FIELD.setPixmap(self.origPixmap)
+
         TOMsMessageLog.logMessage("In formCamera::useCamera: starting zoom ... ", level=Qgis.Info)
 
+    def update_image(self, image):
+        self._displayed_pixmap = image
 
     def _zoomIn(self):
         TOMsMessageLog.logMessage("In field_ZoomIn ... ", level=Qgis.Info)
@@ -878,15 +903,15 @@ class formZoom(QObject):
                                                                          self.top_left_corner.y()),
                     level=Qgis.Warning)
 
-            zoomed_pixmap = curr_pixmap.scaled(image_size, QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
-            self.FIELD.setPixmap(zoomed_pixmap)
+            self.update_image(curr_pixmap.scaled(image_size, QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation))
+            #self.FIELD.setPixmap(zoomed_pixmap)
             #self.FIELD.pixmap().scaled(image_size, QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
 
         print (self.FIELD)
         pass
-        #self.changePixmap.emit(zoomed_pixmap)
+        self.changePixmap.emit(zoomed_pixmap)
 
-    def paintEvent(self, paint_event):
+    def paintEvent(self, paint_event=None):
         TOMsMessageLog.logMessage("In paintEvent ... ", level=Qgis.Warning)
         painter = QPainter(self)
 
