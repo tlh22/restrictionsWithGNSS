@@ -23,11 +23,14 @@ from qgis.core import (
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 ZOOM_LIMIT = 5
+
 class imageLabel(QtWidgets.QLabel):
     photoClicked = QtCore.pyqtSignal(QtCore.QPoint)
 
-    def __init__(self, parent=None):
-        super(imageLabel, self).__init__(parent=parent)
+    def __init__(self, parent):
+        TOMsMessageLog.logMessage("In imageLabel.init ... ", level=Qgis.Warning)
+        QtWidgets.QLabel.__init__(self, parent)
+        #super(imageLabel, self).__init__(parent=parent)
         self._empty = True
         self.top_left_corner = QtCore.QPoint(0, 0)
         #self.screenpoint = QtCore.QPoint(0, 0)
@@ -38,21 +41,34 @@ class imageLabel(QtWidgets.QLabel):
             QtWidgets.QSizePolicy.MinimumExpanding
         )"""
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        #sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        #sizePolicy = QtWidgets.QSizePolicy( QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored )
+        self.setScaledContents(True)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
+        #sizePolicy.setHorizontalPolicy(QtWidgets.QSizePolicy.Maximum)
         #sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
         self.setSizePolicy(sizePolicy)
         self.setAutoFillBackground(True)
         self.setMouseTracking(True)
+        self.setGeometry(QtCore.QRect(0, 0, 600, 360))
 
     def setPixmap(self, image):
-        TOMsMessageLog.logMessage("In imageLabel.setPixmap ... ", level=Qgis.Info)
-        super(imageLabel, self).setPixmap(image)
+        TOMsMessageLog.logMessage("In imageLabel.setPixmap ... ", level=Qgis.Warning)
+        #super(imageLabel, self).setPixmap(image)
         self.origImage = image
         self._zoom = 0
         if image and not image.isNull():
             self._empty = False
             self._displayed_pixmap = image
+
+            #self.update_image(self.origImage.scaled(image_size, QtCore.Qt.KeepAspectRatio,
+            #                                        transformMode=QtCore.Qt.SmoothTransformation))
+            TOMsMessageLog.logMessage("In imageLabel.setPixmap ... called update 1...", level=Qgis.Warning)
+            self.update()  # call paintEvent()
+            TOMsMessageLog.logMessage("In imageLabel.setPixmap ... called update 2...", level=Qgis.Warning)
+            #self.parentWidget().update()  # call paintEvent()
+
 
     def update_image(self, image):
         self._displayed_pixmap = image
@@ -61,7 +77,7 @@ class imageLabel(QtWidgets.QLabel):
         return not self._empty
 
     def wheelEvent(self, event):
-        TOMsMessageLog.logMessage("In imageLabel.wheelEvent ... new ", level=Qgis.Info)
+        TOMsMessageLog.logMessage("In imageLabel.wheelEvent ... new ", level=Qgis.Warning)
         super(imageLabel, self).wheelEvent(event)
 
         modifiers = QtWidgets.QApplication.keyboardModifiers()
@@ -79,6 +95,9 @@ class imageLabel(QtWidgets.QLabel):
                     self.factor = 0.8
                     self._zoom -= 1
 
+                self.screenpoint = self.mapFromGlobal(QtGui.QCursor.pos())
+                self.curr_x, self.curr_y = self.screenpoint.x(), self.screenpoint.y()
+
                 self._zoomActivity()
 
         """def mousePressEvent(self, event):
@@ -86,8 +105,33 @@ class imageLabel(QtWidgets.QLabel):
         TOMsMessageLog.logMessage("In imageLabel.wheelEvent ... pressed {}:{}. ".format(self.pixMapCentre.x(), self.pixMapCentre.y()),
                                   level=Qgis.Warning)"""
 
-    def _zoomInButton(self):
+    def mousePressEvent(self, event):
+        # super(self, imageLabel).mousePressEvent(QMouseEvent)
+        # event = QMouseEvent
+        # QtWidgets.QLabel.mousePressEvent(self, event)
+        print("in mouseEvent ...")
+        # QtWidgets.QMessageBox.warning(self, "Info", "Within mouseEvent")
 
+        self.pixMapCentre = event.pos()
+        TOMsMessageLog.logMessage(
+            "In imageLabel.pressEvent ... pressed {}:{}. ".format(self.pixMapCentre.x(), self.pixMapCentre.y()),
+            level=Qgis.Warning)
+
+        if event.button() == QtCore.Qt.LeftButton:
+            TOMsMessageLog.logMessage("In imageLabel.pressEvent ... zooming in ", level=Qgis.Info)
+            self.factor = 1.25
+            self._zoom += 1
+        else:
+            TOMsMessageLog.logMessage("In imageLabel.pressEvent ... zooming out ", level=Qgis.Info)
+            self.factor = 0.8
+            self._zoom -= 1
+
+        self.screenpoint = self.mapFromGlobal(QtGui.QCursor.pos())
+        self.curr_x, self.curr_y = self.screenpoint.x(), self.screenpoint.y()
+
+        self._zoomActivity()
+
+    def _zoomInButton(self):
         TOMsMessageLog.logMessage("In imageLabel.wheelEvent ... acting ", level=Qgis.Warning)
         if self.hasPhoto() and abs(self._zoom) < ZOOM_LIMIT:
 
@@ -95,8 +139,22 @@ class imageLabel(QtWidgets.QLabel):
             self.factor = 1.25
             self._zoom += 1
 
-            self.screenpoint = self.mapFromGlobal(QtGui.QCursor.pos())
-            self.curr_x, self.curr_y = self.screenpoint.x(), self.screenpoint.y()
+            image_size = self._displayed_pixmap.size()
+            self.curr_x, self.curr_y = image_size.width() / 2, image_size.height() / 2
+
+            self._zoomActivity()
+
+    def _zoomOutButton(self):
+
+        TOMsMessageLog.logMessage("In imageLabel.wheelEvent ... acting ", level=Qgis.Warning)
+        if self.hasPhoto() and abs(self._zoom) < ZOOM_LIMIT:
+
+            TOMsMessageLog.logMessage("In imageLabel._zoomInButton ... zooming in ", level=Qgis.Warning)
+            self.factor = 0.8
+            self._zoom -= 1
+
+            image_size = self._displayed_pixmap.size()
+            self.curr_x, self.curr_y = image_size.width() / 2, image_size.height() / 2
 
             self._zoomActivity()
 
@@ -133,9 +191,9 @@ class imageLabel(QtWidgets.QLabel):
                 self.top_left_corner.setY(self.top_left_corner.y() * self.factor + self.curr_y - (self.curr_y * self.factor))
 
             TOMsMessageLog.logMessage(
-                "In imageLabel.wheelEvent ... tl new 2 {}:{}".format(self.top_left_corner.x(),
+                "In imageLabel.zoom ... tl new 2 {}:{}".format(self.top_left_corner.x(),
                                                                      self.top_left_corner.y()),
-                level=Qgis.Info)
+                level=Qgis.Warning)
 
             self.update_image(self.origImage.scaled(image_size, QtCore.Qt.KeepAspectRatio,
                                                     transformMode=QtCore.Qt.SmoothTransformation))
@@ -149,7 +207,7 @@ class imageLabel(QtWidgets.QLabel):
 
     def paintEvent(self, paint_event):
         TOMsMessageLog.logMessage("In imageLabel::paintEvent ... ", level=Qgis.Warning)
-        super().paintEvent(paint_event)
+        #super().paintEvent(paint_event)
         painter = QtGui.QPainter(self)
 
         painter.drawPixmap(self.top_left_corner.x(), self.top_left_corner.y(), self._displayed_pixmap)
