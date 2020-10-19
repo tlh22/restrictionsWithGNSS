@@ -538,35 +538,6 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Info)
             takePhoto = False
 
-        tab = FIELD1.parentWidget()
-        grid = FIELD1.parentWidget().layout()
-
-        photo_Widget1 = imageLabel(tab)
-        TOMsMessageLog.logMessage("In photoDetails. FIELD 1 w: {}; h: {}".format(FIELD1.width(), FIELD1.height()), level=Qgis.Warning)
-        #photo_Widget1.setGeometry(0, 0, FIELD1.width(), FIELD1.height())
-        photo_Widget1.setObjectName("Photo_Widget_01")
-        #grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
-        """
-        grid.addWidget(photo_Widget1, 0, 0, 1, 1)
-        #grid.replaceWidget(FIELD1, photo_Widget1)
-        photo_Widget1.setText("No photo is here")
-        """
-        photo_Widget1 = imageLabel(tab)
-        grid.addWidget(photo_Widget1, 0, 0, 1, 1)
-
-        sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        #sizePolicy.setHorizontalStretch(0)
-        #sizePolicy.setVerticalStretch(0)
-        #sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
-        photo_Widget1.setSizePolicy(sizePolicy)
-        #photo_Widget1.setAutoFillBackground(True)
-
-        #FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
-        FIELD1.hide()
-        FIELD1.setParent(None)
-        FIELD1 = photo_Widget1
-        #QtGui.QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
-
         if FIELD1:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 1 exists",
                                      level=Qgis.Warning)
@@ -583,16 +554,48 @@ class FieldRestrictionTypeUtilsMixin():
                 # FIELD1.setText('Picture could not be opened ({path})'.format(path=newPhotoFileName1))
             else:
 
+                tab = FIELD1.parentWidget()
+                grid = FIELD1.parentWidget().layout()
+
+                photo_Widget1 = imageLabel(tab)
+                TOMsMessageLog.logMessage(
+                    "In photoDetails. FIELD 1 w: {}; h: {}".format(FIELD1.width(), FIELD1.height()), level=Qgis.Warning)
+                # photo_Widget1.setGeometry(0, 0, FIELD1.width(), FIELD1.height())
+                photo_Widget1.setObjectName("Photo_Widget_01")
+                # grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
+                """
+                grid.addWidget(photo_Widget1, 0, 0, 1, 1)
+                #grid.replaceWidget(FIELD1, photo_Widget1)
+                photo_Widget1.setText("No photo is here")
+                """
+                photo_Widget1 = imageLabel(tab)
+                grid.addWidget(photo_Widget1, 0, 0, 1, 1)
+
+                #sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+                # sizePolicy.setHorizontalStretch(0)
+                # sizePolicy.setVerticalStretch(0)
+                # sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
+                #photo_Widget1.setSizePolicy(sizePolicy)
+                #photo_Widget1.setScaledContents(True)
+                # photo_Widget1.setAutoFillBackground(True)
+
+                # FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
+                FIELD1.hide()
+                FIELD1.setParent(None)
+                FIELD1 = photo_Widget1
+                # QtGui.QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
+
                 #FIELD1.setMinimumSize(320, 240)
                 #FIELD1.setScaledContents(True)
                 #pixmap1 = pixmap1.scaled(FIELD1.width(), FIELD1.height())
-                FIELD1.setPixmap(pixmap1)
+                FIELD1.set_Pixmap(pixmap1)
 
                 #FIELD1.set_image(pixmap1)
                 TOMsMessageLog.logMessage("In photoDetails. FIELD 1 Photo1: " + str(newPhotoFileName1), level=Qgis.Warning)
                 TOMsMessageLog.logMessage("In photoDetails.pixmap1 size: {}".format(pixmap1.size()),
                                           level=Qgis.Warning)
 
+                FIELD1.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD1))
                 ZOOM_IN_1 = self.demandDialog.findChild(QPushButton, "pb_zoomIn_01")
                 ZOOM_IN_1.clicked.connect(FIELD1._zoomInButton)
 
@@ -729,6 +732,13 @@ class FieldRestrictionTypeUtilsMixin():
             return row.attribute("Description") # make assumption that only one row
 
         return None
+
+    @pyqtSlot(QPixmap)
+    def displayPixmapUpdated(self, FIELD, pixmap):
+        TOMsMessageLog.logMessage("In utils::displayPixmapUpdated ... ", level=Qgis.Warning)
+        FIELD.setPixmap(pixmap)
+        FIELD.setScaledContents(True)
+        QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
 
     @pyqtSlot(QPixmap)
     def displayFrame(self, pixmap):

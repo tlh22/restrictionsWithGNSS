@@ -25,7 +25,8 @@ from TOMs.core.TOMsMessageLog import TOMsMessageLog
 ZOOM_LIMIT = 5
 
 class imageLabel(QtWidgets.QLabel):
-    photoClicked = QtCore.pyqtSignal(QtCore.QPoint)
+
+    pixmapUpdated = QtCore.pyqtSignal(QtGui.QPixmap)
 
     def __init__(self, parent):
         TOMsMessageLog.logMessage("In imageLabel.init ... ", level=Qgis.Warning)
@@ -53,25 +54,25 @@ class imageLabel(QtWidgets.QLabel):
         self.setMouseTracking(True)
         self.setGeometry(QtCore.QRect(0, 0, 600, 360))
 
-    def setPixmap(self, image):
+    def set_Pixmap(self, image):
         TOMsMessageLog.logMessage("In imageLabel.setPixmap ... ", level=Qgis.Warning)
         #super(imageLabel, self).setPixmap(image)
         self.origImage = image
         self._zoom = 0
         if image and not image.isNull():
             self._empty = False
-            self._displayed_pixmap = image
+            #self._displayed_pixmap = image
 
             #self.update_image(self.origImage.scaled(image_size, QtCore.Qt.KeepAspectRatio,
             #                                        transformMode=QtCore.Qt.SmoothTransformation))
             TOMsMessageLog.logMessage("In imageLabel.setPixmap ... called update 1...", level=Qgis.Warning)
-            self.update()  # call paintEvent()
+            #self.update()  # call paintEvent()
+            #QtCore.QCoreApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
+            self.update_image (image)
+            #self.pixmapUpdated.emit(self._displayed_pixmap)
             TOMsMessageLog.logMessage("In imageLabel.setPixmap ... called update 2...", level=Qgis.Warning)
             #self.parentWidget().update()  # call paintEvent()
-
-
-    def update_image(self, image):
-        self._displayed_pixmap = image
+            #super(imageLabel, self).setPixmap(image)
 
     def hasPhoto(self):
         return not self._empty
@@ -197,7 +198,11 @@ class imageLabel(QtWidgets.QLabel):
 
             self.update_image(self.origImage.scaled(image_size, QtCore.Qt.KeepAspectRatio,
                                                     transformMode=QtCore.Qt.SmoothTransformation))
-            self.update()  # call paintEvent()
+            #self.pixmapUpdated.emit(self._displayed_pixmap)
+            #super(imageLabel, self).setPixmap(self._displayed_pixmap)
+            #self.update()  # call paintEvent()
+            #QtCore.QCoreApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
+            TOMsMessageLog.logMessage("In imageLabel.setPixmap ... called update zoom...", level=Qgis.Warning)
 
         else:
             if self._zoom > 0:
@@ -205,9 +210,14 @@ class imageLabel(QtWidgets.QLabel):
             else:
                 self._zoom += 1
 
+    def update_image(self, image):
+        self._displayed_pixmap = image
+        self.pixmapUpdated.emit(self._displayed_pixmap)
+
     def paintEvent(self, paint_event):
         TOMsMessageLog.logMessage("In imageLabel::paintEvent ... ", level=Qgis.Warning)
         #super().paintEvent(paint_event)
         painter = QtGui.QPainter(self)
 
         painter.drawPixmap(self.top_left_corner.x(), self.top_left_corner.y(), self._displayed_pixmap)
+        #painter.drawPixmap(self.top_left_corner.x(), self.top_left_corner.y(), self._displayed_pixmap.scaled(self.width(), self.height()))
