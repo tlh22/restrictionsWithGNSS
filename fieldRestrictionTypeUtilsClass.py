@@ -482,17 +482,9 @@ class FieldRestrictionTypeUtilsMixin():
 
         TOMsMessageLog.logMessage("In photoDetails", level=Qgis.Info)
 
-        FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
-        FIELD2 = self.demandDialog.findChild(QLabel, "Photo_Widget_02")
-        FIELD3 = self.demandDialog.findChild(QLabel, "Photo_Widget_03")
-
         photoPath = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('PhotoPath')
         projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_folder')
 
-        """ v2.18
-        photoPath = QgsExpressionContextUtils.projectScope().variable('PhotoPath')
-        projectFolder = QgsExpressionContextUtils.projectScope().variable('project_folder')
-        """
         path_absolute = os.path.join(projectFolder, photoPath)
 
         if path_absolute == None:
@@ -538,16 +530,19 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Info)
             takePhoto = False
 
+        FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
+        FIELD2 = self.demandDialog.findChild(QLabel, "Photo_Widget_02")
+        FIELD3 = self.demandDialog.findChild(QLabel, "Photo_Widget_03")
+
         if FIELD1:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 1 exists",
-                                     level=Qgis.Warning)
+                                     level=Qgis.Info)
             if self.currFeature[idx1]:
                 newPhotoFileName1 = os.path.join(path_absolute, self.currFeature[idx1])
-                TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(newPhotoFileName1), level=Qgis.Warning)
+                TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(newPhotoFileName1), level=Qgis.Info)
             else:
                 newPhotoFileName1 = None
 
-            # TOMsMessageLog.logMessage("In photoDetails. Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
             pixmap1 = QPixmap(newPhotoFileName1)
             if pixmap1.isNull():
                 pass
@@ -559,48 +554,27 @@ class FieldRestrictionTypeUtilsMixin():
 
                 photo_Widget1 = imageLabel(tab)
                 TOMsMessageLog.logMessage(
-                    "In photoDetails. FIELD 1 w: {}; h: {}".format(FIELD1.width(), FIELD1.height()), level=Qgis.Warning)
-                # photo_Widget1.setGeometry(0, 0, FIELD1.width(), FIELD1.height())
+                    "In photoDetails. FIELD 1 w: {}; h: {}".format(FIELD1.width(), FIELD1.height()), level=Qgis.Info)
                 photo_Widget1.setObjectName("Photo_Widget_01")
-                # grid = self.demandDialog.findChild(QGridLayout, "gridLayout_2")
-                """
-                grid.addWidget(photo_Widget1, 0, 0, 1, 1)
-                #grid.replaceWidget(FIELD1, photo_Widget1)
                 photo_Widget1.setText("No photo is here")
-                """
-                photo_Widget1 = imageLabel(tab)
+                #photo_Widget1 = imageLabel(tab)
                 grid.addWidget(photo_Widget1, 0, 0, 1, 1)
 
-                #sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-                # sizePolicy.setHorizontalStretch(0)
-                # sizePolicy.setVerticalStretch(0)
-                # sizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth())
-                #photo_Widget1.setSizePolicy(sizePolicy)
-                #photo_Widget1.setScaledContents(True)
-                # photo_Widget1.setAutoFillBackground(True)
-
-                # FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
                 FIELD1.hide()
                 FIELD1.setParent(None)
                 FIELD1 = photo_Widget1
-                # QtGui.QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
-
-                #FIELD1.setMinimumSize(320, 240)
-                #FIELD1.setScaledContents(True)
-                #pixmap1 = pixmap1.scaled(FIELD1.width(), FIELD1.height())
                 FIELD1.set_Pixmap(pixmap1)
 
-                #FIELD1.set_image(pixmap1)
-                TOMsMessageLog.logMessage("In photoDetails. FIELD 1 Photo1: " + str(newPhotoFileName1), level=Qgis.Warning)
+                TOMsMessageLog.logMessage("In photoDetails. FIELD 1 Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
                 TOMsMessageLog.logMessage("In photoDetails.pixmap1 size: {}".format(pixmap1.size()),
-                                          level=Qgis.Warning)
+                                          level=Qgis.Info)
 
                 FIELD1.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD1))
-                ZOOM_IN_1 = self.demandDialog.findChild(QPushButton, "pb_zoomIn_01")
-                ZOOM_IN_1.clicked.connect(FIELD1._zoomInButton)
+                #ZOOM_IN_1 = self.demandDialog.findChild(QPushButton, "pb_zoomIn_01")
+                #ZOOM_IN_1.clicked.connect(FIELD1._zoomInButton)
 
-                ZOOM_OUT_1 = self.demandDialog.findChild(QPushButton, "pb_zoomOut_01")
-                ZOOM_OUT_1.clicked.connect(FIELD1._zoomOutButton)
+                #ZOOM_OUT_1 = self.demandDialog.findChild(QPushButton, "pb_zoomOut_01")
+                #ZOOM_OUT_1.clicked.connect(FIELD1._zoomOutButton)
 
             if takePhoto:
                 START_CAMERA_1 = self.demandDialog.findChild(QPushButton, "startCamera1")
@@ -746,7 +720,6 @@ class FieldRestrictionTypeUtilsMixin():
         self.FIELD.setPixmap(pixmap)
         self.FIELD.setScaledContents(True)
         QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
-
 
     @pyqtSlot(str)
     def savePhotoTaken(self, idx, fileName):

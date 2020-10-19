@@ -352,7 +352,7 @@
        <string>Photo1</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="2" column="0">
+       <item row="1" column="0">
         <widget class="QPushButton" name="startCamera1">
          <property name="maximumSize">
           <size>
@@ -375,36 +375,6 @@
          </property>
          <property name="default">
           <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QPushButton" name="getPhoto1">
-         <property name="maximumSize">
-          <size>
-           <width>150</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>take Photo</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="pb_zoomIn_01">
-         <property name="text">
-          <string>+</string>
          </property>
         </widget>
        </item>
@@ -437,9 +407,25 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QPushButton" name="pb_zoomOut_01">
+        <widget class="QPushButton" name="getPhoto1">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="text">
-          <string>-</string>
+          <string>take Photo</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</iconset>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
