@@ -22,7 +22,7 @@ from qgis.core import (
 )
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
-ZOOM_LIMIT = 5
+ZOOM_LIMIT = 10
 
 class imageLabel(QtWidgets.QLabel):
 
