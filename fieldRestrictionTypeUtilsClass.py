@@ -748,7 +748,7 @@ class FieldRestrictionTypeUtilsMixin():
 
     @pyqtSlot(QPixmap)
     def displayPixmapUpdated(self, FIELD, pixmap):
-        TOMsMessageLog.logMessage("In utils::displayPixmapUpdated ... ", level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In utils::displayPixmapUpdated ... ", level=Qgis.Info)
         FIELD.setPixmap(pixmap)
         FIELD.setScaledContents(True)
         QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
