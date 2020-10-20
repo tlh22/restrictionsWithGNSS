@@ -22,7 +22,7 @@ from qgis.PyQt.QtWidgets import (
     QLabel,
     QPushButton,
     QApplication,
-    QComboBox, QSizePolicy, QGridLayout
+    QComboBox, QSizePolicy, QGridLayout, QVBoxLayout, QFileDialog
 )
 
 from qgis.PyQt.QtGui import (
@@ -576,6 +576,18 @@ class FieldRestrictionTypeUtilsMixin():
                 #ZOOM_OUT_1 = self.demandDialog.findChild(QPushButton, "pb_zoomOut_01")
                 #ZOOM_OUT_1.clicked.connect(FIELD1._zoomOutButton)
 
+                # add widget to display file name
+                fileLabel = QLabel()
+                fileLabel.setText(self.currFeature[idx1])
+                fileLabel.setAutoFillBackground(True)
+                grid.addWidget(fileLabel, 1, 0)
+
+                # now add file dialog
+                layout = QVBoxLayout()
+                self.btn = QPushButton("files")
+                self.btn.clicked.connect(functools.partial(self.getfile, FIELD1, path_absolute, self.currFeature[idx1]))
+                grid.addWidget(self.btn, 0, 1)
+
             if takePhoto:
                 START_CAMERA_1 = self.demandDialog.findChild(QPushButton, "startCamera1")
                 TAKE_PHOTO_1 = self.demandDialog.findChild(QPushButton, "getPhoto1")
@@ -585,6 +597,7 @@ class FieldRestrictionTypeUtilsMixin():
                 START_CAMERA_1.clicked.connect(
                     functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1, FIELD1))
                 self.camera1.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
+                #self.camera1.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD1))
 
         if FIELD2:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 2 exisits",
@@ -710,6 +723,25 @@ class FieldRestrictionTypeUtilsMixin():
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
 
         pass
+
+    def getfile(self, FIELD, path_absolute, currFileName):
+        options = QFileDialog.Options()
+        """fname = QFileDialog.getOpenFileName(FIELD.parentWidget(),
+                                            "Select file",
+                                            path_absolute,
+                                            "Image files (*.bmp *.png *.jpg *.gif)")"""
+        fileName, _ = QFileDialog.getOpenFileName(FIELD.parentWidget(),
+                                                  "Select file",
+                                                  path_absolute,
+                                                  "Image files (*.bmp *.png *.jpg *.gif)",
+                                                    options=options)
+        if fileName:
+            print(fileName)
+            # need to get "basename" and confirm that the file is within the photos folder
+            baseName = os.path.basename(fileName)
+            FIELD.setPixmap(QPixmap(fileName))
+            FIELD.setScaledContents(True)
+            currFileName = baseName
 
     def addScrollBars(self, restrictionDialog):
         TOMsMessageLog.logMessage("In addScrollBars", level=Qgis.Info)

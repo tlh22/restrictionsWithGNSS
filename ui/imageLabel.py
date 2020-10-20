@@ -45,7 +45,7 @@ class imageLabel(QtWidgets.QLabel):
         self.setGeometry(QtCore.QRect(0, 0, 600, 360))
 
     def set_Pixmap(self, image):
-        TOMsMessageLog.logMessage("In imageLabel.set_Pixmap ... ", level=Qgis.Info)
+        TOMsMessageLog.logMessage("In imageLabel.set_Pixmap ... ", level=Qgis.Warning)
         self.origImage = image
         self._zoom = 0
         if image and not image.isNull():
@@ -56,12 +56,12 @@ class imageLabel(QtWidgets.QLabel):
                                                     transformMode=QtCore.Qt.SmoothTransformation))
             TOMsMessageLog.logMessage("In imageLabel.setPixmap ... called update 2...", level=Qgis.Info)
 
-    def setPixmap(self, image):
+    """def setPixmap(self, image):
         TOMsMessageLog.logMessage("In imageLabel.setPixmap ... ", level=Qgis.Info)
         self.top_left_corner = QtCore.QPoint(0, 0)
         self._displayed_pixmap = image.scaled(self.width(), self.height(), QtCore.Qt.KeepAspectRatio,
                                                     transformMode=QtCore.Qt.SmoothTransformation)
-        super().setPixmap(image)
+        super().setPixmap(image)"""
 
     def hasPhoto(self):
         return not self._empty
@@ -190,7 +190,7 @@ class imageLabel(QtWidgets.QLabel):
         self.pixmapUpdated.emit(self._displayed_pixmap)
 
     def paintEvent(self, paint_event):
-        TOMsMessageLog.logMessage("In imageLabel::paintEvent ... ", level=Qgis.Info)
+        TOMsMessageLog.logMessage("In imageLabel::paintEvent ... ", level=Qgis.Warning)
         #super().paintEvent(paint_event)
         painter = QtGui.QPainter(self)
 
