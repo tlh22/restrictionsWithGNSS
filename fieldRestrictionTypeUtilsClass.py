@@ -286,7 +286,7 @@ class FieldRestrictionTypeUtilsMixin():
 
         elif currRestrictionLayer.name() == "Signs":
             currRestriction.setAttribute("SignType_1", self.readLastUsedDetails("Signs", "SignType_1", 28))  # 28 = Permit Holders Only (Signs)
-            #currRestriction.setAttribute("SignOrientationTypeID", NULL)
+            currRestriction.setAttribute("SignOrientationTypeID", 3)
             currRestriction.setAttribute("SignConditionTypeID", 1)  # 1 = Good
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
 
