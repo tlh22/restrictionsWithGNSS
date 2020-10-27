@@ -15,7 +15,7 @@ INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('Motorc
 
 --
 ALTER TABLE demand."MASTER_Demand_01_Weekday_Weekday_Overnight"
-    ADD COLUMN "Demand" integer;
+    ADD COLUMN "Demand" double precision;
 ALTER TABLE demand."MASTER_Demand_01_Weekday_Weekday_Overnight"
     ADD COLUMN "Stress" double precision;
 ALTER TABLE demand."MASTER_Demand_01_Weekday_Weekday_Overnight"
@@ -23,7 +23,7 @@ ALTER TABLE demand."MASTER_Demand_01_Weekday_Weekday_Overnight"
 
 --
 ALTER TABLE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon"
-    ADD COLUMN "Demand" integer;
+    ADD COLUMN "Demand" double precision;
 ALTER TABLE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon"
     ADD COLUMN "Stress" double precision;
 ALTER TABLE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon"
@@ -31,7 +31,7 @@ ALTER TABLE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon"
 
 --
 ALTER TABLE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon"
-    ADD COLUMN "Demand" integer;
+    ADD COLUMN "Demand" double precision;
 ALTER TABLE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon"
     ADD COLUMN "Stress" double precision;
 ALTER TABLE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon"
@@ -39,11 +39,35 @@ ALTER TABLE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon"
 
 --
 ALTER TABLE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon"
-    ADD COLUMN "Demand" integer;
+    ADD COLUMN "Demand" double precision;
 ALTER TABLE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon"
     ADD COLUMN "Stress" double precision;
 ALTER TABLE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon"
     ADD COLUMN "SurveyDate_Rounded" character varying;
+
+--
+CREATE UNIQUE INDEX idx_geometry_id_01
+ON demand."MASTER_Demand_01_Weekday_Weekday_Overnight" ("GeometryID");
+
+CREATE UNIQUE INDEX idx_geometry_id_02
+ON demand."MASTER_Demand_02_Weekday_Weekday_Afternoon" ("GeometryID");
+
+CREATE UNIQUE INDEX idx_geometry_id_03
+ON demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" ("GeometryID");
+
+CREATE UNIQUE INDEX idx_geometry_id_04
+ON demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" ("GeometryID");
+
+/*
+ALTER TABLE demand."MASTER_Demand_01_Weekday_Weekday_Overnight"
+    ALTER COLUMN "Demand" TYPE double precision;
+ALTER TABLE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon"
+    ALTER COLUMN "Demand" TYPE double precision;
+ALTER TABLE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon"
+    ALTER COLUMN "Demand" TYPE double precision;
+ALTER TABLE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon"
+    ALTER COLUMN "Demand" TYPE double precision;
+*/
 
 -- set up trigger for demand and stress
 
@@ -69,7 +93,7 @@ BEGIN
     CASE
         WHEN NEW."Capacity" = 0 THEN
             CASE
-                WHEN NEW."Demand" > 0 THEN NEW."Stress" = 100.0;
+                WHEN NEW."Demand" > 0.0 THEN NEW."Stress" = 100.0;
                 ELSE NEW."Stress" = 0.0;
             END CASE;
         ELSE
@@ -90,15 +114,31 @@ UPDATE "demand"."MASTER_Demand_02_Weekday_Weekday_Afternoon" SET "RestrictionLen
 UPDATE "demand"."MASTER_Demand_03_Saturday_Saturday_Afternoon" SET "RestrictionLength" = "RestrictionLength";
 UPDATE "demand"."MASTER_Demand_04_Sunday_Sunday_Afternoon" SET "RestrictionLength" = "RestrictionLength";
 
+UPDATE demand."MASTER_Demand_01_Weekday_Weekday_Overnight" AS a
+	SET "Capacity"=b."CarCapacity"
+	FROM demand."LBHF_ParkingStress_2016_WeekdayOvernight" b
+WHERE a."GeometryID" = b."GeometryID"
+AND a."SurveyID"::integer = b."SurveyType";
 
+UPDATE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon" AS a
+	SET "Capacity"=b."CarCapacity"
+	FROM demand."LBHF_ParkingStress_2016_WeekdayAfternoon" b
+WHERE a."GeometryID" = b."GeometryID"
+AND a."SurveyID"::integer = b."SurveyType";
 
+UPDATE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+	SET "Capacity"=b."CarCapacity"
+	FROM demand."LBHF_ParkingStress_2016_SaturdayAfternoon" b
+WHERE a."GeometryID" = b."GeometryID"
+AND a."SurveyID"::integer = b."SurveyType";
 
 UPDATE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
-	SET "Capacity"=b."carcapacit"
+	SET "Capacity"=b."CarCapacity"
+	FROM demand."LBHF_ParkingStress_2016_SundayAfternoon" b
+WHERE a."GeometryID" = b."GeometryID"
+AND a."SurveyID"::integer = b."SurveyType";
 
-	FROM demand."LBHF_ParkingStress_2015_SundayAfternoon" b
-WHERE a."GeometryID" = b."geometryid"
-AND a."SurveyID"::integer = b."surveytype"
+
 
 
 
