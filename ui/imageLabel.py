@@ -56,12 +56,12 @@ class imageLabel(QtWidgets.QLabel):
                                                     transformMode=QtCore.Qt.SmoothTransformation))
             TOMsMessageLog.logMessage("In imageLabel.setPixmap ... called update 2...", level=Qgis.Info)
 
-    def setPixmap(self, image):
+    """def setPixmap(self, image):
         TOMsMessageLog.logMessage("In imageLabel.setPixmap ... ", level=Qgis.Info)
         self.top_left_corner = QtCore.QPoint(0, 0)
         self._displayed_pixmap = image.scaled(self.width(), self.height(), QtCore.Qt.KeepAspectRatio,
                                                     transformMode=QtCore.Qt.SmoothTransformation)
-        super().setPixmap(image)
+        super().setPixmap(image)"""
 
     def hasPhoto(self):
         return not self._empty
