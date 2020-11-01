@@ -1,5 +1,6 @@
 
 DROP TABLE IF EXISTS "RC_Sections" CASCADE;
+DROP TABLE IF EXISTS "mhtc_operations"."RC_Sections" CASCADE;
 
 CREATE TABLE "mhtc_operations"."RC_Sections"
 (
@@ -32,14 +33,19 @@ CREATE INDEX "sidx_RC_Sections_geom"
 INSERT INTO "mhtc_operations"."RC_Sections" (geom)
 SELECT (ST_Dump(ST_Split(rc.geom, ST_Buffer(c.geom, 0.00001)))).geom
 FROM "topography"."road_casement" rc, (SELECT ST_Union(ST_Snap(cnr.geom, rc.geom, 0.00000001)) AS geom
-									  FROM "topography"."road_casement" rc, "mhtc_operations"."Corners" cnr) c
+									  FROM "topography"."road_casement" rc,
+									  (SELECT geom
+									  FROM "mhtc_operations"."Corners"
+									  union
+									  SELECT geom
+									  FROM "mhtc_operations"."SectionBreakPoints") cnr) c
 WHERE ST_DWithin(rc.geom, c.geom, 0.25);
 
 DELETE FROM "mhtc_operations"."RC_Sections"
 WHERE ST_Length(geom) < 0.0001;
 
 --9.	Merge sections that are broken
-DROP TABLE IF EXISTS "RC_Sections_merged" CASCADE;
+DROP TABLE IF EXISTS "mhtc_operations"."RC_Sections_merged" CASCADE;
 
 CREATE TABLE "mhtc_operations"."RC_Sections_merged"
 (
@@ -73,7 +79,7 @@ SELECT (ST_Dump(ST_LineMerge(ST_Collect(a.geom)))).geom As geom
 FROM "mhtc_operations"."RC_Sections" as a
 LEFT JOIN "mhtc_operations"."RC_Sections" as b ON
 ST_Touches(a.geom,b.geom)
-GROUP BY ST_Touches(a.geom,b.geom)
+GROUP BY ST_Touches(a.geom,b.geom);
 
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS c

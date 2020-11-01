@@ -3,7 +3,7 @@
 SELECT
 "GeometryID", "RestrictionTypeID", "BayLineTypes"."Description" AS "RestrictionDescription",
 "GeomShapeID", COALESCE("RestrictionGeomShapeTypes"."Description", '') AS "Restriction Shape Description",
-"RoadName", "StartStreet" AS "RoadFrom", "EndStreet" AS "RoadTo", "SideOfStreet", "SectionID", --"Area",
+"RoadName", "StartStreet" AS "RoadFrom", "EndStreet" AS "RoadTo", "SideOfStreet", "SectionID", "SurveyArea",
 
        CASE WHEN "RestrictionTypeID" < 200 THEN COALESCE("TimePeriods1"."Description", '')
             ELSE COALESCE("TimePeriods2"."Description", '')
