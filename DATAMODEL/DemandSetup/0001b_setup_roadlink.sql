@@ -1,9 +1,3 @@
--- create road casement
-
-INSERT INTO "RC_Polyline" (geom)
-SELECT (ST_Dump(ST_Multi(ST_Boundary(ST_Union (c.geom))))).geom AS geom
-FROM (SELECT geom FROM "topography"."os_mastermap_topography_polygons" WHERE "featureCode" = 10172) AS c
-
 -- set up road names
 ALTER TABLE "highways_network"."roadlink"
   ADD COLUMN "RoadFrom" character varying(100);
