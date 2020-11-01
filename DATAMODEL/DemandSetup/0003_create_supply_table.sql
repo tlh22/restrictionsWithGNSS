@@ -117,3 +117,34 @@ UPDATE mhtc_operations."Supply"
 SET "NoWaitingTimeID" = 1
 WHERE "RestrictionTypeID" IN (202, 218)
 AND "NoWaitingTimeID" IS NULL;
+
+--
+
+CREATE MATERIALIZED VIEW toms_lookups."BaysLinesTypesInUse_View"
+TABLESPACE pg_default
+AS
+ SELECT "BayTypesInUse"."Code",
+    "BayLineTypes"."Description"
+   FROM toms_lookups."BayTypesInUse",
+    toms_lookups."BayLineTypes"
+  WHERE "BayTypesInUse"."Code" = "BayLineTypes"."Code" AND "BayTypesInUse"."Code" < 200
+  UNION
+  SELECT "LineTypesInUse"."Code",
+    "BayLineTypes"."Description"
+   FROM toms_lookups."LineTypesInUse",
+    toms_lookups."BayLineTypes"
+  WHERE "LineTypesInUse"."Code" = "BayLineTypes"."Code" AND "LineTypesInUse"."Code" > 200
+WITH DATA;
+
+ALTER TABLE toms_lookups."BaysLinesTypesInUse_View"
+    OWNER TO postgres;
+
+GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE toms_lookups."BaysLinesTypesInUse_View" TO toms_admin;
+GRANT ALL ON TABLE toms_lookups."BaysLinesTypesInUse_View" TO postgres;
+GRANT SELECT ON TABLE toms_lookups."BaysLinesTypesInUse_View" TO toms_public;
+GRANT SELECT ON TABLE toms_lookups."BaysLinesTypesInUse_View" TO toms_operator;
+
+CREATE UNIQUE INDEX "BaysLinesTypesInUse_View_key"
+    ON toms_lookups."BaysLinesTypesInUse_View" USING btree
+    ("Code")
+    TABLESPACE pg_default;
