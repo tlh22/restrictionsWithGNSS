@@ -28,3 +28,9 @@ FROM toms."Signs"
 WHERE date_trunc('day', "LastUpdateDateTime") = date_trunc('day', now() - interval '1 day')
 GROUP BY "LastUpdatePerson"
 ORDER BY "LastUpdatePerson"
+
+SELECT "Last_MHTC_Check_UpdatePerson", MIN("Last_MHTC_Check_UpdateDateTime"), MAX("Last_MHTC_Check_UpdateDateTime"), MAX("Last_MHTC_Check_UpdateDateTime") - MIN("Last_MHTC_Check_UpdateDateTime") AS Hours
+FROM toms."Signs"
+WHERE date_trunc('day', "Last_MHTC_Check_UpdateDateTime") = date_trunc('day', now()  - interval '1 day')
+GROUP BY "Last_MHTC_Check_UpdatePerson"
+ORDER BY "Last_MHTC_Check_UpdatePerson"
