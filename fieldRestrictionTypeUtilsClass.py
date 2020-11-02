@@ -165,6 +165,10 @@ class gpsLayers(TOMsLayers):
             "TelegraphPoles",
             "TrafficCalmingTypes",
             "VehicleBarrierTypes",
+
+            "Bins (polygon)",
+            "Bridges",
+
             "AccessRestrictions",
             "CarriagewayMarkingTypesInUse",
             "CarriagewayMarkingTypesInUse_View",
@@ -175,7 +179,9 @@ class gpsLayers(TOMsLayers):
             "SpecialDesignations",
             "TurnRestrictions",
             "vehicleQualifiers",
+
             "MHTC_RoadLinks",
+
             "GNSS_Pts",
             "MHTC_Kerblines"
                          ]
