@@ -97,7 +97,15 @@ BEGIN
                 ELSE NEW."Stress" = 0.0;
             END CASE;
         ELSE
-            NEW."Stress" = NEW."Demand" / NEW."Capacity"::float;
+            CASE
+                WHEN NEW."Capacity"::float - COALESCE(NEW."sbays"::float, 0.0) > 0.0 THEN
+                    NEW."Stress" = NEW."Demand" / (NEW."Capacity"::float - COALESCE(NEW."sbays"::float, 0.0));
+                ELSE
+                    CASE
+                        WHEN NEW."Demand" > 0.0 THEN NEW."Stress" = 100.0;
+                        ELSE NEW."Stress" = 0.0;
+                    END CASE;
+            END CASE;
     END CASE;
 
 	RETURN NEW;
