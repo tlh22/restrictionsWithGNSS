@@ -74,7 +74,7 @@ CREATE TABLE mhtc_operations."Supply"
     "MatchDayTimePeriodID" integer,
     --CONSTRAINT "Supply_pkey" PRIMARY KEY ("RestrictionID"),
     --CONSTRAINT "Supply_GeometryID_key" UNIQUE ("GeometryID")
-    CONSTRAINT "Supply_pkey" UNIQUE ("GeometryID")
+    CONSTRAINT "Supply_pkey" PRIMARY KEY ("GeometryID")
     );
 
 CREATE INDEX "sidx_Supply_geom"
