@@ -4,6 +4,7 @@ CREATE SCHEMA "demand";
 ALTER SCHEMA "demand" OWNER TO "postgres";
 
 -- surveys
+--DROP TABLE IF EXISTS "demand"."Surveys";
 CREATE TABLE "demand"."Surveys" (
     "SurveyID" integer NOT NULL,
     "SurveyDay" character varying (12) COLLATE pg_catalog."default",
