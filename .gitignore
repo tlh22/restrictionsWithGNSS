@@ -6,3 +6,6 @@
 *.pyc
 __pycache__/fieldRestrictionTypeUtilsClass.cpython-37.pyc
 *.pyc
+__pycache__/fieldRestrictionTypeUtilsClass.cpython-37.pyc
+__pycache__/manage_feature_creation.cpython-37.pyc
+__pycache__/SelectTool.cpython-37.pyc
