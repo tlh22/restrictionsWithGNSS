@@ -14,3 +14,11 @@ INSERT INTO "demand_lookups"."VehicleTypes" ("Code", "Description") VALUES (8, '
 INSERT INTO "demand_lookups"."VehicleTypes" ("Code", "Description") VALUES (9, NULL);
 
 -- permit types
+
+INSERT INTO "demand_lookups"."PermitTypes" ("Code", "Description") VALUES (1, 'Resident (Zone F)');
+INSERT INTO "demand_lookups"."PermitTypes" ("Code", "Description") VALUES (2, 'Business (Zone F or All zone)');
+INSERT INTO "demand_lookups"."PermitTypes" ("Code", "Description") VALUES (3, 'Car club');
+INSERT INTO "demand_lookups"."PermitTypes" ("Code", "Description") VALUES (4, 'Visitor/trader ');
+INSERT INTO "demand_lookups"."PermitTypes" ("Code", "Description") VALUES (5, 'Visitor P&D ticket');
+INSERT INTO "demand_lookups"."PermitTypes" ("Code", "Description") VALUES (6, 'Disabled (Blue badge)');
+INSERT INTO "demand_lookups"."PermitTypes" ("Code", "Description") VALUES (7, NULL);
