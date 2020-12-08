@@ -1,25 +1,6 @@
 
 -- Demand
-CREATE SCHEMA "demand";
-ALTER SCHEMA "demand" OWNER TO "postgres";
 
--- surveys
---DROP TABLE IF EXISTS "demand"."Surveys";
-CREATE TABLE "demand"."Surveys" (
-    "SurveyID" integer NOT NULL,
-    "SurveyDay" character varying (12) COLLATE pg_catalog."default",
-    "BeatStartTime" character varying (10) COLLATE pg_catalog."default",
-    "BeatEndTime" character varying (10) COLLATE pg_catalog."default",
-    "BeatTitle" character varying (100) COLLATE pg_catalog."default"
-);
-
-ALTER TABLE "demand"."Surveys" OWNER TO "postgres";
-
-ALTER TABLE "demand"."Surveys"
-    ADD PRIMARY KEY ("SurveyID");
-
-
--- bayline type demand details
 CREATE SEQUENCE "demand"."Demand_id_seq"
     START WITH 1
     INCREMENT BY 1
@@ -29,19 +10,22 @@ CREATE SEQUENCE "demand"."Demand_id_seq"
 
 ALTER TABLE "demand"."Demand_id_seq" OWNER TO "postgres";
 
-DROP TABLE IF EXISTS "demand"."DemandStem";
-CREATE TABLE "demand"."DemandStem" (
+DROP TABLE IF EXISTS "demand"."VRM_DemandStem";
+CREATE TABLE "demand"."VRM_DemandStem" (
     "id" integer DEFAULT "nextval"('"demand"."Demand_id_seq"'::"regclass") NOT NULL,
     "GeometryID" character varying(12) NOT NULL,
     "SectionID" integer,
     "SurveyID" integer,
     "SurveyTime" timestamp without time zone,
     "Done" boolean,
-     "SuspensionReference" character varying (100) COLLATE pg_catalog."default",
+    "SuspensionReference" character varying (100) COLLATE pg_catalog."default",
     "SuspensionReason" character varying (255) COLLATE pg_catalog."default",
     "SuspensionLength" double precision,
     "NrBaysSuspended" integer,
     "SuspensionNotes" character varying (255) COLLATE pg_catalog."default"
+    "Photos_01" character varying (255) COLLATE pg_catalog."default",
+    "Photos_02" character varying (255) COLLATE pg_catalog."default",
+    "Photos_03" character varying (255) COLLATE pg_catalog."default",
     "VRM_01" character varying (12) COLLATE pg_catalog."default",
     "VRM_02" character varying (12) COLLATE pg_catalog."default",
     "VRM_03" character varying (12) COLLATE pg_catalog."default",
@@ -295,29 +279,29 @@ CREATE TABLE "demand"."DemandStem" (
 
     );
 
-ALTER TABLE "demand"."DemandStem"
+ALTER TABLE "demand"."VRM_DemandStem"
     ADD PRIMARY KEY ("id");
 
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_GeometryID_fkey" FOREIGN KEY ("GeometryID") REFERENCES "mhtc_operations"."Supply"("GeometryID");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_SectionID_fkey" FOREIGN KEY ("SectionID") REFERENCES "mhtc_operations"."RC_Sections_merged"("gid");
 
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_01_fkey" FOREIGN KEY ("VehicleTypeID_01") REFERENCES "demand_lookups"."VehicleTypes"("Code");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_02_fkey" FOREIGN KEY ("VehicleTypeID_02") REFERENCES "demand_lookups"."VehicleTypes"("Code");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_03_fkey" FOREIGN KEY ("VehicleTypeID_03") REFERENCES "demand_lookups"."VehicleTypes"("Code");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_04_fkey" FOREIGN KEY ("VehicleTypeID_04") REFERENCES "demand_lookups"."VehicleTypes"("Code");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_05_fkey" FOREIGN KEY ("VehicleTypeID_05") REFERENCES "demand_lookups"."VehicleTypes"("Code");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_06_fkey" FOREIGN KEY ("VehicleTypeID_06") REFERENCES "demand_lookups"."VehicleTypes"("Code");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_07_fkey" FOREIGN KEY ("VehicleTypeID_07") REFERENCES "demand_lookups"."VehicleTypes"("Code");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_08_fkey" FOREIGN KEY ("VehicleTypeID_08") REFERENCES "demand_lookups"."VehicleTypes"("Code");
-ALTER TABLE ONLY "demand"."DemandStem"
+ALTER TABLE ONLY "demand"."VRM_DemandStem"
     ADD CONSTRAINT "DemandStem_VehicleTypeID_09_fkey" FOREIGN KEY ("VehicleTypeID_09") REFERENCES "demand_lookups"."VehicleTypes"("Code");
