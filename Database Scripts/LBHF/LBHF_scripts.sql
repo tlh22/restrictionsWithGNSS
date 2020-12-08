@@ -293,3 +293,23 @@ AND nlgvs IS NULL
 
 SELECT "GeometryID", "RoadName", "USRN", "STREETSIDE", "STREETFROM", "STREETTO", "Section", "Area", "CPZ", "RestrictionLength", "SurveyID", "SurveyDate", "SurveyDay", "SurveyTime", "Done", ncars, nlgvs, nmcls, nogvs, ntaxis, nminib, nbuses, nbikes, nogvs2, nspaces, nnotes, sref, sbays, sreason, snotes, "Photos_01", "Capacity", "Demand", "Stress", "surveyHour", "SurveyDate_Rounded"
 	FROM demand."MASTER_Demand_02_Weekday_Weekday_Afternoon";
+
+-- deal with "incorrect" times for overnight...
+
+SELECT "GeometryID", "SurveyDate", "surveyHour",
+date_part('hour', to_timestamp("SurveyDate", 'YYYY-MM-DDTHH:MI:SS.MS')),
+CASE WHEN "surveyHour"::int > 20 THEN DATE(to_timestamp("SurveyDate", 'YYYY-MM-DDTHH:MI:SS.MS')) + interval '1 day'
+                                ELSE EXTRACT(YEAR FROM ("SurveyDate"::timestamp))
+								END
+FROM demand."MASTER_Demand_01_Weekday_Weekday_Overnight" AS a
+
+
+-- reset sections
+UPDATE "Demand_03_Saturday_Saturday_Afternoon" AS o
+	SET  "Done"=NULL,
+    ncars=NULL, nlgvs=NULL, nmcls=NULL, nogvs=NULL, ntaxis=NULL, nminib=NULL, nbuses=NULL, nbikes=NULL, nogvs2=NULL, nspaces=NULL, nnotes=NULL,
+    sref=NULL, sbays=NULL, sreason=NULL, scars=NULL, slgvs=NULL, smcls=NULL, sogvs=NULL, staxis=NULL, sbikes=NULL, sbuses=NULL, sogvs2=NULL, sminib=NULL, snotes=NULL,
+    dcars=NULL, dlgvs=NULL, dmcls=NULL, dogvs=NULL, dtaxis=NULL, dbikes=NULL, dbuses=NULL, dogvs2=NULL, dminib=NULL,
+    "Photos_01"=NULL, "Photos_02"=NULL, "Photos_03"=NULL
+	WHERE o."Section"= '4' AND o."Area"='1'
+	AND o."Done" = 'true'
