@@ -16,7 +16,7 @@ CREATE TABLE "demand"."VRM_DemandStem" (
     "GeometryID" character varying(12) NOT NULL,
     "SectionID" integer,
     "SurveyID" integer,
-    "SurveyTime" timestamp without time zone,
+    "DemandSurveyDateTime" timestamp without time zone,
     "Done" boolean,
     "SuspensionReference" character varying (100) COLLATE pg_catalog."default",
     "SuspensionReason" character varying (255) COLLATE pg_catalog."default",

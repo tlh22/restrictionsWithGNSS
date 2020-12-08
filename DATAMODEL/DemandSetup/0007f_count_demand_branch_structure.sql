@@ -6,7 +6,7 @@ CREATE TABLE "demand"."Count_DemandStem" (
     "GeometryID" character varying(12) NOT NULL,
     "SectionID" integer,
     "SurveyID" integer,
-    --"SurveyTime" timestamp without time zone,
+    "DemandSurveyDateTime" timestamp without time zone,
     "Done" boolean,
     ncars character varying COLLATE pg_catalog."default",
     nlgvs character varying COLLATE pg_catalog."default",
