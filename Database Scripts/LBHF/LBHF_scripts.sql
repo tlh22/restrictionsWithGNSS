@@ -146,9 +146,150 @@ UPDATE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
 WHERE a."GeometryID" = b."GeometryID"
 AND a."SurveyID"::integer = b."SurveyType";
 
+-- ensure survey dates are correct (as best we can)
+
+UPDATE demand."MASTER_Demand_01_Weekday_Weekday_Overnight" AS a
+SET "surveyHour" = date_part('hour', ("SurveyDate"::timestamp)),
+    "SurveyDate_Rounded" = CASE WHEN date_part('hour', ("SurveyDate"::timestamp))::int > 20 THEN to_char("SurveyDate"::timestamp + interval '1 day', 'YYYY-MM-DD')
+                                ELSE to_char("SurveyDate"::timestamp, 'YYYY-MM-DD')
+								END;
+
+UPDATE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon" AS a
+SET "SurveyDate_Rounded" = to_char("SurveyDate"::timestamp, 'YYYY-MM-DD');
+
+UPDATE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+SET "SurveyDate_Rounded" = to_char("SurveyDate"::timestamp, 'YYYY-MM-DD');
+
+UPDATE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
+SET "SurveyDate_Rounded" = to_char("SurveyDate"::timestamp, 'YYYY-MM-DD');
+
+-- Now deal with specifics ...
+-- car
+SELECT DISTINCT "Area", "Section", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD')
+FROM demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
+WHERE "Area"::int = 2 --AND "Section"::int IN (3)
+ORDER BY "Area", "Section", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD');
+
+--
+--NB: Some car data entry done on 4/10 - need to check ...
+-- Saturday (Area 1 section 1,2,3,5) should be 12/9 except for activity on 19/9; Area 2 section 3 should be 19/9
+-- Sunday (Area 1 section 1,2,3,5 and Area 2 section 1 should be 13/9 except for 20/9??
+
+UPDATE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+SET "SurveyDate_Rounded" = '2020-09-12'
+WHERE "Area"::int = 1 AND "Section"::int IN (1,2,3,5)
+AND  "SurveyDate_Rounded" NOT IN ('2020-09-19', '2020-09-26', '2020-10-03');
+
+UPDATE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+SET "SurveyDate_Rounded" = '2020-09-12'
+WHERE "Area"::int = 2 AND "Section"::int IN (1)
+AND  "SurveyDate_Rounded" NOT IN ('2020-09-19', '2020-09-26', '2020-10-03');
+
+UPDATE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+SET "SurveyDate_Rounded" = '2020-09-19'
+WHERE "Area"::int = 2 AND "Section"::int IN (3)
+AND  "SurveyDate_Rounded" NOT IN ('2020-09-19', '2020-09-26', '2020-10-03');
+
+UPDATE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
+SET "SurveyDate_Rounded" = '2020-09-13'
+WHERE "Area"::int = 1 AND "Section"::int IN (1,2,3,5)
+AND  "SurveyDate_Rounded" NOT IN ('2020-09-20', '2020-09-27', '2020-10-04');
+
+UPDATE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
+SET "SurveyDate_Rounded" = '2020-09-13'
+WHERE "Area"::int = 2 AND "Section"::int IN (1, 2, 3, 4, 5)
+AND  "SurveyDate_Rounded" NOT IN ('2020-09-20', '2020-09-27', '2020-10-04');
+
+--
+-- Check survey on correct Day of Week
+
+SELECT "GeometryID", "Area", "Section", "SurveyDate", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD'), to_char("SurveyDate_Rounded"::timestamp, 'D')
+FROM demand."MASTER_Demand_01_Weekday_Weekday_Overnight" AS a
+WHERE to_char("SurveyDate_Rounded"::timestamp, 'D')::int NOT IN (3,4,5)
+ORDER BY "Area", "Section", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD');
+
+SELECT "GeometryID", "Area", "Section", "SurveyDate", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD'), to_char("SurveyDate_Rounded"::timestamp, 'D')
+FROM demand."MASTER_Demand_02_Weekday_Weekday_Afternoon" AS a
+WHERE to_char("SurveyDate_Rounded"::timestamp, 'D')::int NOT IN (3,4,5)
+ORDER BY "Area", "Section", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD');
+
+SELECT "GeometryID", "Area", "Section", "SurveyDate", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD'), to_char("SurveyDate_Rounded"::timestamp, 'D')
+FROM demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+WHERE to_char("SurveyDate_Rounded"::timestamp, 'D')::int <> 7
+ORDER BY "Area", "Section", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD');
+
+SELECT "GeometryID", "Area", "Section", "SurveyDate", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD'), to_char("SurveyDate_Rounded"::timestamp, 'D')
+FROM demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
+WHERE "Area"::int = 2 --AND "Section"::int IN (3)
+AND to_char("SurveyDate_Rounded"::timestamp, 'D')::int <> 1
+ORDER BY "Area", "Section", to_char("SurveyDate"::timestamp, 'YYYY-MM-DD')
+
+-- issues with:
+ -- Saturday (Area 1 section 4 should be set as 3/10; Area 4 section 2 should be set as 3/10)
+
+UPDATE demand."MASTER_Demand_01_Weekday_Weekday_Overnight" AS a
+SET "SurveyDate_Rounded" = '2020-10-03'
+WHERE "Area"::int = 1 AND "Section"::int IN (4);
+
+UPDATE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon" AS a
+SET "SurveyDate_Rounded" = '2020-10-03'
+WHERE "Area"::int = 4 AND "Section"::int IN (2);
+
+UPDATE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+SET "SurveyDate_Rounded" = '2020-09-12'
+WHERE "Area"::int = 3 AND "Section"::int IN (2)
+AND to_char("SurveyDate"::timestamp, 'YYYY-MM-DD') = '2020-10-12';
+
+-- suzie recording lgvs as ogvs
+SELECT "GeometryID", "SurveyID", "SurveyDate", "Area", "Section", nlgvs, nogvs
+FROM demand."MASTER_Demand_01_Weekday_Weekday_Overnight" AS a
+WHERE nogvs::int > 0
+AND "SurveyDate"::timestamp < '2020-09-28'
+UNION
+SELECT "GeometryID", "SurveyID", "SurveyDate", "Area", "Section", nlgvs, nogvs
+FROM demand."MASTER_Demand_02_Weekday_Weekday_Afternoon" AS a
+WHERE nogvs::int > 0
+AND "SurveyDate"::timestamp < '2020-09-28'
+UNION
+SELECT "GeometryID", "SurveyID", "SurveyDate", "Area", "Section", nlgvs, nogvs
+FROM demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+WHERE nogvs::int > 0
+AND "SurveyDate"::timestamp < '2020-09-28'
+UNION
+SELECT "GeometryID", "SurveyID", "SurveyDate", "Area", "Section", nlgvs, nogvs
+FROM demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
+WHERE nogvs::int > 0
+AND "SurveyDate"::timestamp < '2020-09-28'
+ORDER BY "SurveyID", "SurveyDate";
+
+--
+
+UPDATE demand."MASTER_Demand_01_Weekday_Weekday_Overnight" AS a
+SET nlgvs = "nogvs", "nogvs" = NULL
+WHERE nogvs::int > 0
+AND nlgvs IS NULL
+--AND "SurveyDate"::timestamp < '2020-09-21';
+
+UPDATE demand."MASTER_Demand_02_Weekday_Weekday_Afternoon" AS a
+SET nlgvs = "nogvs", "nogvs" = NULL
+WHERE nogvs::int > 0
+AND nlgvs IS NULL
+--AND "SurveyDate"::timestamp < '2020-09-21';
+
+UPDATE demand."MASTER_Demand_03_Saturday_Saturday_Afternoon" AS a
+SET nlgvs = "nogvs", "nogvs" = NULL
+WHERE nogvs::int > 0
+AND nlgvs IS NULL
+--AND "SurveyDate"::timestamp < '2020-09-21';
+
+UPDATE demand."MASTER_Demand_04_Sunday_Sunday_Afternoon" AS a
+SET nlgvs = "nogvs", "nogvs" = NULL
+WHERE nogvs::int > 0
+AND nlgvs IS NULL
+--AND "SurveyDate"::timestamp < '2020-09-21';
 
 
-
+-- output
 
 SELECT "GeometryID", "RoadName", "USRN", "STREETSIDE", "STREETFROM", "STREETTO", "Section", "Area", "CPZ", "RestrictionLength", "SurveyID", "SurveyDate", "SurveyDay", "SurveyTime", "Done", ncars, nlgvs, nmcls, nogvs, ntaxis, nminib, nbuses, nbikes, nogvs2, nspaces, nnotes, sref, sbays, sreason, snotes, "Photos_01", "Capacity", "Demand", "Stress", "surveyHour", "SurveyDate_Rounded"
 	FROM demand."MASTER_Demand_02_Weekday_Weekday_Afternoon";
