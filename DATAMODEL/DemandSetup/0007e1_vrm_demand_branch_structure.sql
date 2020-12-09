@@ -1,18 +1,9 @@
 
--- Demand
-
-CREATE SEQUENCE "demand"."Demand_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER TABLE "demand"."Demand_id_seq" OWNER TO "postgres";
+-- VRM Demand stem
 
 DROP TABLE IF EXISTS "demand"."VRM_DemandStem";
 CREATE TABLE "demand"."VRM_DemandStem" (
-    "id" integer DEFAULT "nextval"('"demand"."Demand_id_seq"'::"regclass") NOT NULL,
+    "id" SERIAL,
     "GeometryID" character varying(12) NOT NULL,
     "SectionID" integer,
     "SurveyID" integer,
@@ -22,7 +13,7 @@ CREATE TABLE "demand"."VRM_DemandStem" (
     "SuspensionReason" character varying (255) COLLATE pg_catalog."default",
     "SuspensionLength" double precision,
     "NrBaysSuspended" integer,
-    "SuspensionNotes" character varying (255) COLLATE pg_catalog."default"
+    "SuspensionNotes" character varying (255) COLLATE pg_catalog."default",
     "Photos_01" character varying (255) COLLATE pg_catalog."default",
     "Photos_02" character varying (255) COLLATE pg_catalog."default",
     "Photos_03" character varying (255) COLLATE pg_catalog."default",

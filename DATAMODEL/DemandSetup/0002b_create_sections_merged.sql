@@ -1,5 +1,5 @@
 --	Merge sections that are broken
-DROP TABLE IF EXISTS "RC_Sections_merged" CASCADE;
+DROP TABLE IF EXISTS "mhtc_operations"."RC_Sections_merged" CASCADE;
 
 CREATE TABLE "mhtc_operations"."RC_Sections_merged"
 (
@@ -33,7 +33,7 @@ SELECT (ST_Dump(ST_LineMerge(ST_Collect(a.geom)))).geom As geom
 FROM "mhtc_operations"."RC_Sections" as a
 LEFT JOIN "mhtc_operations"."RC_Sections" as b ON
 ST_Touches(a.geom,b.geom)
-GROUP BY ST_Touches(a.geom,b.geom)
+GROUP BY ST_Touches(a.geom,b.geom);
 
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS c
@@ -66,7 +66,7 @@ AND degrees("Az") <= 135.0;
 
 --
 
-CREATE FUNCTION "mhtc_operations".set_section_length()
+CREATE OR REPLACE FUNCTION "mhtc_operations".set_section_length()
     RETURNS trigger
     LANGUAGE 'plpgsql'
     COST 100
