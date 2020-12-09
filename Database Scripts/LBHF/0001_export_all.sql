@@ -1,7 +1,7 @@
 -- Set up tables for output
 
 -- Section details
---DROP TABLE IF EXISTS demand."LBHF_Sections_2020" CASCADE;
+DROP TABLE IF EXISTS demand."LBHF_Sections_2020" CASCADE;
 
 CREATE TABLE demand."LBHF_Sections_2020"
 (
@@ -28,12 +28,12 @@ CREATE TABLE demand."LBHF_Sections_2020"
 
 INSERT INTO demand."LBHF_Sections_2020"(
 	geom, "StressID", "GeometryID", "Street", "USRN", "StreetSide", "USS_ID", "StreetRef", "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_")
-SELECT geom, "GeometryID", "Street", "USRN", "StreetSide", "USS_ID", "StreetRef", "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_"
+SELECT geom, "StressID", "GeometryID", "Street", "USRN", "StreetSide", "USS_ID", "StreetRef", "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_"
 	FROM demand."LBHF_ParkingStress_2016_WeekdayOvernight";
 
 -- Capacities
 
---DROP TABLE IF EXISTS demand."LBHF_Capacities_2020" CASCADE;
+DROP TABLE IF EXISTS demand."LBHF_Capacities_2020" CASCADE;
 
 CREATE TABLE demand."LBHF_Capacities_2020"
 (
@@ -67,7 +67,7 @@ SELECT "GeometryID", "SurveyID"::int, "Capacity"
 
 -- Demand details
 
---DROP TABLE IF EXISTS demand."LBHF_ParkingStress_2020" CASCADE;
+DROP TABLE IF EXISTS demand."LBHF_ParkingStress_2020" CASCADE;
 
 CREATE TABLE demand."LBHF_ParkingStress_2020"
 (

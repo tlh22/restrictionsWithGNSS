@@ -20,3 +20,82 @@ TABLESPACE pg_default;
 
 ALTER TABLE demand."Demand_VRMs"
     OWNER to postgres;
+
+
+----- trials
+from PyQt5 import QtWidgets, QtSql
+from PyQt5.QtSql import *
+
+def createConnection():
+    con = QSqlDatabase.addDatabase("QSQLITE")
+    con.setDatabaseName("C:\\Users\\marie_000\\Documents\\MHTC\\Test.gpkg")
+    if not db.open():
+        QtWidgets.QMessageBox.critical(None, "Cannot open memory database",
+                             "Unable to establish a database connection.\n\n"
+                             "Click Cancel to exit.", QtWidgets.QMessageBox.Cancel)
+        return False
+    query = QtSql.QSqlQuery()
+    return True
+
+class WebsitesWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(WebsitesWidget, self).__init__(parent)
+        # this layout_box can be used if you need more widgets
+        # I used just one named WebsitesWidget
+        layout_box = QtWidgets.QVBoxLayout(self)
+        #
+        my_view = QtWidgets.QTableView()
+        # put viwe in layout_box area
+        layout_box.addWidget(my_view)
+        # create a table model
+        my_model = QtSql.QSqlTableModel(self)
+        my_model.setTable("Demand_VRMs")
+        my_model.select()
+        #show the view with model
+        my_view.setModel(my_model)
+        my_view.setItemDelegate(QtSql.QSqlRelationalDelegate(my_view))
+
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
+        self.MDI = QtWidgets.QMdiArea()
+        self.setCentralWidget(self.MDI)
+        SubWindow1 = QtWidgets.QMdiSubWindow()
+        SubWindow1.setWidget(WebsitesWidget())
+        self.MDI.addSubWindow(SubWindow1)
+        SubWindow1.show()
+        # you can add more widgest
+        #SubWindow2 = QtWidgets.QMdiSubWindow()
+
+if __name__ == '__main__':
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    if not createConnection():
+        print("not connect")
+        sys.exit(-1)
+    w = MainWindow()
+    w.show()
+    sys.exit(app.exec_())
+
+
+
+import os
+
+def createConnection(path=None):
+    db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+    if path is None:
+            db.setDatabaseName(":memory:")
+    else:
+        if os.path.exists(path) == False:
+            raise(' file to connect to db does not exist')
+        else:
+            db.setDatabaseName(path)
+    if not db.open():
+        print('Connection failed')
+        return False
+    else:
+        return True
+
+mypath = r"C:Users\\marie_000\\Documents\\MHTC\\Test.gpkg"
+path = os.path.join(os.getcwd(), mypath)
+print(createConnection())
