@@ -23,18 +23,21 @@ ALTER TABLE demand."Demand_VRMs"
 
 
 ----- trials
+# https://stackoverflow.com/questions/49752388/editable-qtableview-of-complex-sql-query
+
 from PyQt5 import QtWidgets, QtSql
-from PyQt5.QtSql import *
+#from PyQt5.QtSql import *
+from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
 
 def createConnection():
     con = QSqlDatabase.addDatabase("QSQLITE")
-    con.setDatabaseName("C:\\Users\\marie_000\\Documents\\MHTC\\Test.gpkg")
-    if not db.open():
+    con.setDatabaseName("C:\\Users\\marie_000\\Documents\\MHTC\\VRM_Test.gpkg")
+    if not con.open():
         QtWidgets.QMessageBox.critical(None, "Cannot open memory database",
                              "Unable to establish a database connection.\n\n"
                              "Click Cancel to exit.", QtWidgets.QMessageBox.Cancel)
         return False
-    query = QtSql.QSqlQuery()
+    #query = QtSql.QSqlQuery()
     return True
 
 class WebsitesWidget(QtWidgets.QWidget):
@@ -48,13 +51,31 @@ class WebsitesWidget(QtWidgets.QWidget):
         # put viwe in layout_box area
         layout_box.addWidget(my_view)
         # create a table model
+        """
+        my_model = SqlQueryModel()
+        q = QSqlQuery(query)
+        my_model.setQuery(q)
+        my_model.setFilter("WHERE ""SurveyID"" = 1 AND ""SectionID"" = 31")
+        my_model.select()
+        my_view.setModel(my_model)
+        """
         my_model = QtSql.QSqlTableModel(self)
-        my_model.setTable("Demand_VRMs")
+        my_model.setTable("VRMs")
+        my_model.setFilter("SurveyID = 38 AND SectionID = 31")
         my_model.select()
         #show the view with model
         my_view.setModel(my_model)
         my_view.setItemDelegate(QtSql.QSqlRelationalDelegate(my_view))
 
+class SqlQueryModel(QSqlQueryModel):
+    def setFilter(self, filter):
+        text = (self.query().lastQuery() + " WHERE " + filter)
+        self.setQuery(text)
+
+query = '''
+        SELECT "PositionID", "VRM", "VehicleTypeID", "RestrictionTypeID", "PermitType", "Notes"
+	    FROM "VRMs"
+        '''
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -78,6 +99,10 @@ if __name__ == '__main__':
     sys.exit(app.exec_())
 
 
+
+
+w = MainWindow()
+w.show()
 
 import os
 

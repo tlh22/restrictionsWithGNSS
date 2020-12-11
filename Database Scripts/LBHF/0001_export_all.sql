@@ -142,8 +142,9 @@ ORDER BY d."SurveyID", "Street", "StreetSide";
 
 -- Now output into LBHF structure
 
+-- subsection
 SELECT geom, "StressID", d."GeometryID", d."SurveyID" AS "SurveyType", "SurveyDate", "Street", "USRN", "StreetSide", "USS_ID", "StreetRef",
-      "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_",
+      "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_" AS "Zone",
       "CarCapacity", "Add_Osbstr", "NumCars", "STRESS", "StressLabel"
 FROM demand."LBHF_ParkingStress_2020" d, demand."LBHF_Capacities_2020" c, demand."LBHF_Sections_2020" s
 WHERE d."GeometryID" = c."GeometryID"
@@ -151,3 +152,142 @@ AND d."SurveyID" = c."SurveyID"
 AND d."GeometryID" = s."GeometryID"
 AND d."SurveyID" = 1
 ORDER BY d."SurveyID", "Street", "StreetSide";
+
+-- Side of street (within CPZ)
+
+SELECT 	d."SurveyID" AS "SurveyType", "Street", "USRN", "StreetSide", "USS_ID", "Zone_" AS "Zone", SUM("TotalLength") AS "TotalLength", SUM("AvailableK") AS "AvailableK", SUM("AvailableSpaces_Bays") AS "AvailableSpaces_Bays",
+      SUM("AvailableSpaces_SYLs") AS "AvailableSpaces_SYLs", SUM("CarCapacity") AS "CarCapacity", SUM("Add_Osbstr") AS "Add_Osbstr", SUM("NumCars") AS "NumCars",
+        CASE WHEN SUM("CarCapacity") = 0 THEN
+            CASE WHEN SUM("NumCars") > 0.0 THEN 1.0
+                ELSE 0.0
+            END
+        ELSE
+            CASE
+                WHEN SUM("CarCapacity")::float - COALESCE(SUM("Add_Osbstr"::float), 0.0) > 0.0 THEN
+                    SUM("NumCars") / (SUM("CarCapacity")::float - COALESCE(SUM("Add_Osbstr"::float), 0.0))
+                ELSE
+                    CASE
+                        WHEN SUM("NumCars") > 0.0 THEN 1.0
+                        ELSE 0.0
+                    END
+            END
+        END AS "STRESS"
+FROM demand."LBHF_ParkingStress_2020" d, demand."LBHF_Capacities_2020" c, demand."LBHF_Sections_2020" s
+WHERE d."GeometryID" = c."GeometryID"
+AND d."SurveyID" = c."SurveyID"
+AND d."GeometryID" = s."GeometryID"
+AND d."SurveyID" = 1
+GROUP BY d."SurveyID", "Street", "USRN", "StreetSide", "USS_ID", "Zone_"
+ORDER BY d."SurveyID", "Street", "StreetSide";
+
+-- Street (within CPZ)
+
+SELECT 	d."SurveyID" AS "SurveyType", "USRN", "Street", "Zone_" AS "Zone", SUM("TotalLength") AS "TotalLength", SUM("AvailableK") AS "AvailableK", SUM("AvailableSpaces_Bays") AS "AvailableSpaces_Bays",
+      SUM("AvailableSpaces_SYLs") AS "AvailableSpaces_SYLs", SUM("CarCapacity") AS "CarCapacity", SUM("Add_Osbstr") AS "Add_Osbstr", SUM("NumCars") AS "NumCars",
+        CASE WHEN SUM("CarCapacity") = 0 THEN
+            CASE WHEN SUM("NumCars") > 0.0 THEN 1.0
+                ELSE 0.0
+            END
+        ELSE
+            CASE
+                WHEN SUM("CarCapacity")::float - COALESCE(SUM("Add_Osbstr"::float), 0.0) > 0.0 THEN
+                    SUM("NumCars") / (SUM("CarCapacity")::float - COALESCE(SUM("Add_Osbstr"::float), 0.0))
+                ELSE
+                    CASE
+                        WHEN SUM("NumCars") > 0.0 THEN 1.0
+                        ELSE 0.0
+                    END
+            END
+        END AS "STRESS"
+FROM demand."LBHF_ParkingStress_2020" d, demand."LBHF_Capacities_2020" c, demand."LBHF_Sections_2020" s
+WHERE d."GeometryID" = c."GeometryID"
+AND d."SurveyID" = c."SurveyID"
+AND d."GeometryID" = s."GeometryID"
+AND d."SurveyID" = 1
+GROUP BY d."SurveyID", "USRN", "Street", "Zone_"
+ORDER BY d."SurveyID", "Street";
+
+-- CPZ
+
+SELECT 	d."SurveyID" AS "SurveyType", "Zone_" AS "Zone", SUM("TotalLength") AS "TotalLength", SUM("AvailableK") AS "AvailableK", SUM("AvailableSpaces_Bays") AS "AvailableSpaces_Bays",
+      SUM("AvailableSpaces_SYLs") AS "AvailableSpaces_SYLs", SUM("CarCapacity") AS "CarCapacity", SUM("Add_Osbstr") AS "Add_Osbstr", SUM("NumCars") AS "NumCars",
+        CASE WHEN SUM("CarCapacity") = 0 THEN
+            CASE WHEN SUM("NumCars") > 0.0 THEN 1.0
+                ELSE 0.0
+            END
+        ELSE
+            CASE
+                WHEN SUM("CarCapacity")::float - COALESCE(SUM("Add_Osbstr"::float), 0.0) > 0.0 THEN
+                    SUM("NumCars") / (SUM("CarCapacity")::float - COALESCE(SUM("Add_Osbstr"::float), 0.0))
+                ELSE
+                    CASE
+                        WHEN SUM("NumCars") > 0.0 THEN 1.0
+                        ELSE 0.0
+                    END
+            END
+        END AS "STRESS"
+FROM demand."LBHF_ParkingStress_2020" d, demand."LBHF_Capacities_2020" c, demand."LBHF_Sections_2020" s
+WHERE d."GeometryID" = c."GeometryID"
+AND d."SurveyID" = c."SurveyID"
+AND d."GeometryID" = s."GeometryID"
+AND d."SurveyID" = 1
+GROUP BY d."SurveyID", "Zone_"
+ORDER BY d."SurveyID",  "Zone_";
+
+-- create tables for export
+
+CREATE TABLE demand."LBHF_ParkingStress_2020_WeekdayOvernight" AS
+SELECT geom, "StressID", d."GeometryID", d."SurveyID" AS "SurveyType", "SurveyDate", "Street", "USRN", "StreetSide", "USS_ID", "StreetRef",
+      "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_" AS "Zone",
+      "CarCapacity", "Add_Osbstr", "NumCars", "STRESS", "StressLabel"
+FROM demand."LBHF_ParkingStress_2020" d, demand."LBHF_Capacities_2020" c, demand."LBHF_Sections_2020" s
+WHERE d."GeometryID" = c."GeometryID"
+AND d."SurveyID" = c."SurveyID"
+AND d."GeometryID" = s."GeometryID"
+AND d."SurveyID" = 1
+ORDER BY d."SurveyID", "Street", "StreetSide";
+
+ALTER TABLE demand."LBHF_ParkingStress_2020_WeekdayOvernight"
+ADD CONSTRAINT "LBHF_ParkingStress_2020_WeekdayOvernight_pkey" PRIMARY KEY ("GeometryID");
+
+CREATE TABLE demand."LBHF_ParkingStress_2020_WeekdayAfternoon" AS
+SELECT geom, "StressID", d."GeometryID", d."SurveyID" AS "SurveyType", "SurveyDate", "Street", "USRN", "StreetSide", "USS_ID", "StreetRef",
+      "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_" AS "Zone",
+      "CarCapacity", "Add_Osbstr", "NumCars", "STRESS", "StressLabel"
+FROM demand."LBHF_ParkingStress_2020" d, demand."LBHF_Capacities_2020" c, demand."LBHF_Sections_2020" s
+WHERE d."GeometryID" = c."GeometryID"
+AND d."SurveyID" = c."SurveyID"
+AND d."GeometryID" = s."GeometryID"
+AND d."SurveyID" = 2
+ORDER BY d."SurveyID", "Street", "StreetSide";
+
+ALTER TABLE demand."LBHF_ParkingStress_2020_WeekdayAfternoon"
+ADD CONSTRAINT "LBHF_ParkingStress_2020_WeekdayAfternoon_pkey" PRIMARY KEY ("GeometryID");
+
+CREATE TABLE demand."LBHF_ParkingStress_2020_SaturdayAfternoon" AS
+SELECT geom, "StressID", d."GeometryID", d."SurveyID" AS "SurveyType", "SurveyDate", "Street", "USRN", "StreetSide", "USS_ID", "StreetRef",
+      "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_" AS "Zone",
+      "CarCapacity", "Add_Osbstr", "NumCars", "STRESS", "StressLabel"
+FROM demand."LBHF_ParkingStress_2020" d, demand."LBHF_Capacities_2020" c, demand."LBHF_Sections_2020" s
+WHERE d."GeometryID" = c."GeometryID"
+AND d."SurveyID" = c."SurveyID"
+AND d."GeometryID" = s."GeometryID"
+AND d."SurveyID" = 3
+ORDER BY d."SurveyID", "Street", "StreetSide";
+
+ALTER TABLE demand."LBHF_ParkingStress_2020_SaturdayAfternoon"
+ADD CONSTRAINT "LBHF_ParkingStress_2020_SaturdayAfternoon_pkey" PRIMARY KEY ("GeometryID");
+
+CREATE TABLE demand."LBHF_ParkingStress_2020_SundayAfternoon" AS
+SELECT geom, "StressID", d."GeometryID", d."SurveyID" AS "SurveyType", "SurveyDate", "Street", "USRN", "StreetSide", "USS_ID", "StreetRef",
+      "StreetFrom", "StreetTo", "Ward", "TotalLength", "AvailableK", "AvailableSpaces_Bays", "AvailableSpaces_SYLs", "Zone_" AS "Zone",
+      "CarCapacity", "Add_Osbstr", "NumCars", "STRESS", "StressLabel"
+FROM demand."LBHF_ParkingStress_2020" d, demand."LBHF_Capacities_2020" c, demand."LBHF_Sections_2020" s
+WHERE d."GeometryID" = c."GeometryID"
+AND d."SurveyID" = c."SurveyID"
+AND d."GeometryID" = s."GeometryID"
+AND d."SurveyID" = 4
+ORDER BY d."SurveyID", "Street", "StreetSide";
+
+ALTER TABLE demand."LBHF_ParkingStress_2020_SundayAfternoon"
+ADD CONSTRAINT "LBHF_ParkingStress_2020_SundayAfternoon_pkey" PRIMARY KEY ("GeometryID");
