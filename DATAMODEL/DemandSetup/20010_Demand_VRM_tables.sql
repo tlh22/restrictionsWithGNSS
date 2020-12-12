@@ -55,17 +55,28 @@ class WebsitesWidget(QtWidgets.QWidget):
         my_model = SqlQueryModel()
         q = QSqlQuery(query)
         my_model.setQuery(q)
-        my_model.setFilter("WHERE ""SurveyID"" = 1 AND ""SectionID"" = 31")
+        my_model.setFilter("SurveyID = 1 AND SectionID = 31")
         my_model.select()
         my_view.setModel(my_model)
         """
-        my_model = QtSql.QSqlTableModel(self)
-        my_model.setTable("VRMs")
-        my_model.setFilter("SurveyID = 38 AND SectionID = 31")
-        my_model.select()
+        my_model = QtSql.QSqlRelationalTableModel(self)
+        #my_model.setTable("VRMs")
+        q = QSqlQuery()
+        result = q.prepare("SELECT PositionID, VRM, VehicleTypeID, RestrictionTypeID, PermitType, Notes FROM VRMs")
+        if result == False:
+            print ('Prepare: {}'.format(q.lastError().text()))
+        my_model.setQuery(q)
+        #my_model.setFilter("SurveyID = 38 AND SectionID = 31")
+        result = my_model.select()
+        if result == False:
+            print ('Select: {}'.format(q.lastError().text()))
         #show the view with model
         my_view.setModel(my_model)
         my_view.setItemDelegate(QtSql.QSqlRelationalDelegate(my_view))
+
+
+    def setLookups(self, my_model):
+
 
 class SqlQueryModel(QSqlQueryModel):
     def setFilter(self, filter):
