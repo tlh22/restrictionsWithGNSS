@@ -25,6 +25,14 @@ ALTER TABLE demand."Demand_VRMs"
 ----- trials
 # https://stackoverflow.com/questions/49752388/editable-qtableview-of-complex-sql-query
 
+# setup relational model
+# https://stackoverflow.com/questions/51962262/pyqt-add-new-record-using-qsqlrelationaltablemodel-and-qtableview
+# https://stackoverflow.com/questions/18716637/how-to-filter-qsqlrelationaltablemodel-with-pyqt
+# https://stackoverflow.com/questions/54299754/pyqt5-qsqlrelationaltablemodel-populate-data-with-sqlalchemy-model
+# https://gist.github.com/harvimt/4699169
+# https://deptinfo-ensip.univ-poitiers.fr/ENS/pyside-docs/PySide/QtSql/QSqlRelationalTableModel.html?highlight=relational
+
+
 from PyQt5 import QtWidgets, QtSql
 #from PyQt5.QtSql import *
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
