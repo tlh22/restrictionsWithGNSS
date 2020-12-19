@@ -1,26 +1,4 @@
--- survey areas
---DROP TABLE IF EXISTS mhtc_operations."SurveyAreas";
-CREATE TABLE demand."Demand_VRMs"
-(
-    "ID" SERIAL,
-    "SurveyID" integer,
-    "SectionID" integer,
-    "GeometryID" character varying(12) COLLATE pg_catalog."default",
-    "PositionID" integer,
-    "VRM" character varying(12) COLLATE pg_catalog."default",
-    "VehicleTypeID" integer,
-    "RestrictionTypeID" integer,
-    "PermitType" integer,
-    "Notes" character varying(255) COLLATE pg_catalog."default",
-    "Surveyor" character varying(255),
-    CONSTRAINT "Demand_VRMs_pkey" PRIMARY KEY ("ID")
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE demand."Demand_VRMs"
-    OWNER to postgres;
-
+# Using model/view for demand VRM form
 
 ----- trials
 # https://stackoverflow.com/questions/49752388/editable-qtableview-of-complex-sql-query
@@ -32,31 +10,39 @@ ALTER TABLE demand."Demand_VRMs"
 # https://gist.github.com/harvimt/4699169
 # https://deptinfo-ensip.univ-poitiers.fr/ENS/pyside-docs/PySide/QtSql/QSqlRelationalTableModel.html?highlight=relational
 
+from qgis.PyQt.QtCore import (
+    Qt
+)
+from qgis.PyQt.QtWidgets import (
+QMessageBox, QWidget, QTableView, QVBoxLayout, QMainWindow,
+QMdiArea, QMdiSubWindow, QApplication
+)
 
-from PyQt5 import QtWidgets, QtSql
-#from PyQt5.QtSql import *
-from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel, QSqlRelation
+from qgis.PyQt.QtSql import (
+    QSqlDatabase, QSqlQuery, QSqlQueryModel, QSqlRelation, QSqlRelationalTableModel, QSqlRelationalDelegate
+)
+
 
 def createConnection():
     con = QSqlDatabase.addDatabase("QSQLITE")
     con.setDatabaseName("C:\\Users\\marie_000\\Documents\\MHTC\\VRM_Test.gpkg")
     if not con.open():
-        QtWidgets.QMessageBox.critical(None, "Cannot open memory database",
+        QMessageBox.critical(None, "Cannot open memory database",
                              "Unable to establish a database connection.\n\n"
-                             "Click Cancel to exit.", QtWidgets.QMessageBox.Cancel)
+                             "Click Cancel to exit.", QMessageBox.Cancel)
         return False
     #query = QtSql.QSqlQuery()
     return True
 
-class WebsitesWidget(QtWidgets.QWidget):
+class testWidget(QWidget):
     def __init__(self, parent=None):
-        super(WebsitesWidget, self).__init__(parent)
+        super(testWidget, self).__init__(parent)
         # this layout_box can be used if you need more widgets
         # I used just one named WebsitesWidget
-        layout_box = QtWidgets.QVBoxLayout(self)
+        layout_box = QVBoxLayout(self)
         #
-        my_view = QtWidgets.QTableView()
-        # put viwe in layout_box area
+        my_view = QTableView()
+        # put view in layout_box area
         layout_box.addWidget(my_view)
         # create a table model
         """
@@ -67,7 +53,7 @@ class WebsitesWidget(QtWidgets.QWidget):
         my_model.select()
         my_view.setModel(my_model)
         """
-        my_model = QtSql.QSqlRelationalTableModel(self)
+        my_model = QSqlRelationalTableModel(self)
         my_model.setTable("VRMs")
         #q = QSqlQuery()
         #result = q.prepare("SELECT PositionID, VRM, VehicleTypeID, RestrictionTypeID, PermitType, Notes FROM VRMs")
@@ -90,66 +76,32 @@ class WebsitesWidget(QtWidgets.QWidget):
         my_view.setColumnHidden(my_model.fieldIndex('SurveyID'), True)
         my_view.setColumnHidden(my_model.fieldIndex('SectionID'), True)
         my_view.setColumnHidden(my_model.fieldIndex('GeometryID'), True)
-        my_view.setItemDelegate(QtSql.QSqlRelationalDelegate(my_view))
+        my_view.setItemDelegate(QSqlRelationalDelegate(my_view))
 
+    def new_line(self):
+        row = my_model.rowCount()
+        record = my_model.record()
+        record.setGenerated('id', False)
+        record.setValue('empid', self.ui.emp_id.text())
+        record.setValue('weekending', self.ui.weekending.date())
+        record.setValue('department', self.ui.department.currentText())
+        record.setValue('pay_type', 'Regular')
+        record.setValue('starttime', QDateTime.currentDateTime())
+        record.setValue('endtime', QDateTime.currentDateTime())
+        my_model.insertRecord(row, record)
+        my_view.edit(QModelIndex(my_model.index(row, self.hours_model.fieldIndex('department'))))
 
-    def setLookups(self, my_model):
-
-
-class SqlQueryModel(QSqlQueryModel):
-    def setFilter(self, filter):
-        text = (self.query().lastQuery() + " WHERE " + filter)
-        self.setQuery(text)
-
-query = '''
-        SELECT "PositionID", "VRM", "VehicleTypeID", "RestrictionTypeID", "PermitType", "Notes"
-	    FROM "VRMs"
-        '''
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.MDI = QtWidgets.QMdiArea()
+        self.MDI = QMdiArea()
         self.setCentralWidget(self.MDI)
-        SubWindow1 = QtWidgets.QMdiSubWindow()
-        SubWindow1.setWidget(WebsitesWidget())
+        SubWindow1 = QMdiSubWindow()
+        SubWindow1.setWidget(testWidget())
         self.MDI.addSubWindow(SubWindow1)
         SubWindow1.show()
         # you can add more widgest
         #SubWindow2 = QtWidgets.QMdiSubWindow()
 
-if __name__ == '__main__':
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    if not createConnection():
-        print("not connect")
-        sys.exit(-1)
-    w = MainWindow()
-    w.show()
-    sys.exit(app.exec_())
 
 
-
-
-w = MainWindow()
-w.show()
-
-import os
-
-def createConnection(path=None):
-    db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
-    if path is None:
-            db.setDatabaseName(":memory:")
-    else:
-        if os.path.exists(path) == False:
-            raise(' file to connect to db does not exist')
-        else:
-            db.setDatabaseName(path)
-    if not db.open():
-        print('Connection failed')
-        return False
-    else:
-        return True
-
-mypath = r"C:Users\\marie_000\\Documents\\MHTC\\Test.gpkg"
-path = os.path.join(os.getcwd(), mypath)
-print(createConnection())
