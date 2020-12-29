@@ -22,10 +22,13 @@ from qgis.PyQt.QtSql import (
     QSqlDatabase, QSqlQuery, QSqlQueryModel, QSqlRelation, QSqlRelationalTableModel, QSqlRelationalDelegate
 )
 
+from .VRM_Demand_dialog import VRM_DemandDialog
 
 def createConnection():
     con = QSqlDatabase.addDatabase("QSQLITE")
-    con.setDatabaseName("C:\\Users\\marie_000\\Documents\\MHTC\\VRM_Test.gpkg")
+    #con.setDatabaseName("C:\\Users\\marie_000\\Documents\\MHTC\\VRM_Test.gpkg")
+    con.setDatabaseName("Z:\\Tim\\SYS20-12 Zone K, Watford\\Test\\Mapping\\Geopackages\\SYS2012_Demand_VRMs.gpkg")
+    # "Z:\\Tim\\SYS20-12 Zone K, Watford\\Test\\Mapping\\Geopackages\\SYS2012_Demand.gpkg"
     if not con.open():
         QMessageBox.critical(None, "Cannot open memory database",
                              "Unable to establish a database connection.\n\n"
@@ -90,6 +93,23 @@ class testWidget(QWidget):
         record.setValue('endtime', QDateTime.currentDateTime())
         my_model.insertRecord(row, record)
         my_view.edit(QModelIndex(my_model.index(row, self.hours_model.fieldIndex('department'))))
+
+class VRM_DemandForm(VRM_DemandDialog):
+    def __init__(self, iface, parent=None):
+        if not parent:
+            parent = iface.mainWindow()
+        super().__init__(parent)
+
+        self.iface = iface
+
+        QgsMessageLog.logMessage("In VRM_DemandForm::init", tag="TOMs panel")
+
+        self.setupThisUi()
+
+    def setupThisUi(self):
+
+        self.VRMtab = self.findChild(QWidget, "VRMs")
+        self.VRMtab.setWidget(testWidget())
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
