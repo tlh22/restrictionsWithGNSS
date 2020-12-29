@@ -11,15 +11,40 @@
 # https://deptinfo-ensip.univ-poitiers.fr/ENS/pyside-docs/PySide/QtSql/QSqlRelationalTableModel.html?highlight=relational
 
 from qgis.PyQt.QtCore import (
-    Qt
+    Qt, QgsMessageLog
 )
 from qgis.PyQt.QtWidgets import (
 QMessageBox, QWidget, QTableView, QVBoxLayout, QMainWindow,
 QMdiArea, QMdiSubWindow, QApplication
 )
-
 from qgis.PyQt.QtSql import (
     QSqlDatabase, QSqlQuery, QSqlQueryModel, QSqlRelation, QSqlRelationalTableModel, QSqlRelationalDelegate
+)
+
+from qgis.core import (
+    QgsExpressionContextUtils,
+    QgsProject,
+    QgsMessageLog,
+    QgsFeature,
+    QgsGeometry, QgsGeometryUtils,
+    QgsApplication, QgsCoordinateTransform, QgsCoordinateReferenceSystem,
+    QgsGpsDetector, QgsGpsConnection, QgsGpsInformation, QgsPoint, QgsPointXY,
+    QgsDataSourceUri, QgsRectangle, QgsFeatureRequest, QgsWkbTypes
+)
+
+from qgis.gui import (
+    QgsVertexMarker,
+    QgsMapToolEmitPoint, QgsRubberBand
+)
+
+from qgis.PyQt.QtWidgets import (
+    QMessageBox,
+    QAction,
+    QDialogButtonBox,
+    QLabel,
+    QDockWidget,
+    QWidget,
+    QHBoxLayout, QComboBox, QGroupBox, QFormLayout, QStackedWidget, QPushButton, QLineEdit
 )
 
 from .VRM_Demand_dialog import VRM_DemandDialog
@@ -52,7 +77,7 @@ class testWidget(QWidget):
         my_model = SqlQueryModel()
         q = QSqlQuery(query)
         my_model.setQuery(q)
-        my_model.setFilter("SurveyID = 1 AND SectionID = 31")
+        my_model.setFilter("SurveyID = 1 AND SectionID = 5")
         my_model.select()
         my_view.setModel(my_model)
         """
@@ -63,7 +88,7 @@ class testWidget(QWidget):
         #if result == False:
         #    print ('Prepare: {}'.format(q.lastError().text()))
         #my_model.setQuery(q)
-        my_model.setFilter("SurveyID = 38 AND SectionID = 31")
+        my_model.setFilter("SurveyID = 1 AND SectionID = 5")
         my_model.setSort(int(my_model.fieldIndex("PositionID")), Qt.AscendingOrder)
         my_model.setRelation(int(my_model.fieldIndex("VehicleTypeID")), QSqlRelation('VehicleTypes', 'Code', 'Description'))
         rel = my_model.relation(int(my_model.fieldIndex("VehicleTypeID")))
