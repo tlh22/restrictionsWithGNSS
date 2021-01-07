@@ -153,7 +153,17 @@ END
 $BODY$
 LANGUAGE plpgsql;
 
+DROP TABLE IF EXISTS mhtc_operations."LineLengthAtCorner";
+
+CREATE TABLE mhtc_operations."LineLengthAtCorner"
+(
+	"id" integer,
+	"LineLength" double precision
+);
+
 WITH corners AS (
 SELECT "id" FROM mhtc_operations."Corners" c)
+    INSERT INTO mhtc_operations."LineLengthAtCorner" (id, "LineLength")
     SELECT corners.id, line_length_at_corner(corners.id)
 	FROM corners;
+
