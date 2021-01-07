@@ -291,3 +291,7 @@ SET "RestrictionTypeID" = 221, "UnacceptableTypeID" = 6
 FROM mhtc_operations."Corners" c
 WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 6.0)))
 AND s."RestrictionTypeID" = 201;
+
+
+
+
