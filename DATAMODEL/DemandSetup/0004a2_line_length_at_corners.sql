@@ -132,7 +132,7 @@ BEGIN
         FROM mhtc_operations."CornerSegments" c, "toms"."Lines" l
         WHERE c."id" = cornerID
         AND ST_Intersects(l.geom, ST_Buffer(ST_SetSRID(c.geom, 27700), 0.1))
-        AND l."RestrictionTypeID" = 202;
+        AND l."RestrictionTypeID" NOT IN (201, 221, 224, 216, 220);
 
         --RAISE NOTICE 'DYL: %', len_DYL;
 
@@ -167,3 +167,12 @@ SELECT "id" FROM mhtc_operations."Corners" c)
     SELECT corners.id, line_length_at_corner(corners.id)
 	FROM corners;
 
+
+SELECT id, "LineLength"
+	FROM mhtc_operations."LineLengthAtCorner"
+	WHERE "LineLength" < 19.0;
+
+SELECT "LineLength"::int AS grouping, COUNT(id) AS nrCorners
+FROM  mhtc_operations."LineLengthAtCorner"
+GROUP BY  grouping
+ORDER  BY grouping DESC;
