@@ -84,6 +84,7 @@ from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 ZOOM_LIMIT = 5
 
+"""
 class gpsLayers(TOMsLayers):
     def __init__(self, iface):
         TOMsLayers.__init__(self, iface)
@@ -182,6 +183,7 @@ class gpsLayers(TOMsLayers):
                          ]
         self.TOMsLayerDict = {}
 
+"""
 class gpsParams(TOMsParams):
     def __init__(self):
         TOMsParams.__init__(self)

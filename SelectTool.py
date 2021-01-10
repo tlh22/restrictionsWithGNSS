@@ -68,7 +68,8 @@ from qgis.gui import (
 #from qgis.core import *
 #from qgis.gui import *
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
-from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
+from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsParams
+from TOMs.restrictionTypeUtilsClass import TOMsLayers, TOMsConfigFile
 
 #from .formUtils import demandFormUtils
 

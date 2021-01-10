@@ -70,7 +70,8 @@ from qgis.gui import (
     QgsMapToolEmitPoint
 )
 
-from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
+from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsParams
+from TOMs.restrictionTypeUtilsClass import TOMsLayers, TOMsConfigFile
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
 
 import functools
@@ -271,8 +272,11 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         self.iface = iface
         self.layer = layer
 
-        self.tableNames = gpsLayers(self.iface)
-        self.tableNames.getLayers()
+        self.tableNames = TOMsLayers(self.iface)
+        self.TOMsConfigFileObject = TOMsConfigFile(self.iface)
+        self.TOMsConfigFileObject.initialiseTOMsConfigFile()
+
+        self.tableNames.getLayers(self.TOMsConfigFileObject)
 
         #self.inProcess = True
 
@@ -534,8 +538,12 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         self.setAutoSnapEnabled(True)
 
-        self.tableNames = gpsLayers(self.iface)
-        self.tableNames.getLayers()
+        self.tableNames = TOMsLayers(self.iface)
+        self.TOMsConfigFileObject = TOMsConfigFile(self.iface)
+        self.TOMsConfigFileObject.initialiseTOMsConfigFile()
+
+        self.tableNames.getLayers(self.TOMsConfigFileObject)
+
 
     def canvasReleaseEvent(self, event):
 
