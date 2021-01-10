@@ -586,6 +586,7 @@ class FieldRestrictionTypeUtilsMixin():
                 START_CAMERA_1.clicked.connect(
                     functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1, FIELD1))
                 self.camera1.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
+                self.camera1.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD1))
 
         if FIELD2:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 2 exisits",
@@ -749,9 +750,17 @@ class FieldRestrictionTypeUtilsMixin():
 
     @pyqtSlot(QPixmap)
     def displayPixmapUpdated(self, FIELD, pixmap):
-        TOMsMessageLog.logMessage("In utils::displayPixmapUpdated ... ", level=Qgis.Info)
+        TOMsMessageLog.logMessage("In utils::displayPixmapUpdated ... ", level=Qgis.Warning)
         FIELD.setPixmap(pixmap)
         FIELD.setScaledContents(True)
+        QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
+
+    def displayImage(self, FIELD, pixmap):
+        TOMsMessageLog.logMessage("In utils::displayPixmapUpdated ... ", level=Qgis.Warning)
+
+        FIELD.update_image(pixmap.scaled(FIELD.width(), FIELD.height(), QtCore.Qt.KeepAspectRatio,
+                                                transformMode=QtCore.Qt.SmoothTransformation))
+
         QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
 
     """"@pyqtSlot(QPixmap)
