@@ -176,3 +176,11 @@ SELECT "LineLength"::int AS grouping, COUNT(id) AS nrCorners
 FROM  mhtc_operations."LineLengthAtCorner"
 GROUP BY  grouping
 ORDER  BY grouping DESC;
+
+GRANT ALL ON TABLE mhtc_operations."CornerSegments" TO postgres;
+GRANT ALL ON TABLE mhtc_operations."CornerSegments" TO toms_admin, toms_operator;
+GRANT SELECT ON TABLE mhtc_operations."CornerSegments" TO toms_public;
+
+GRANT ALL ON TABLE mhtc_operations."LineLengthAtCorner" TO postgres;
+GRANT ALL ON TABLE mhtc_operations."LineLengthAtCorner" TO toms_admin, toms_operator;
+GRANT SELECT ON TABLE mhtc_operations."LineLengthAtCorner" TO toms_public;
