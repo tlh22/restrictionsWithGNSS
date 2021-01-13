@@ -17,7 +17,6 @@ CREATE OR REPLACE FUNCTION mhtc_operations."getCornerExtents"(cnr_id integer)
     LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE
-   cornerProtectionDistance float = 5.0;
    cornerProtectionLineString geometry;
 BEGIN
 
@@ -40,7 +39,7 @@ DROP TABLE IF EXISTS mhtc_operations."CornerProtectionSections";
 CREATE TABLE mhtc_operations."CornerProtectionSections"
 (
 	"id" integer,
-	"geom" geometry(LineString)
+	"geom" geometry
 );
 
 INSERT INTO mhtc_operations."CornerProtectionSections" (id, geom)
@@ -61,7 +60,7 @@ DROP TABLE IF EXISTS  mhtc_operations."CornerProtectionSections_Single" CASCADE;
 CREATE TABLE mhtc_operations."CornerProtectionSections_Single"
 (
   id SERIAL,
-  geom geometry(Point,27700),
+  geom geometry(LineString,27700),
   CONSTRAINT "CornerProtectionSections_Single_pkey" PRIMARY KEY (id)
 )
 WITH (
