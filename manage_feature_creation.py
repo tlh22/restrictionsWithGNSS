@@ -63,9 +63,10 @@ from .mapTools import CreateRestrictionTool, CreatePointTool
 from .gnss_thread import GPS_Thread
 #from TOMsUtils import *
 
-from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsLayers, gpsParams
+from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsParams
 from .SelectTool import GeometryInfoMapTool, RemoveRestrictionTool
 from .formManager import mtrForm
+from TOMs.restrictionTypeUtilsClass import TOMsLayers, TOMsConfigFile
 
 
 import functools
@@ -169,12 +170,18 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.gpsAvailable = False
         self.closeTOMs = False
 
-        self.tableNames = gpsLayers(self.iface)
+        self.tableNames = TOMsLayers(self.iface)
         self.params = gpsParams()
 
         self.tableNames.TOMsLayersNotFound.connect(self.setCloseTOMsFlag)
         #self.tableNames.gpsLayersNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
         self.params.TOMsParamsNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
+
+        self.TOMsConfigFileObject = TOMsConfigFile(self.iface)
+        self.TOMsConfigFileObject.TOMsConfigFileNotFound.connect(self.setCloseTOMsFlag)
+        self.TOMsConfigFileObject.initialiseTOMsConfigFile()
+
+        self.tableNames.getLayers(self.TOMsConfigFileObject)
 
         self.prj = QgsProject().instance()
         self.dest_crs = self.prj.crs()
@@ -183,7 +190,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4326"), self.dest_crs,
                                                      self.prj)
 
-        self.tableNames.getLayers()
+        self.tableNames.getLayers(self.TOMsConfigFileObject)
         self.params.getParams()
 
         if self.closeTOMs:
