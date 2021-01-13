@@ -1,38 +1,4 @@
----
-
---DROP FUNCTION IF EXISTS mhtc_operations."getParameter";
-
-CREATE OR REPLACE FUNCTION mhtc_operations."getParameter"(param text) RETURNS text AS
-'SELECT "Value"
-FROM mhtc_operations."project_parameters"
-WHERE "Field" = $1'
-LANGUAGE SQL;
-
---- identify extent of corner "protection" on kerbline using details from "CornerSegments"
-
-DROP FUNCTION IF EXISTS mhtc_operations."getCornerExtents";
-
-CREATE OR REPLACE FUNCTION mhtc_operations."getCornerExtents"(cnr_id integer)
-    RETURNS geometry
-    LANGUAGE 'plpgsql'
-AS $BODY$
-DECLARE
-   cornerProtectionLineString geometry;
-BEGIN
-
-    -- get the corner protection distance from "project_parameters"
-
-    -- get intersection points between apex point buffer and corner segment
-    SELECT ST_Intersection(c.geom, ST_Buffer(a."ApexPt", mhtc_operations."getParameter"('CornerProtectionDistance')::float))
-    INTO cornerProtectionLineString
-    FROM mhtc_operations."CornerSegments" c, mhtc_operations."CornerApexPts" a
-    WHERE c.id = cnr_id
-    AND c.id = a.id;
-
-    RETURN cornerProtectionLineString;
-
-END;
-$BODY$;
+--- measure distance from corner ...
 
 DROP TABLE IF EXISTS mhtc_operations."CornerProtectionSections";
 
@@ -42,9 +8,30 @@ CREATE TABLE mhtc_operations."CornerProtectionSections"
 	"geom" geometry
 );
 
-INSERT INTO mhtc_operations."CornerProtectionSections" (id, geom)
-SELECT c.id, mhtc_operations."getCornerExtents"(c.id)
-FROM mhtc_operations."Corners" c;
+WITH cornerDetails AS (
+SELECT c.id, c.geom As corner_geom, r.geom as road_casement_geom
+FROM mhtc_operations."Corners" c, topography."road_casement" r
+WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.geom, 0.1))
+ )
+ INSERT INTO mhtc_operations."CornerProtectionSections" (id, geom)
+ SELECT d.id, mhtc_operations."get_road_casement_section"(d.id, d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
+ FROM cornerDetails d;
+
+-- print out duplicate entries
+SELECT id, count(*)
+FROM mhtc_operations."CornerProtectionSections"
+GROUP BY id
+HAVING count(*) > 1;
+
+DELETE FROM mhtc_operations."CornerProtectionSections" c1
+WHERE id IN (
+    SELECT id
+    FROM (
+        SELECT id, count(*)
+        FROM mhtc_operations."CornerProtectionSections"
+        GROUP BY id
+        HAVING count(*) > 1) a
+        );
 
 ALTER TABLE ONLY mhtc_operations."CornerProtectionSections"
     ADD CONSTRAINT "CornerProtectionSections_pkey" PRIMARY KEY ("id");

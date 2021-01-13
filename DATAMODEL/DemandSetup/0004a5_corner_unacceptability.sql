@@ -74,7 +74,7 @@ SELECT
 
 --
 CREATE OR REPLACE FUNCTION mhtc_operations."cnrBufferExtent"(geometry, real) RETURNS geometry AS
-'SELECT ST_Collect(ST_ExteriorRing(ST_Buffer(c.geom, $2))) AS geom
+'SELECT ST_Collect(ST_ExteriorRing(ST_Buffer(c.geom, $2, ''endcap=flat''))) AS geom
 FROM mhtc_operations."CornerProtectionSections_Single" c
 WHERE ST_Intersects($1, ST_Buffer(c.geom, $2, ''endcap=flat''))'
 LANGUAGE SQL;
@@ -120,13 +120,13 @@ UNION
 UPDATE mhtc_operations."Supply" AS s
 SET "RestrictionTypeID" = 220, "UnacceptableTypeID" = 6
 FROM mhtc_operations."CornerProtectionSections_Single" c
-WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=flat')))
+WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=round')))
 AND s."RestrictionTypeID" = 216;
 
 UPDATE mhtc_operations."Supply" AS s
 SET "RestrictionTypeID" = 221, "UnacceptableTypeID" = 6
 FROM mhtc_operations."CornerProtectionSections_Single" c
-WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=flat')))
+WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=round')))
 AND s."RestrictionTypeID" = 201;
 
 
