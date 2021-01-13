@@ -132,3 +132,12 @@ WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.geom, 0.1))
 
 
 WITH
+
+
+Process should be:
+ - generate corner segments
+ - extract end points
+ -  find bearing to road centre line (ST_Azimuth()
+ - generate line from end point towards corner point usng the bearing of road centre line
+ - find intersection point ! (apex)
+ - measure "distance" back towards end points
