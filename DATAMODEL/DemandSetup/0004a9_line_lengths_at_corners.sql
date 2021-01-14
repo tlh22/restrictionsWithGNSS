@@ -67,3 +67,61 @@ ORDER  BY grouping DESC;
 GRANT ALL ON TABLE mhtc_operations."LineLengthAtCorner" TO postgres;
 GRANT ALL ON TABLE mhtc_operations."LineLengthAtCorner" TO toms_admin, toms_operator;
 GRANT SELECT ON TABLE mhtc_operations."LineLengthAtCorner" TO toms_public;
+
+
+--
+
+-- classify corners according to the amount of line
+
+
+ALTER TABLE mhtc_operations."LineLengthAtCorner"
+    ADD COLUMN "CornerProtectionCategoryTypeID" integer;
+
+DROP TABLE IF EXISTS "mhtc_operations"."CornerProtectionCategoryTypes";
+
+CREATE TABLE "mhtc_operations"."CornerProtectionCategoryTypes" (
+    "Code" integer NOT NULL,
+    "Description" character varying
+);
+
+CREATE SEQUENCE "mhtc_operations"."CornerProtectionCategoryType_Code_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER TABLE "mhtc_operations"."CornerProtectionCategoryType_Code_seq" OWNER TO "postgres";
+
+ALTER SEQUENCE "mhtc_operations"."CornerProtectionCategoryType_Code_seq" OWNED BY "mhtc_operations"."CornerProtectionCategoryTypes"."Code";
+
+ALTER TABLE ONLY "mhtc_operations"."CornerProtectionCategoryTypes" ALTER COLUMN "Code" SET DEFAULT "nextval"('"mhtc_operations"."CornerProtectionCategoryType_Code_seq"'::"regclass");
+
+ALTER TABLE ONLY "mhtc_operations"."CornerProtectionCategoryTypes"
+    ADD CONSTRAINT "CornerProtectionCategoryType_pkey" PRIMARY KEY ("Code");
+
+ALTER TABLE ONLY mhtc_operations."LineLengthAtCorner"
+    ADD CONSTRAINT "LineLengthAtCorner_CornerProtectionCategoryTypeID_fkey" FOREIGN KEY ("CornerProtectionCategoryTypeID") REFERENCES "mhtc_operations"."CornerProtectionCategoryTypes"("Code");
+
+-- add values
+
+INSERT INTO "mhtc_operations"."CornerProtectionCategoryTypes" ("Code", "Description") VALUES (1, 'No suitable markings');
+INSERT INTO "mhtc_operations"."CornerProtectionCategoryTypes" ("Code", "Description") VALUES (2, 'Some suitable markings');
+INSERT INTO "mhtc_operations"."CornerProtectionCategoryTypes" ("Code", "Description") VALUES (3, 'In compliance');
+
+-- update
+
+UPDATE mhtc_operations."LineLengthAtCorner"
+    SET "CornerProtectionCategoryTypeID" = 1
+    WHERE "LineLength" = 0.0;
+
+UPDATE mhtc_operations."LineLengthAtCorner"
+    SET "CornerProtectionCategoryTypeID" = 2
+    WHERE "LineLength" > 0.0 and "LineLength" < 16.0;
+
+UPDATE mhtc_operations."LineLengthAtCorner"
+    SET "CornerProtectionCategoryTypeID" = 3
+    WHERE "LineLength" >= 16.0;
+
+-- group by ward
