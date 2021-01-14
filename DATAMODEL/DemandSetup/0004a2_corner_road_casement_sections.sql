@@ -130,6 +130,7 @@ GRANT ALL ON TABLE mhtc_operations."CornerSegments" TO toms_admin, toms_operator
 GRANT SELECT ON TABLE mhtc_operations."CornerSegments" TO toms_public;
 
 
+
 --
 
 DROP TABLE IF EXISTS mhtc_operations."CornerSegmentEndPts";
