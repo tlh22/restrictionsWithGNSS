@@ -73,7 +73,7 @@
     </layer-tree-group>
     <layer-tree-group expanded="0" name="OtherItems" checked="Qt::Checked">
       <customproperties/>
-      <layer-tree-group expanded="0" name="Points" checked="Qt::Checked">
+      <layer-tree-group expanded="1" name="Points" checked="Qt::Checked">
         <customproperties/>
         <layer-tree-layer expanded="0" legend_exp="" providerKey="postgres" name="Benches" id="Benches_274b3bd9_5d35_4934_9135_24bdbc54ec3f" source="service='TOMs_Test' sslmode=allow key='RestrictionID' srid=27700 type=Point checkPrimaryKeyUnicity='1' table=&quot;highway_assets&quot;.&quot;Benches&quot; (geom) sql=" checked="Qt::Checked">
           <customproperties/>
@@ -692,7 +692,7 @@
       </legendgroup>
     </legendgroup>
     <legendgroup open="false" name="OtherItems" checked="Qt::Checked">
-      <legendgroup open="false" name="Points" checked="Qt::Checked">
+      <legendgroup open="true" name="Points" checked="Qt::Checked">
         <legendlayer open="false" name="Benches" showFeatureCount="0" drawingOrder="-1" checked="Qt::Checked">
           <filegroup open="false" hidden="false">
             <legendlayerfile layerid="Benches_274b3bd9_5d35_4934_9135_24bdbc54ec3f" visible="1" isInOverview="0"/>
@@ -1841,7 +1841,7 @@
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/AccessRestrictions.ui</editform>
+      <editform tolerant="1">AccessRestrictions.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -6224,7 +6224,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../../ui/restrictionBayDetails_dialog_base2_qt5.ui</editform>
+      <editform tolerant="1">restrictionBayDetails_dialog_base2_qt5.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -8206,7 +8206,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Benches.ui</editform>
+      <editform tolerant="1">Benches.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -8973,7 +8973,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Bins.ui</editform>
+      <editform tolerant="1">Bins.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -10076,7 +10076,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Bollards.ui</editform>
+      <editform tolerant="1">Bollards.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -10702,7 +10702,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Bollards.ui</editform>
+      <editform tolerant="1">Bollards.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -11560,7 +11560,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Bus_Shelter.ui</editform>
+      <editform tolerant="1">Bus_Shelter.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -12477,7 +12477,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/CCTV_Cameras.ui</editform>
+      <editform tolerant="1">CCTV_Cameras.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -12993,28 +12993,28 @@ def my_form_open(dialog, layer, feature):
           </editWidget>
         </field>
         <field name="CreateDateTime">
-          <editWidget type="">
+          <editWidget type="DateTime">
             <config>
               <Option/>
             </config>
           </editWidget>
         </field>
         <field name="CreatePerson">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
               <Option/>
             </config>
           </editWidget>
         </field>
         <field name="label_pos">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
               <Option/>
             </config>
           </editWidget>
         </field>
         <field name="label_ldr">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
               <Option/>
             </config>
@@ -13151,7 +13151,6 @@ def my_form_open(dialog, layer, feature):
           <column width="-1" name="GeometryID" type="field" hidden="0"/>
           <column width="-1" name="RestrictionTypeID" type="field" hidden="0"/>
           <column width="141" name="TimePeriodID" type="field" hidden="0"/>
-          <column width="313" name="MatchDayTimePeriodID" type="field" hidden="0"/>
           <column width="1022" name="Notes" type="field" hidden="0"/>
           <column width="-1" name="Photos_01" type="field" hidden="0"/>
           <column width="-1" name="Photos_02" type="field" hidden="0"/>
@@ -13170,6 +13169,10 @@ def my_form_open(dialog, layer, feature):
           <column width="-1" name="ComplianceNotes" type="field" hidden="0"/>
           <column width="-1" name="MHTC_CheckIssueTypeID" type="field" hidden="0"/>
           <column width="-1" name="MHTC_CheckNotes" type="field" hidden="0"/>
+          <column width="-1" name="CreateDateTime" type="field" hidden="0"/>
+          <column width="-1" name="CreatePerson" type="field" hidden="0"/>
+          <column width="-1" name="label_pos" type="field" hidden="0"/>
+          <column width="-1" name="label_ldr" type="field" hidden="0"/>
         </columns>
       </attributetableconfig>
       <conditionalstyles>
@@ -13177,7 +13180,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1"></editform>
+      <editform tolerant="1">cpz_dialog_base_qt5.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath>../../TOMs/marie_000/Documents/MHTC/Edinburgh/TOMs</editforminitfilepath>
@@ -13199,13 +13202,15 @@ def my_form_open(dialog, layer, feature):
 	control = dialog.findChild(QWidget, "MyLineEdit")
 ]]></editforminitcode>
       <featformsuppress>0</featformsuppress>
-      <editorlayout>generatedlayout</editorlayout>
+      <editorlayout>uifilelayout</editorlayout>
       <editable>
         <field editable="1" name="CPZ"/>
         <field editable="1" name="CloseDate"/>
         <field editable="1" name="ComplianceNotes"/>
         <field editable="1" name="ComplianceRestrictionSignIssue"/>
         <field editable="1" name="ComplianceRoadMarkingsFaded"/>
+        <field editable="1" name="CreateDateTime"/>
+        <field editable="1" name="CreatePerson"/>
         <field editable="1" name="GeometryID"/>
         <field editable="1" name="LabelText"/>
         <field editable="1" name="LastUpdateDateTime"/>
@@ -13234,6 +13239,8 @@ def my_form_open(dialog, layer, feature):
         <field labelOnTop="0" name="ComplianceNotes"/>
         <field labelOnTop="0" name="ComplianceRestrictionSignIssue"/>
         <field labelOnTop="0" name="ComplianceRoadMarkingsFaded"/>
+        <field labelOnTop="0" name="CreateDateTime"/>
+        <field labelOnTop="0" name="CreatePerson"/>
         <field labelOnTop="0" name="GeometryID"/>
         <field labelOnTop="0" name="LabelText"/>
         <field labelOnTop="0" name="LastUpdateDateTime"/>
@@ -14490,7 +14497,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/CarriagwayMarkings.ui</editform>
+      <editform tolerant="1">CarriagwayMarkings.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -15107,7 +15114,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Communication_Cabinets.ui</editform>
+      <editform tolerant="1">Communication_Cabinets.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -17166,7 +17173,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/CrossingPoints.ui</editform>
+      <editform tolerant="1">CrossingPoints.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -17883,7 +17890,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Cycle_Parking.ui</editform>
+      <editform tolerant="1">Cycle_Parking.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -18395,7 +18402,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Cycle_Parking.ui</editform>
+      <editform tolerant="1">Cycle_Parking.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -18995,7 +19002,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Display_Boards.ui</editform>
+      <editform tolerant="1">Display_Boards.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -19593,7 +19600,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/EV_Charging_Points.ui</editform>
+      <editform tolerant="1">EV_Charging_Points.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -20237,7 +20244,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/End_of_Street_Markings.ui</editform>
+      <editform tolerant="1">End_of_Street_Markings.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -20985,7 +20992,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/HighwayDedications.ui</editform>
+      <editform tolerant="1">HighwayDedications.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -23550,7 +23557,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../../ui/restrictionLineDetails_dialog_base2_qt5.ui</editform>
+      <editform tolerant="1">restrictionLineDetails_dialog_base2_qt5.ui</editform>
       <editforminit>formOpen_Lines</editforminit>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -27586,7 +27593,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../../ui/MHTC_RoadLink.ui</editform>
+      <editform tolerant="1">MHTC_RoadLink.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -28209,7 +28216,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/MHTC_RoadLink.ui</editform>
+      <editform tolerant="1">MHTC_RoadLink.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -30208,7 +30215,7 @@ def my_form_open(dialog, layer, feature):
       <previewExpression></previewExpression>
       <mapTip></mapTip>
     </maplayer>
-    <maplayer minScale="1e+08" readOnly="0" simplifyDrawingHints="1" type="vector" refreshOnNotifyMessage="" autoRefreshTime="0" refreshOnNotifyEnabled="0" simplifyMaxScale="1" simplifyAlgorithm="0" autoRefreshEnabled="0" labelsEnabled="0" simplifyDrawingTol="1" maxScale="0" wkbType="Point" simplifyLocal="1" geometry="Point" styleCategories="AllStyleCategories" hasScaleBasedVisibilityFlag="0">
+    <maplayer minScale="1e+08" readOnly="0" simplifyDrawingHints="0" type="vector" refreshOnNotifyMessage="" autoRefreshTime="0" refreshOnNotifyEnabled="0" simplifyMaxScale="1" simplifyAlgorithm="0" autoRefreshEnabled="0" labelsEnabled="0" simplifyDrawingTol="1" maxScale="0" wkbType="Point" simplifyLocal="1" geometry="Point" styleCategories="AllStyleCategories" hasScaleBasedVisibilityFlag="0">
       <id>MotorcycleParkingFacilities_1f47ef0e_d033_4741_982e_63eed8de2b8d</id>
       <datasource>service='TOMs_Test' sslmode=disable key='RestrictionID' srid=27700 type=Point checkPrimaryKeyUnicity='1' table="highway_assets"."MotorcycleParkingFacilities" (geom_point) sql=</datasource>
       <keywordList>
@@ -30235,6 +30242,15 @@ def my_form_open(dialog, layer, feature):
         <type>dataset</type>
         <title></title>
         <abstract></abstract>
+        <contact>
+          <name></name>
+          <organization></organization>
+          <position></position>
+          <voice></voice>
+          <fax></fax>
+          <email></email>
+          <role></role>
+        </contact>
         <links/>
         <fees></fees>
         <encoding></encoding>
@@ -30251,7 +30267,15 @@ def my_form_open(dialog, layer, feature):
             <geographicflag>false</geographicflag>
           </spatialrefsys>
         </crs>
-        <extent/>
+        <extent>
+          <spatial minx="0" crs="EPSG:27700" maxx="0" maxy="0" dimensions="2" miny="0" minz="0" maxz="0"/>
+          <temporal>
+            <period>
+              <start></start>
+              <end></end>
+            </period>
+          </temporal>
+        </extent>
       </resourceMetadata>
       <provider encoding="">postgres</provider>
       <vectorjoins/>
@@ -30303,140 +30327,234 @@ def my_form_open(dialog, layer, feature):
         <rotation/>
         <sizescale/>
       </renderer-v2>
-      <customproperties/>
+      <customproperties>
+        <property value="0" key="embeddedWidgets/count"/>
+        <property key="variableNames"/>
+        <property key="variableValues"/>
+      </customproperties>
       <blendMode>0</blendMode>
       <featureBlendMode>0</featureBlendMode>
       <layerOpacity>1</layerOpacity>
+      <SingleCategoryDiagramRenderer diagramType="Histogram" attributeLegend="1">
+        <DiagramCategory maxScaleDenominator="1e+08" minScaleDenominator="0" width="15" labelPlacementMethod="XHeight" sizeType="MM" penAlpha="255" barWidth="5" lineSizeType="MM" rotationOffset="270" backgroundAlpha="255" enabled="0" penWidth="0" lineSizeScale="3x:0,0,0,0,0,0" backgroundColor="#ffffff" penColor="#000000" scaleBasedVisibility="0" scaleDependency="Area" sizeScale="3x:0,0,0,0,0,0" opacity="1" diagramOrientation="Up" height="15" minimumSize="0">
+          <fontProperties style="" description="MS Shell Dlg 2,8.25,-1,5,50,0,0,0,0,0"/>
+        </DiagramCategory>
+      </SingleCategoryDiagramRenderer>
+      <DiagramLayerSettings priority="0" zIndex="0" placement="0" showAll="1" linePlacementFlags="18" obstacle="0" dist="0">
+        <properties>
+          <Option type="Map">
+            <Option value="" name="name" type="QString"/>
+            <Option name="properties"/>
+            <Option value="collection" name="type" type="QString"/>
+          </Option>
+        </properties>
+      </DiagramLayerSettings>
       <geometryOptions removeDuplicateNodes="0" geometryPrecision="0">
-        <activeChecks type="StringList">
-          <Option value="" type="QString"/>
-        </activeChecks>
+        <activeChecks/>
         <checkConfiguration/>
       </geometryOptions>
       <fieldConfiguration>
         <field name="RestrictionID">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="IsMultiline" type="bool"/>
+                <Option value="false" name="UseHtml" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="GeometryID">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="IsMultiline" type="bool"/>
+                <Option value="false" name="UseHtml" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="Photos_01">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="IsMultiline" type="bool"/>
+                <Option value="false" name="UseHtml" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="Photos_02">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
               <Option/>
             </config>
           </editWidget>
         </field>
         <field name="Photos_03">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
               <Option/>
             </config>
           </editWidget>
         </field>
         <field name="Notes">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
               <Option/>
             </config>
           </editWidget>
         </field>
         <field name="RoadName">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="IsMultiline" type="bool"/>
+                <Option value="false" name="UseHtml" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="USRN">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
               <Option/>
             </config>
           </editWidget>
         </field>
         <field name="OpenDate">
-          <editWidget type="">
+          <editWidget type="DateTime">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="true" name="allow_null" type="bool"/>
+                <Option value="true" name="calendar_popup" type="bool"/>
+                <Option value="yyyy-MM-dd" name="display_format" type="QString"/>
+                <Option value="yyyy-MM-dd" name="field_format" type="QString"/>
+                <Option value="false" name="field_iso_format" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="CloseDate">
-          <editWidget type="">
+          <editWidget type="DateTime">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="true" name="allow_null" type="bool"/>
+                <Option value="true" name="calendar_popup" type="bool"/>
+                <Option value="yyyy-MM-dd" name="display_format" type="QString"/>
+                <Option value="yyyy-MM-dd" name="field_format" type="QString"/>
+                <Option value="false" name="field_iso_format" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="AssetConditionTypeID">
-          <editWidget type="">
+          <editWidget type="Range">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="true" name="AllowNull" type="bool"/>
+                <Option value="2147483647" name="Max" type="int"/>
+                <Option value="-2147483648" name="Min" type="int"/>
+                <Option value="0" name="Precision" type="int"/>
+                <Option value="1" name="Step" type="int"/>
+                <Option value="SpinBox" name="Style" type="QString"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="LastUpdateDateTime">
-          <editWidget type="">
+          <editWidget type="DateTime">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="true" name="allow_null" type="bool"/>
+                <Option value="true" name="calendar_popup" type="bool"/>
+                <Option value="yyyy-MM-dd HH:mm:ss" name="display_format" type="QString"/>
+                <Option value="yyyy-MM-dd HH:mm:ss" name="field_format" type="QString"/>
+                <Option value="false" name="field_iso_format" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="LastUpdatePerson">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="IsMultiline" type="bool"/>
+                <Option value="false" name="UseHtml" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="MHTC_CheckIssueTypeID">
-          <editWidget type="">
+          <editWidget type="ValueRelation">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="AllowMulti" type="bool"/>
+                <Option value="true" name="AllowNull" type="bool"/>
+                <Option value="" name="FilterExpression" type="QString"/>
+                <Option value="Code" name="Key" type="QString"/>
+                <Option value="MHTC_CheckIssueTypes_7d665e6a_14c8_4ace_a383_fb3ff9c9d19c" name="Layer" type="QString"/>
+                <Option value="MHTC_CheckIssueTypes" name="LayerName" type="QString"/>
+                <Option value="postgres" name="LayerProviderName" type="QString"/>
+                <Option value="service='TOMs_Test' sslmode=disable key='Code' checkPrimaryKeyUnicity='1' table=&quot;compliance_lookups&quot;.&quot;MHTC_CheckIssueTypes&quot; sql=" name="LayerSource" type="QString"/>
+                <Option value="1" name="NofColumns" type="int"/>
+                <Option value="true" name="OrderByValue" type="bool"/>
+                <Option value="false" name="UseCompleter" type="bool"/>
+                <Option value="Description" name="Value" type="QString"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="MHTC_CheckNotes">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="IsMultiline" type="bool"/>
+                <Option value="false" name="UseHtml" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="CreateDateTime">
-          <editWidget type="">
+          <editWidget type="DateTime">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="true" name="allow_null" type="bool"/>
+                <Option value="true" name="calendar_popup" type="bool"/>
+                <Option value="yyyy-MM-dd HH:mm:ss" name="display_format" type="QString"/>
+                <Option value="yyyy-MM-dd HH:mm:ss" name="field_format" type="QString"/>
+                <Option value="false" name="field_iso_format" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="CreatePerson">
-          <editWidget type="">
+          <editWidget type="TextEdit">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="IsMultiline" type="bool"/>
+                <Option value="false" name="UseHtml" type="bool"/>
+              </Option>
             </config>
           </editWidget>
         </field>
         <field name="MotorcycleParkingFacilityTypeID">
-          <editWidget type="">
+          <editWidget type="ValueRelation">
             <config>
-              <Option/>
+              <Option type="Map">
+                <Option value="false" name="AllowMulti" type="bool"/>
+                <Option value="false" name="AllowNull" type="bool"/>
+                <Option value="" name="FilterExpression" type="QString"/>
+                <Option value="Code" name="Key" type="QString"/>
+                <Option value="MotorcycleParkingFacilityTypes_208f807f_d10b_42d0_b049_8b26008d6f75" name="Layer" type="QString"/>
+                <Option value="MotorcycleParkingFacilityTypes" name="LayerName" type="QString"/>
+                <Option value="postgres" name="LayerProviderName" type="QString"/>
+                <Option value="service='TOMs_Test' sslmode=disable key='Code' checkPrimaryKeyUnicity='1' table=&quot;highway_asset_lookups&quot;.&quot;MotorcycleParkingFacilityTypes&quot; sql=" name="LayerSource" type="QString"/>
+                <Option value="1" name="NofColumns" type="int"/>
+                <Option value="true" name="OrderByValue" type="bool"/>
+                <Option value="false" name="UseCompleter" type="bool"/>
+                <Option value="Description" name="Value" type="QString"/>
+              </Option>
             </config>
           </editWidget>
         </field>
@@ -30484,8 +30602,8 @@ def my_form_open(dialog, layer, feature):
         <default applyOnUpdate="0" field="MotorcycleParkingFacilityTypeID" expression=""/>
       </defaults>
       <constraints>
-        <constraint notnull_strength="1" field="RestrictionID" constraints="3" exp_strength="0" unique_strength="1"/>
-        <constraint notnull_strength="1" field="GeometryID" constraints="1" exp_strength="0" unique_strength="0"/>
+        <constraint notnull_strength="2" field="RestrictionID" constraints="3" exp_strength="0" unique_strength="2"/>
+        <constraint notnull_strength="2" field="GeometryID" constraints="1" exp_strength="0" unique_strength="0"/>
         <constraint notnull_strength="0" field="Photos_01" constraints="0" exp_strength="0" unique_strength="0"/>
         <constraint notnull_strength="0" field="Photos_02" constraints="0" exp_strength="0" unique_strength="0"/>
         <constraint notnull_strength="0" field="Photos_03" constraints="0" exp_strength="0" unique_strength="0"/>
@@ -30495,12 +30613,12 @@ def my_form_open(dialog, layer, feature):
         <constraint notnull_strength="0" field="OpenDate" constraints="0" exp_strength="0" unique_strength="0"/>
         <constraint notnull_strength="0" field="CloseDate" constraints="0" exp_strength="0" unique_strength="0"/>
         <constraint notnull_strength="1" field="AssetConditionTypeID" constraints="1" exp_strength="0" unique_strength="0"/>
-        <constraint notnull_strength="1" field="LastUpdateDateTime" constraints="1" exp_strength="0" unique_strength="0"/>
-        <constraint notnull_strength="1" field="LastUpdatePerson" constraints="1" exp_strength="0" unique_strength="0"/>
+        <constraint notnull_strength="2" field="LastUpdateDateTime" constraints="1" exp_strength="0" unique_strength="0"/>
+        <constraint notnull_strength="2" field="LastUpdatePerson" constraints="1" exp_strength="0" unique_strength="0"/>
         <constraint notnull_strength="0" field="MHTC_CheckIssueTypeID" constraints="0" exp_strength="0" unique_strength="0"/>
         <constraint notnull_strength="0" field="MHTC_CheckNotes" constraints="0" exp_strength="0" unique_strength="0"/>
-        <constraint notnull_strength="1" field="CreateDateTime" constraints="1" exp_strength="0" unique_strength="0"/>
-        <constraint notnull_strength="1" field="CreatePerson" constraints="1" exp_strength="0" unique_strength="0"/>
+        <constraint notnull_strength="2" field="CreateDateTime" constraints="1" exp_strength="0" unique_strength="0"/>
+        <constraint notnull_strength="2" field="CreatePerson" constraints="1" exp_strength="0" unique_strength="0"/>
         <constraint notnull_strength="1" field="MotorcycleParkingFacilityTypeID" constraints="1" exp_strength="0" unique_strength="0"/>
       </constraints>
       <constraintExpressions>
@@ -30528,7 +30646,27 @@ def my_form_open(dialog, layer, feature):
         <defaultAction value="{00000000-0000-0000-0000-000000000000}" key="Canvas"/>
       </attributeactions>
       <attributetableconfig sortOrder="0" sortExpression="" actionWidgetStyle="dropDown">
-        <columns/>
+        <columns>
+          <column width="-1" name="RestrictionID" type="field" hidden="0"/>
+          <column width="-1" name="GeometryID" type="field" hidden="0"/>
+          <column width="-1" name="Photos_01" type="field" hidden="0"/>
+          <column width="-1" name="Photos_02" type="field" hidden="0"/>
+          <column width="-1" name="Photos_03" type="field" hidden="0"/>
+          <column width="-1" name="Notes" type="field" hidden="0"/>
+          <column width="-1" name="RoadName" type="field" hidden="0"/>
+          <column width="-1" name="USRN" type="field" hidden="0"/>
+          <column width="-1" name="OpenDate" type="field" hidden="0"/>
+          <column width="-1" name="CloseDate" type="field" hidden="0"/>
+          <column width="-1" name="AssetConditionTypeID" type="field" hidden="0"/>
+          <column width="-1" name="LastUpdateDateTime" type="field" hidden="0"/>
+          <column width="-1" name="LastUpdatePerson" type="field" hidden="0"/>
+          <column width="-1" name="MHTC_CheckIssueTypeID" type="field" hidden="0"/>
+          <column width="-1" name="MHTC_CheckNotes" type="field" hidden="0"/>
+          <column width="-1" name="CreateDateTime" type="field" hidden="0"/>
+          <column width="-1" name="CreatePerson" type="field" hidden="0"/>
+          <column width="-1" name="MotorcycleParkingFacilityTypeID" type="field" hidden="0"/>
+          <column width="-1" type="actions" hidden="1"/>
+        </columns>
       </attributetableconfig>
       <conditionalstyles>
         <rowstyles/>
@@ -30539,13 +30677,67 @@ def my_form_open(dialog, layer, feature):
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
-      <editforminitcode><![CDATA[]]></editforminitcode>
+      <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
+"""
+QGIS forms can have a Python function that is called when the form is
+opened.
+
+Use this function to add extra logic to your forms.
+
+Enter the name of the function in the "Python Init function"
+field.
+An example follows:
+"""
+from qgis.PyQt.QtWidgets import QWidget
+
+def my_form_open(dialog, layer, feature):
+	geom = feature.geometry()
+	control = dialog.findChild(QWidget, "MyLineEdit")
+]]></editforminitcode>
       <featformsuppress>0</featformsuppress>
       <editorlayout>generatedlayout</editorlayout>
-      <editable/>
-      <labelOnTop/>
+      <editable>
+        <field editable="1" name="AssetConditionTypeID"/>
+        <field editable="1" name="CloseDate"/>
+        <field editable="1" name="CreateDateTime"/>
+        <field editable="1" name="CreatePerson"/>
+        <field editable="1" name="GeometryID"/>
+        <field editable="1" name="LastUpdateDateTime"/>
+        <field editable="1" name="LastUpdatePerson"/>
+        <field editable="1" name="MHTC_CheckIssueTypeID"/>
+        <field editable="1" name="MHTC_CheckNotes"/>
+        <field editable="1" name="MotorcycleParkingFacilityTypeID"/>
+        <field editable="1" name="Notes"/>
+        <field editable="1" name="OpenDate"/>
+        <field editable="1" name="Photos_01"/>
+        <field editable="1" name="Photos_02"/>
+        <field editable="1" name="Photos_03"/>
+        <field editable="1" name="RestrictionID"/>
+        <field editable="1" name="RoadName"/>
+        <field editable="1" name="USRN"/>
+      </editable>
+      <labelOnTop>
+        <field labelOnTop="0" name="AssetConditionTypeID"/>
+        <field labelOnTop="0" name="CloseDate"/>
+        <field labelOnTop="0" name="CreateDateTime"/>
+        <field labelOnTop="0" name="CreatePerson"/>
+        <field labelOnTop="0" name="GeometryID"/>
+        <field labelOnTop="0" name="LastUpdateDateTime"/>
+        <field labelOnTop="0" name="LastUpdatePerson"/>
+        <field labelOnTop="0" name="MHTC_CheckIssueTypeID"/>
+        <field labelOnTop="0" name="MHTC_CheckNotes"/>
+        <field labelOnTop="0" name="MotorcycleParkingFacilityTypeID"/>
+        <field labelOnTop="0" name="Notes"/>
+        <field labelOnTop="0" name="OpenDate"/>
+        <field labelOnTop="0" name="Photos_01"/>
+        <field labelOnTop="0" name="Photos_02"/>
+        <field labelOnTop="0" name="Photos_03"/>
+        <field labelOnTop="0" name="RestrictionID"/>
+        <field labelOnTop="0" name="RoadName"/>
+        <field labelOnTop="0" name="USRN"/>
+      </labelOnTop>
       <widgets/>
-      <previewExpression></previewExpression>
+      <previewExpression>"RoadName"</previewExpression>
       <mapTip></mapTip>
     </maplayer>
     <maplayer maxScale="0" styleCategories="AllStyleCategories" hasScaleBasedVisibilityFlag="0" minScale="1e+08" autoRefreshTime="0" refreshOnNotifyMessage="" wkbType="NoGeometry" readOnly="0" type="vector" autoRefreshEnabled="0" refreshOnNotifyEnabled="0" geometry="No geometry">
@@ -33467,7 +33659,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Pedestrian_Railings.ui</editform>
+      <editform tolerant="1">Pedestrian_Railings.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -33948,7 +34140,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Postboxes.ui</editform>
+      <editform tolerant="1">Postboxes.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -35923,7 +36115,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../../ui/restrictionPolygonDetails_dialog_base_qt5.ui</editform>
+      <editform tolerant="1">restrictionPolygonDetails_dialog_base_qt5.ui</editform>
       <editforminit>formOpen_Polygons</editforminit>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -37961,7 +38153,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/RestrictionForVehicles.ui</editform>
+      <editform tolerant="1">RestrictionForVehicles.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -40669,7 +40861,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../../ui/MovingTrafficSigns_200619.ui</editform>
+      <editform tolerant="1">MovingTrafficSigns_200619.ui</editform>
       <editforminit/>
       <editforminitcodesource>1</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -41774,7 +41966,7 @@ attribute(get_feature('SignTypes_612bc927_e3b1_4bb8_96a8_6d4f50fb6bda','Code', S
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/SpecialDesignations.ui</editform>
+      <editform tolerant="1">SpecialDesignations.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -42422,7 +42614,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/StreetNamePlates.ui</editform>
+      <editform tolerant="1">StreetNamePlates.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -43158,7 +43350,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../../ui/Subterranean_Features.ui</editform>
+      <editform tolerant="1">Subterranean_Features.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -43728,7 +43920,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Bollards.ui</editform>
+      <editform tolerant="1">Bollards.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -44216,7 +44408,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/TelephoneBoxes.ui</editform>
+      <editform tolerant="1">TelephoneBoxes.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -44677,7 +44869,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/TelephoneBoxes.ui</editform>
+      <editform tolerant="1">TelephoneBoxes.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -45722,7 +45914,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Traffic_Calming.ui</editform>
+      <editform tolerant="1">Traffic_Calming.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -46175,7 +46367,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Traffic_Signals.ui</editform>
+      <editform tolerant="1">Traffic_Signals.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -47210,7 +47402,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/TurnRestrictions.ui</editform>
+      <editform tolerant="1">TurnRestrictions.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -48392,7 +48584,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">../ui/Vehicle_Barriers.ui</editform>
+      <editform tolerant="1">Vehicle_Barriers.ui</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>
@@ -50652,7 +50844,7 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <storedexpressions/>
-      <editform tolerant="1">Z:/Tim/ISL20-01 Islington/Mapping</editform>
+      <editform tolerant="1">Mapping</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
       <editforminitfilepath></editforminitfilepath>

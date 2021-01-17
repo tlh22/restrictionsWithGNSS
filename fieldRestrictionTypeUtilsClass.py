@@ -229,7 +229,9 @@ class FieldRestrictionTypeUtilsMixin():
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())"""
 
-        currentCPZ, cpzWaitingTimeID, cpzMatchDayTimePeriodID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
+        currentCPZ, cpzWaitingTimeID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
+        currentED, edWaitingTimeID = generateGeometryUtils.getCurrentEventDayDetails(currRestriction)
+        #currentCPZ, cpzWaitingTimeID, cpzMatchDayTimePeriodID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
         """TOMsMessageLog.logMessage(
             "In setDefaultFieldRestrictionDetails. CPZ found: {}: control: {}".format(currentCPZ, cpzWaitingTimeID),
             level=Qgis.Warning)"""
@@ -253,7 +255,8 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
             currRestriction.setAttribute("CPZ", currentCPZ)
-            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
+            currRestriction.setAttribute("MatchDayEventDayZone", currentED)
+            currRestriction.setAttribute("MatchDayTimePeriodID", edWaitingTimeID)
 
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
@@ -272,7 +275,8 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionLength", currRestriction.geometry().length())
 
             currRestriction.setAttribute("CPZ", currentCPZ)
-            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
+            currRestriction.setAttribute("MatchDayEventDayZone", currentED)
+            currRestriction.setAttribute("MatchDayTimePeriodID", edWaitingTimeID)
 
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
@@ -297,7 +301,8 @@ class FieldRestrictionTypeUtilsMixin():
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("RestrictionPolygons", "RestrictionTypeID", 4))  # 28 = Residential mews area (RestrictionPolygons)
 
             currRestriction.setAttribute("CPZ", currentCPZ)
-            currRestriction.setAttribute("MatchDayTimePeriodID", cpzMatchDayTimePeriodID)
+            currRestriction.setAttribute("MatchDayEventDayZone", currentED)
+            currRestriction.setAttribute("MatchDayTimePeriodID", edWaitingTimeID)
 
             currRestriction.setAttribute("GeomShapeID", self.readLastUsedDetails("Lines", "GeomShapeID", 50))   # 10 = Parallel Line
             currRestriction.setAttribute("ComplianceRestrictionSignIssue", 1)  # No issue
