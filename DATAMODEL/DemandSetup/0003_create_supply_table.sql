@@ -120,6 +120,8 @@ AND "NoWaitingTimeID" IS NULL;
 
 --
 
+DROP MATERIALIZED VIEW IF EXISTS toms_lookups."BayLineTypesInUse_View";
+
 CREATE MATERIALIZED VIEW toms_lookups."BayLineTypesInUse_View"
 TABLESPACE pg_default
 AS
