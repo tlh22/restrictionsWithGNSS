@@ -1,9 +1,3 @@
---
--- set up corner protection parameter
-
-INSERT INTO mhtc_operations.project_parameters(
-	"Field", "Value")
-	VALUES ('CornerProtectionDistance', 10.0);
 
 --DROP FUNCTION IF EXISTS mhtc_operations."getParameter";
 
@@ -15,10 +9,92 @@ LANGUAGE SQL;
 
 -- need mhtc_operations."get_road_casement_section" (it works the same)
 
+CREATE OR REPLACE FUNCTION havering_operations."get_road_casement_section"(corner_id text,
+                                                                       road_casement_geom geometry,
+                                                                       corner_point_geom geometry,
+                                                                       distance_from_corner_point float) RETURNS geometry AS /*"""*/ $$
+    import plpy
+    #from plpygis import Geometry
+    """
+    This function generates the section of road casement of interest
+    """
+    line_segment_geom = None
+    #
+    #plpy.info('get_road_casement_section 1: corner_point_geom:{})'.format(corner_point_geom))
+    plpy.info('get_road_casement_section: cornerID: {})'.format(corner_id))
+    # get the length of the line
+    plan = plpy.prepare("SELECT ST_Length($1::geometry) as l", ['geometry'])
+    restrictionLength = plpy.execute(plan, [road_casement_geom])[0]["l"]
+
+    if restrictionLength < 20.0:
+        return None  # can't deal with junction in this way ...
+
+    #restrictionLength = plpy.execute("SELECT ST_Length({})".format(road_casement_geom))
+    #plpy.info('get_road_casement_section 1a: restrictionLength:{})'.format(restrictionLength))
+    #
+    fraction = distance_from_corner_point / restrictionLength
+    # obtain the location of the corner point
+    plan = plpy.prepare("SELECT ST_LineLocatePoint($1,$2) as p", ['geometry', 'geometry'])
+    corner_point_location = plpy.execute(plan, [road_casement_geom, corner_point_geom])[0]["p"]
+
+    start_point_location = corner_point_location - fraction
+    end_point_location = corner_point_location + fraction
+
+    plpy.info('get_road_casement_section 2: restrictionLength: {}; start_point_location:{}; end_point_location: {})'.format(restrictionLength, start_point_location, end_point_location))
+    # now check start/end points
+    """
+    if corner_point_location == 0.0:  # TODO: needs further work ...
+        # line becomes end->1 + 0->start
+        if start_point_location < 0.0:
+            start_point_location = 1.0 + start_point_location
+        if end_point_location > 1.0:
+            end_point_location = end_point_location - 1.0
+        plan = plpy.prepare("SELECT ST_MakeLine(ST_Collect(ST_LineSubstring($1::geometry, $2, 1.0), ST_LineSubstring($1::geometry, 0.0, $3)))  as x", ['geometry', 'float', 'float'])
+        line_segment_geom = plpy.execute(plan, [road_casement_geom, end_point_location, start_point_location])[0]["x"]
+    """
+    #el
+    if start_point_location < 0.0:
+        # line becomes start->1 + 0->end
+        start_point_location = 1.0 + start_point_location
+
+        line_segment_pts = []
+
+        plan = plpy.prepare("SELECT ST_LineSubstring($1, $2, 1.0) as x", ['geometry', 'float'])
+        start_segment_geom = plpy.execute(plan, [road_casement_geom, start_point_location])[0]["x"]
+
+        plan = plpy.prepare("SELECT ST_LineSubstring($1, 0.0, $2) as x", ['geometry', 'float'])
+        end_segment_geom = plpy.execute(plan, [road_casement_geom, end_point_location])[0]["x"]
+
+        plan = plpy.prepare("SELECT ST_SetSRID(ST_MakeLine($1, $2),27700)  as x", ['geometry', 'geometry'])
+        line_segment_geom = plpy.execute(plan, [start_segment_geom, end_segment_geom])[0]["x"]
+
+    elif end_point_location > 1.0:
+        # line becomes start->1 + 0->end
+        end_point_location = end_point_location - 1.0
+        #
+        plan = plpy.prepare("SELECT ST_LineSubstring($1::geometry, $2, 1.0)  as x", ['geometry', 'float'])
+        start_segment_geom = plpy.execute(plan, [road_casement_geom, start_point_location])[0]["x"]
+        #
+        plan = plpy.prepare("SELECT ST_LineSubstring($1::geometry, 0.0, $2)  as x", ['geometry', 'float'])
+        end_segment_geom = plpy.execute(plan, [road_casement_geom, end_point_location])[0]["x"]
+        #
+        plan = plpy.prepare("SELECT ST_SetSRID(ST_MakeLine($1::geometry, $2::geometry),27700)  as x", ['geometry', 'geometry'])
+        line_segment_geom = plpy.execute(plan, [start_segment_geom, end_segment_geom])[0]["x"]
+    else:
+        plan = plpy.prepare("SELECT ST_SetSRID(ST_LineSubstring($1::geometry, $2, $3),27700) as x", ['geometry', 'float', 'float'])
+        line_segment_geom = plpy.execute(plan, [road_casement_geom, start_point_location, end_point_location])[0]["x"]
+
+    #plpy.info('get_road_casement_section 3  : start_point_location:{}; end_point_location: {})'.format(start_point_location, end_point_location))
+
+    return line_segment_geom
+
+$$ LANGUAGE plpython3u;
+
+
 --
 DROP FUNCTION IF EXISTS havering_operations."getCornerApexPoint";
 
-CREATE OR REPLACE FUNCTION havering_operations."getCornerApexPoint"(cnr_id integer,
+CREATE OR REPLACE FUNCTION havering_operations."getCornerApexPoint"(cnr_id text,
                                                                 tolerance float)
     RETURNS geometry
     LANGUAGE 'plpgsql'
@@ -47,8 +123,8 @@ BEGIN
            ST_Azimuth(c."StartPt", cn.corner_point_geom), ST_Azimuth(c."EndPt", cn.corner_point_geom)
     INTO start_pt, end_pt, start_pt_azimuth_to_apex, end_pt_azimuth_to_apex, start_pt_azimuth_to_cnr, end_pt_azimuth_to_cnr
     FROM havering_operations."HaveringCornerSegmentEndPts" c, havering_operations."HaveringCorners" cn
-    WHERE c."CornerID" = cnr_id
-    AND c."CornerID" = cn."CornerID";
+    WHERE c."GeometryID" = cnr_id
+    AND c."GeometryID" = cn."GeometryID";
 
     RAISE NOTICE 'test(%)', ABS(start_pt_azimuth_to_apex - start_pt_azimuth_to_cnr);
 
@@ -93,7 +169,7 @@ $BODY$;
 
 --
 
-CREATE OR REPLACE FUNCTION havering_operations."getCornerExtentsFromApex"(cnr_id integer)
+CREATE OR REPLACE FUNCTION havering_operations."getCornerExtentsFromApex"(cnr_id text)
     RETURNS geometry
     LANGUAGE 'plpgsql'
 AS $BODY$
@@ -107,8 +183,8 @@ BEGIN
     SELECT ST_Intersection(c.geom, ST_Buffer(a.apex_point_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float))
     INTO cornerProtectionLineString
     FROM havering_operations."HaveringCornerSegments" c, havering_operations."HaveringCorners" a
-    WHERE c."CornerID" = cnr_id
-    AND c."CornerID" = a."CornerID";
+    WHERE c."GeometryID" = cnr_id
+    AND c."GeometryID" = a."GeometryID";
 
     RETURN cornerProtectionLineString;
 
@@ -117,44 +193,65 @@ $BODY$;
 
 --
 
-
-CREATE OR REPLACE FUNCTION havering_operations.line_junction_protection_at_corner(IN cornerID int) RETURNS geometry AS
-$BODY$
+CREATE OR REPLACE FUNCTION havering_operations.create_geometryid_havering()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
 DECLARE
-    len_DYL float;
-    len_Bays float;
-    len_relevant_line float;
+	 nextSeqVal varchar := '';
 BEGIN
 
-        len_DYL = 0;
-        len_Bays = 0;
-        len_relevant_line = 0;
+	CASE TG_TABLE_NAME
+	WHEN 'HaveringCorners' THEN
+			SELECT concat('CO_', to_char(nextval('havering_operations."HaveringCorners_id_seq"'::regclass), '00000000'::text)) INTO nextSeqVal;
+	WHEN 'HaveringJunctions' THEN
+			SELECT concat('JU_', to_char(nextval('havering_operations."HaveringJunctions_id_seq"'::regclass), '00000000'::text)) INTO nextSeqVal;
+	ELSE
+	    nextSeqVal = 'U';
+	END CASE;
 
-        RAISE NOTICE '**** CornerID: %', cornerID;
+    NEW."GeometryID" := nextSeqVal;
+	RETURN NEW;
 
-        SELECT ST_Difference(mhtc_operations."getCornerExtents"(c."CornerID"), ST_Buffer(l.geom, 0.1)) INTO len_DYL
-        FROM mhtc_operations."HaveringCorners" h, "toms"."Lines" l
-        WHERE c."id" = cornerID
-        AND ST_Intersects(l.geom, ST_Buffer(ST_SetSRID(c.geom, 27700), 0.1))
-        AND l."RestrictionTypeID" NOT IN (201, 221, 224, 216, 220);
+END;
+$BODY$;
 
-        --RAISE NOTICE 'DYL: %', len_DYL;
+ALTER FUNCTION havering_operations.create_geometryid_havering()
+    OWNER TO postgres;
 
-        SELECT COALESCE(SUM(ST_Length(ST_Intersection(l.geom, ST_Buffer(ST_SetSRID(c.geom, 27700), 0.1)))), 0) INTO len_Bays
-        FROM mhtc_operations."CornerSegments" c, "toms"."Bays" l
-		WHERE c."id" = cornerID
-        AND ST_Intersects(l.geom, ST_Buffer(ST_SetSRID(c.geom, 27700), 0.1));
+CREATE OR REPLACE FUNCTION havering_operations."get_nearest_junction_to_corner"(cnr_id text)
+    RETURNS text
+    LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+	 junction_id text := '';
+BEGIN
 
-        --RAISE NOTICE 'Bays: %', len_Bays;
+    -- find nearest junction
 
-        len_relevant_line = len_DYL + len_Bays;
+    SELECT j."GeometryID" INTO junction_id
+    FROM havering_operations."HaveringJunctions" j, havering_operations."HaveringCorners" c
+    WHERE c."GeometryID" = cnr_id
+    AND ST_DWithin(j.junction_point_geom, c.corner_point_geom, 30.0)
+    ORDER BY
+      ST_Distance(c.corner_point_geom, j.junction_point_geom)
+    LIMIT 1;
 
-        RAISE NOTICE 'len_relevant_line: %', len_relevant_line;
+    RETURN junction_id;
 
-        RETURN len_relevant_line;
+END;
+$BODY$;
 
-END
-$BODY$
-LANGUAGE plpgsql;
+
+-- set up triggers
+
+CREATE TRIGGER "create_geometryid_havering_corners" BEFORE INSERT ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."create_geometryid_havering"();
+CREATE TRIGGER "set_last_update_details_HaveringCorners" BEFORE INSERT OR UPDATE ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
+
+CREATE TRIGGER "create_geometryid_havering_junctions" BEFORE INSERT ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."create_geometryid_havering"();
+CREATE TRIGGER "set_last_update_details_HaveringJunctions" BEFORE INSERT OR UPDATE ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
+
 
 
