@@ -244,6 +244,124 @@ BEGIN
 END;
 $BODY$;
 
+--
+
+CREATE OR REPLACE FUNCTION havering_operations."get_all_new_corner_dimension_lines"(cnr_id text)
+    RETURNS geometry
+    LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+    corner_pt_geom geometry;
+    apex_pt_geom geometry;
+    line_from_apex_pt_geom geometry;
+    line_start_apex geometry;
+    line_apex_end geometry;
+    new_jn_protection_geom geometry;
+    cnr_pt_location float;
+    i integer;
+    startPt geometry;
+    endPt geometry;
+    start_pt_location float;
+    end_pt_location float;
+    dimensionLine geometry;
+    dimLine1 geometry;
+    dimLine2 geometry;
+    corner_dimension_lines_geom geometry;
+BEGIN
+
+    /* objective is to create lines to show dimensions of new junction protection areas
+    Need to:
+    Using line_from_apex_point_geom, create lines start/apex_point_geom and end/apex_point_geom
+    For each geometry in new_junction_protection_geom
+        get start and end points
+        find where there sit in relation corner_point_geom along line_from_apex_point_geom
+        if start/end are on same side, create line with start/end
+        if not on same side, create two lines with start/apex and apex/end
+
+        ** create lines using nearest point on lines created to apex
+
+        add to geometry
+
+    */
+
+	RAISE NOTICE '***** cnr_id(%)', cnr_id;
+
+    -- get the required geometries
+    SELECT corner_point_geom, apex_point_geom, line_from_apex_point_geom, new_junction_protection_geom
+    INTO corner_pt_geom, apex_pt_geom, line_from_apex_pt_geom, new_jn_protection_geom
+    FROM havering_operations."HaveringCorners"
+    WHERE "GeometryID" = cnr_id;
+
+    SELECT ST_MakeLine(ST_StartPoint(line_from_apex_pt_geom), apex_pt_geom)
+    INTO line_start_apex
+    FROM havering_operations."HaveringCorners"
+    WHERE "GeometryID" = cnr_id;
+
+    SELECT ST_MakeLine(apex_pt_geom, ST_EndPoint(line_from_apex_pt_geom))
+    INTO line_apex_end
+    FROM havering_operations."HaveringCorners"
+    WHERE "GeometryID" = cnr_id;
+
+    SELECT ST_LineLocatePoint(line_from_apex_pt_geom, ST_Snap(corner_pt_geom, line_from_apex_pt_geom, 0.1))
+    INTO cnr_pt_location;
+
+    corner_dimension_lines_geom = NULL;
+
+    FOR i IN SELECT ST_NumGeometries(new_jn_protection_geom) LOOP
+
+        -- get start/end points and their relative locations ** may need to deal with alignment issues ??
+        SELECT ST_StartPoint(ST_GeometryN(new_jn_protection_geom, i))
+        INTO startPt;
+        SELECT ST_EndPoint(ST_GeometryN(new_jn_protection_geom, i))
+        INTO endPt;
+
+        SELECT ST_LineLocatePoint(line_from_apex_pt_geom, startPt)
+        INTO start_pt_location;
+        SELECT ST_LineLocatePoint(line_from_apex_pt_geom, endPt)
+        INTO end_pt_location;
+
+        IF (start_pt_location < cnr_pt_location and end_pt_location < cnr_pt_location) THEN
+            -- project points onto line_start_apex
+            SELECT ST_MakeLine(ST_ClosestPoint(line_start_apex, startPt), ST_ClosestPoint(line_start_apex, endPt))
+            INTO dimensionLine;
+
+        ELSIF (start_pt_location > cnr_pt_location and end_pt_location > cnr_pt_location) THEN
+            -- project points onto line_apex_end
+            SELECT ST_MakeLine(ST_ClosestPoint(line_apex_end, startPt), ST_ClosestPoint(line_apex_end, endPt))
+            INTO dimensionLine;
+
+        ELSIF start_pt_location < cnr_pt_location THEN
+            -- project start point onto line_start_apex and end point on line_end_apex
+            SELECT ST_MakeLine(ST_ClosestPoint(line_start_apex, startPt), apex_pt_geom)
+            INTO dimLine1;
+            SELECT ST_MakeLine(apex_pt_geom, ST_ClosestPoint(line_apex_end, endPt))
+            INTO dimLine2;
+            SELECT ST_Collect(dimLine1, dimLine2)
+            INTO dimensionLine;
+
+        ELSE
+            -- project end point onto line_start_apex and start point on line_end_apex
+            SELECT ST_MakeLine(ST_ClosestPoint(line_start_apex, endPt), apex_pt_geom)
+            INTO dimLine1;
+            SELECT ST_MakeLine(apex_pt_geom, ST_ClosestPoint(line_apex_end, startPt))
+            INTO dimLine2;
+            SELECT ST_Collect(dimLine1, dimLine2)
+            INTO dimensionLine;
+
+        END IF;
+
+        -- Now add to multiline
+        SELECT ST_Collect(corner_dimension_lines_geom, dimensionLine)
+        INTO corner_dimension_lines_geom;
+
+    END LOOP;
+
+    RETURN corner_dimension_lines_geom;
+
+END;
+$BODY$;
+
+
 
 -- set up triggers
 

@@ -61,6 +61,7 @@ CREATE TABLE havering_operations."HaveringCorners"
     line_from_corner_point_geom geometry(LineString,27700),
     line_from_apex_point_geom geometry(LineString,27700),
     new_junction_protection_geom geometry(MultiLineString,27700),
+    corner_dimension_lines_geom geometry(MultiLineString,27700),
     length_conforming_within_line_from_corner_point double precision,
     "CornerProtectionCategoryTypeID" integer,
     CONSTRAINT "HaveringCorners_pkey" PRIMARY KEY ("RestrictionID"),

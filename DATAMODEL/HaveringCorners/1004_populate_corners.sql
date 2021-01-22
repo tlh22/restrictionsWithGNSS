@@ -95,7 +95,7 @@ WHERE c."GeometryID" NOT IN (
     SELECT d."GeometryID"
     FROM havering_operations."HaveringCornerConformingSegments" d);
 
--- ** need to classify corners
+-- classify corners
 
 UPDATE havering_operations."HaveringCorners"
     SET "CornerProtectionCategoryTypeID" = 1
@@ -110,6 +110,9 @@ UPDATE havering_operations."HaveringCorners"
     SET "CornerProtectionCategoryTypeID" = 3
     WHERE ST_Length(new_junction_protection_geom) >= 16.0;
 
+-- generate the dimensioning lines
 
-
+UPDATE havering_operations."HaveringCorners" AS c
+SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"("GeometryID"))
+WHERE havering_operations."get_all_new_corner_dimension_lines"("GeometryID") IS NOT NULL
 
