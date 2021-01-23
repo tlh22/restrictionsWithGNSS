@@ -13,8 +13,8 @@ FROM havering_operations."HaveringCorners" c, topography."road_casement" r
 WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
  )
  INSERT INTO havering_operations."HaveringCornerSegments" ("GeometryID", "SegmentLength", geom)
- SELECT d."GeometryID", ST_Length(havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, 10.0)),
-                havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, 10.0)
+ SELECT d."GeometryID", ST_Length(havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance'))),
+                havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance'))
  FROM cornerDetails d;
 
 DELETE FROM havering_operations."HaveringCornerSegments" c1
@@ -62,6 +62,13 @@ WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
      FROM cornerDetails d
      WHERE d."CornerID" = c."CornerID";
 */
+
+-- Now recalculate the corner point ****
+
+UPDATE havering_operations."HaveringCorners" AS c
+SET corner_point_geom = ST_ClosestPoint(s.geom, c.apex_point_geom)
+FROM havering_operations."HaveringCornerSegments" s
+WHERE s."GeometryID" = c."GeometryID";
 
 -- line_from_apex_point_geom
 
@@ -116,3 +123,7 @@ UPDATE havering_operations."HaveringCorners" AS c
 SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"("GeometryID"))
 WHERE havering_operations."get_all_new_corner_dimension_lines"("GeometryID") IS NOT NULL
 
+-- Now set up triggers to update details
+
+CREATE TRIGGER "update_corner_protection_line_from_corner_point"
+    BEFORE INSERT OR UPDATE ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();

@@ -15,3 +15,24 @@ INSERT INTO "havering_operations"."CornerProtectionCategoryTypes" ("Code", "Desc
 INSERT INTO "havering_operations"."JunctionProtectionCategoryTypes" ("Code", "Description") VALUES (1, 'No plan required');
 INSERT INTO "havering_operations"."JunctionProtectionCategoryTypes" ("Code", "Description") VALUES (2, 'Plan required - additional markings required');
 INSERT INTO "havering_operations"."JunctionProtectionCategoryTypes" ("Code", "Description") VALUES (3, 'Plan required - re-conditioning needed');
+
+
+-- Corner issues
+/*
+No issue - ready to go!
+Parking restriction issue - further action req'd
+Kerbline issue - further action req'd
+Something else - further action req'd
+??
+
+*/
+
+
+-- Junction issues
+/*
+No issue - ready to go!
+Road name issue - further action req'd
+Something else - further action req'd
+??
+
+*/
