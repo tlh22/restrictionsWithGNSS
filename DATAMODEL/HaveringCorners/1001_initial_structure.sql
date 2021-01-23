@@ -60,7 +60,7 @@ CREATE TABLE havering_operations."HaveringCorners"
     apex_point_geom geometry(Point,27700),
     line_from_corner_point_geom geometry(LineString,27700),
     line_from_apex_point_geom geometry(LineString,27700),
-    new_junction_protection_geom geometry(MultiLineString,27700),
+    new_corner_protection_geom geometry(MultiLineString,27700),
     corner_dimension_lines_geom geometry(MultiLineString,27700),
     length_conforming_within_line_from_corner_point double precision,
     "CornerProtectionCategoryTypeID" integer,
@@ -119,11 +119,11 @@ CREATE TABLE havering_operations."CornersWithinJunctions"
     CONSTRAINT "CornersWithinJunctions_JunctionID_fkey" FOREIGN KEY ("JunctionID")
         REFERENCES havering_operations."HaveringJunctions" ("GeometryID") MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
+        ON DELETE CASCADE,
     CONSTRAINT "CornersWithinJunctions_CornerID_fkey" FOREIGN KEY ("CornerID")
         REFERENCES havering_operations."HaveringCorners" ("GeometryID") MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+        ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS havering_operations."HaveringCornerSegments";
@@ -154,5 +154,13 @@ CREATE TABLE havering_operations."HaveringCornerConformingSegments"
 (
 	"GeometryID" character varying(12),
     geom geometry(MultiLineString, 27700),
-	new_junction_protection_geom geometry(MultiLineString, 27700)
+	new_corner_protection_geom geometry(MultiLineString, 27700)
 );
+
+-- deal with not null on condition type
+
+ALTER TABLE havering_operations."HaveringCorners"
+    ALTER COLUMN "AssetConditionTypeID" DROP NOT NULL;
+
+ALTER TABLE havering_operations."HaveringJunctions"
+    ALTER COLUMN "AssetConditionTypeID" DROP NOT NULL;

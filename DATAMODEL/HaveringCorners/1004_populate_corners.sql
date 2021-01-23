@@ -13,8 +13,8 @@ FROM havering_operations."HaveringCorners" c, topography."road_casement" r
 WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
  )
  INSERT INTO havering_operations."HaveringCornerSegments" ("GeometryID", "SegmentLength", geom)
- SELECT d."GeometryID", ST_Length(havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance'))),
-                havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance'))
+ SELECT d."GeometryID", ST_Length(havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)),
+                havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
  FROM cornerDetails d;
 
 DELETE FROM havering_operations."HaveringCornerSegments" c1
@@ -47,7 +47,7 @@ ALTER TABLE ONLY havering_operations."HaveringCornerSegmentEndPts"
 -- include apex points
 
 UPDATE havering_operations."HaveringCorners" AS c
-SET apex_point_geom = havering_operations."getCornerApexPoint"(c."GeometryID", 10.0);  -- need to check this works!
+SET apex_point_geom = havering_operations."getCornerApexPoint"(c."GeometryID", mhtc_operations."getParameter"('CornerProtectionDistance')::float);  -- need to check this works!
 
 -- include line_from_corner_point_geom
 
@@ -63,19 +63,54 @@ WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
      WHERE d."CornerID" = c."CornerID";
 */
 
--- Now recalculate the corner point ****
+-- Now recalculate the corner point and redo the corner line ****
 
 UPDATE havering_operations."HaveringCorners" AS c
 SET corner_point_geom = ST_ClosestPoint(s.geom, c.apex_point_geom)
 FROM havering_operations."HaveringCornerSegments" s
-WHERE s."GeometryID" = c."GeometryID";
+WHERE s."GeometryID" = c."GeometryID"
+AND ST_ClosestPoint(s.geom, c.apex_point_geom) IS NOT NULL;
+
+-- redo cornerSegments
+
+DELETE FROM havering_operations."HaveringCornerSegments";
+
+ALTER TABLE havering_operations."HaveringCornerSegments" DROP CONSTRAINT "HaveringCornerSegments_pkey";
+
+WITH cornerDetails AS (
+SELECT c."GeometryID" as "GeometryID", c.corner_point_geom As corner_geom, r.geom as road_casement_geom
+FROM havering_operations."HaveringCorners" c, topography."road_casement" r
+WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
+ )
+ INSERT INTO havering_operations."HaveringCornerSegments" ("GeometryID", "SegmentLength", geom)
+ SELECT d."GeometryID", ST_Length(havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)),
+                havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
+ FROM cornerDetails d;
+
+DELETE FROM havering_operations."HaveringCornerSegments" c1
+WHERE "GeometryID" IN (
+    SELECT "GeometryID"
+    FROM (
+        SELECT "GeometryID", count(*)
+        FROM havering_operations."HaveringCornerSegments"
+        GROUP BY "GeometryID"
+        HAVING count(*) > 1) a
+        );
+
+ALTER TABLE ONLY havering_operations."HaveringCornerSegments"
+    ADD CONSTRAINT "HaveringCornerSegments_pkey" PRIMARY KEY ("GeometryID");
+
+UPDATE havering_operations."HaveringCorners" AS c
+ SET line_from_corner_point_geom = s.geom
+ FROM havering_operations."HaveringCornerSegments" s
+ WHERE s."GeometryID" = c."GeometryID";
 
 -- line_from_apex_point_geom
 
 UPDATE havering_operations."HaveringCorners" AS c
 SET line_from_apex_point_geom = ST_GeometryN(havering_operations."getCornerExtentsFromApex"(c."GeometryID"), 1);
 
--- new_junction_protection_geom
+-- new_corner_protection_geom
 
 INSERT INTO havering_operations."HaveringCornerConformingSegments" ("GeometryID", geom)
 SELECT u."GeometryID", ST_Multi(ST_Union(u.geom))
@@ -92,12 +127,12 @@ WHERE ST_Intersects(r.geom, ST_Buffer(ST_SetSRID(c.line_from_apex_point_geom, 27
  GROUP BY u."GeometryID";
 
 UPDATE havering_operations."HaveringCorners" AS c
-SET new_junction_protection_geom = ST_Multi(ST_Difference(ST_Multi(c.line_from_apex_point_geom), ST_Buffer(d.geom, 0.1)))
+SET new_corner_protection_geom = ST_Multi(ST_Difference(ST_Multi(c.line_from_apex_point_geom), ST_Buffer(d.geom, 0.1)))
 FROM havering_operations."HaveringCornerConformingSegments" d
 WHERE d."GeometryID" = c."GeometryID";
 
 UPDATE havering_operations."HaveringCorners" AS c
-SET new_junction_protection_geom = ST_Multi(c.line_from_apex_point_geom)
+SET new_corner_protection_geom = ST_Multi(c.line_from_apex_point_geom)
 WHERE c."GeometryID" NOT IN (
     SELECT d."GeometryID"
     FROM havering_operations."HaveringCornerConformingSegments" d);
@@ -106,24 +141,43 @@ WHERE c."GeometryID" NOT IN (
 
 UPDATE havering_operations."HaveringCorners"
     SET "CornerProtectionCategoryTypeID" = 1
-    WHERE ST_Length(new_junction_protection_geom) = 0.0
-    OR ST_Length(new_junction_protection_geom) IS NULL;
+    WHERE ST_Length(new_corner_protection_geom) = 0.0
+    OR ST_Length(new_corner_protection_geom) IS NULL;
 
 UPDATE havering_operations."HaveringCorners"
     SET "CornerProtectionCategoryTypeID" = 2
-    WHERE ST_Length(new_junction_protection_geom) > 0.0 and ST_Length(new_junction_protection_geom) < 16.0;
+    WHERE ST_Length(new_corner_protection_geom) > 0.0 and ST_Length(new_corner_protection_geom) < 16.0;
 
 UPDATE havering_operations."HaveringCorners"
     SET "CornerProtectionCategoryTypeID" = 3
-    WHERE ST_Length(new_junction_protection_geom) >= 16.0;
+    WHERE ST_Length(new_corner_protection_geom) >= 16.0;
 
 -- generate the dimensioning lines
 
 UPDATE havering_operations."HaveringCorners" AS c
 SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"("GeometryID"))
-WHERE havering_operations."get_all_new_corner_dimension_lines"("GeometryID") IS NOT NULL
+WHERE havering_operations."get_all_new_corner_dimension_lines"("GeometryID") IS NOT NULL;
 
 -- Now set up triggers to update details
+/*
+Triggers to be:
+ - when corner_point_geom updated, update line_from_corner_point_geom. NB: The update of corner_point_geom should happen only once - and should happen before the trigger is create ??
+ - when apex_point_geom updated, update line_from_apex_point_geom
+ - when line_from_apex_point_geom updated, update new_corner_protection_geom and length_conforming_within_line_from_corner_point (and CornerProtectionCategoryTypeID??)
+ - when new_corner_protection_geom updated, update corner_dimension_lines_geom
+*/
 
-CREATE TRIGGER "update_corner_protection_line_from_corner_point"
-    BEFORE INSERT OR UPDATE ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
+DROP TRIGGER IF EXISTS "set_corner_protection_line_1_from_corner_point" ON havering_operations."HaveringCorners";
+
+CREATE TRIGGER "update_corner_protection_line_1_from_corner_point"
+    AFTER INSERT OR UPDATE OF corner_point_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_line_from_corner_point_geom"();
+
+
+DROP TRIGGER IF EXISTS "set_corner_protection_line_2_from_apex_point" ON havering_operations."HaveringCorners";
+
+CREATE TRIGGER "update_corner_protection_line_2_from_apex_point"
+    AFTER INSERT OR UPDATE OF apex_point_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_line_from_apex_point_geom"();
+
+
+CREATE TRIGGER "update_corner_protection_line_3_from_apex_point"
+    AFTER UPDATE OF line_from_apex_point_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_new_corner_protection_geom"();

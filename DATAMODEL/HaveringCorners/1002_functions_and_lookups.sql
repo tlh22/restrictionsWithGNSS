@@ -253,26 +253,29 @@ AS $BODY$
 DECLARE
     corner_pt_geom geometry;
     apex_pt_geom geometry;
-    line_from_apex_pt_geom geometry;
+    line_from_corner_pt_geom geometry;
     line_start_apex geometry;
     line_apex_end geometry;
-    new_jn_protection_geom geometry;
+    new_cnr_protection_geom geometry;
     cnr_pt_location float;
     i integer;
     startPt geometry;
     endPt geometry;
+    tmpPt geometry;
     start_pt_location float;
     end_pt_location float;
+    tmp_pt_location float;
     dimensionLine geometry;
     dimLine1 geometry;
     dimLine2 geometry;
     corner_dimension_lines_geom geometry;
+    nr_geometries integer;
 BEGIN
 
     /* objective is to create lines to show dimensions of new junction protection areas
     Need to:
     Using line_from_apex_point_geom, create lines start/apex_point_geom and end/apex_point_geom
-    For each geometry in new_junction_protection_geom
+    For each geometry in new_corner_protection_geom
         get start and end points
         find where there sit in relation corner_point_geom along line_from_apex_point_geom
         if start/end are on same side, create line with start/end
@@ -284,41 +287,58 @@ BEGIN
 
     */
 
-	RAISE NOTICE '***** cnr_id(%)', cnr_id;
+	RAISE NOTICE '***** IN get_all_new_corner_dimension_lines: cnr_id(%)', cnr_id;
 
     -- get the required geometries
-    SELECT corner_point_geom, apex_point_geom, line_from_apex_point_geom, new_junction_protection_geom
-    INTO corner_pt_geom, apex_pt_geom, line_from_apex_pt_geom, new_jn_protection_geom
+    SELECT corner_point_geom, apex_point_geom, line_from_corner_point_geom, new_corner_protection_geom
+    INTO corner_pt_geom, apex_pt_geom, line_from_corner_pt_geom, new_cnr_protection_geom
     FROM havering_operations."HaveringCorners"
     WHERE "GeometryID" = cnr_id;
 
-    SELECT ST_MakeLine(ST_StartPoint(line_from_apex_pt_geom), apex_pt_geom)
+    SELECT ST_MakeLine(ST_StartPoint(line_from_corner_pt_geom), apex_pt_geom)
     INTO line_start_apex
     FROM havering_operations."HaveringCorners"
     WHERE "GeometryID" = cnr_id;
 
-    SELECT ST_MakeLine(apex_pt_geom, ST_EndPoint(line_from_apex_pt_geom))
+    SELECT ST_MakeLine(apex_pt_geom, ST_EndPoint(line_from_corner_pt_geom))
     INTO line_apex_end
     FROM havering_operations."HaveringCorners"
     WHERE "GeometryID" = cnr_id;
 
-    SELECT ST_LineLocatePoint(line_from_apex_pt_geom, ST_Snap(corner_pt_geom, line_from_apex_pt_geom, 0.1))
+    SELECT ST_LineLocatePoint(line_from_corner_pt_geom, ST_Snap(corner_pt_geom, line_from_corner_pt_geom, 0.1))
     INTO cnr_pt_location;
 
     corner_dimension_lines_geom = NULL;
 
-    FOR i IN SELECT ST_NumGeometries(new_jn_protection_geom) LOOP
+	--RAISE NOTICE ' - cnr_pt_location: %', cnr_pt_location;
+    SELECT ST_NumGeometries(new_cnr_protection_geom) INTO nr_geometries;
+    IF nr_geometries IS NULL THEN
+        nr_geometries = 0;
+    END IF;
+
+    FOR i IN 1..nr_geometries LOOP
 
         -- get start/end points and their relative locations ** may need to deal with alignment issues ??
-        SELECT ST_StartPoint(ST_GeometryN(new_jn_protection_geom, i))
+        SELECT ST_StartPoint(ST_GeometryN(new_cnr_protection_geom, i))
         INTO startPt;
-        SELECT ST_EndPoint(ST_GeometryN(new_jn_protection_geom, i))
+        SELECT ST_EndPoint(ST_GeometryN(new_cnr_protection_geom, i))
         INTO endPt;
 
-        SELECT ST_LineLocatePoint(line_from_apex_pt_geom, startPt)
+        SELECT ST_LineLocatePoint(line_from_corner_pt_geom, startPt)
         INTO start_pt_location;
-        SELECT ST_LineLocatePoint(line_from_apex_pt_geom, endPt)
+        SELECT ST_LineLocatePoint(line_from_corner_pt_geom, endPt)
         INTO end_pt_location;
+
+	    --RAISE NOTICE ' - loop: %; start_pt_location: %: end_point_location: %', i, start_pt_location, end_pt_location;
+
+        IF start_pt_location > end_pt_location THEN
+            tmp_pt_location = start_pt_location;
+            tmpPt = startPt;
+            start_pt_location = end_pt_location;
+            startPt = endPt;
+            end_pt_location = tmp_pt_location;
+            endPt = tmpPt;
+        END IF;
 
         IF (start_pt_location < cnr_pt_location and end_pt_location < cnr_pt_location) THEN
             -- project points onto line_start_apex
@@ -345,31 +365,257 @@ BEGIN
             INTO dimLine1;
             SELECT ST_MakeLine(apex_pt_geom, ST_ClosestPoint(line_apex_end, startPt))
             INTO dimLine2;
-            SELECT ST_Collect(dimLine1, dimLine2)
+            SELECT ST_Union(dimLine1, dimLine2)
             INTO dimensionLine;
 
         END IF;
 
         -- Now add to multiline
-        SELECT ST_Collect(corner_dimension_lines_geom, dimensionLine)
+        SELECT ST_Union(corner_dimension_lines_geom, dimensionLine)
         INTO corner_dimension_lines_geom;
 
     END LOOP;
 
     RETURN corner_dimension_lines_geom;
 
+	EXCEPTION WHEN OTHERS THEN
+
+		-- Add note to indicate an issue with this function
+		raise notice '!!! issue: % %', SQLERRM, SQLSTATE;
+		UPDATE havering_operations."HaveringCorners"
+		SET "Notes" = CONCAT("Notes", '; Issue generating dimension lines - possible double back');
+		RETURN corner_dimension_lines_geom;
+
 END;
 $BODY$;
 
 
+-- create functions for update triggers
+
+
+CREATE OR REPLACE FUNCTION havering_operations."set_line_from_corner_point_geom"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   cornerProtectionLineString geometry;
+   apex_pt_geom geometry;
+   cnr_id text;
+   nearestJunction text;
+BEGIN
+
+    cnr_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN update_line_from_corner_point_geom: cnr_id(%)', cnr_id;
+
+    -- clear the relevant record  ** may need to check record exists
+    DELETE FROM havering_operations."HaveringCornerSegments"
+    WHERE "GeometryID" = cnr_id;
+
+    -- add in new details
+
+    ALTER TABLE havering_operations."HaveringCornerSegments" DROP CONSTRAINT "HaveringCornerSegments_pkey";
+
+    WITH cornerDetails AS (
+    SELECT c."GeometryID" as "GeometryID", c.corner_point_geom As corner_geom, r.geom as road_casement_geom
+    FROM havering_operations."HaveringCorners" c, topography."road_casement" r
+    WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
+    AND "GeometryID" = cnr_id
+    )
+        INSERT INTO havering_operations."HaveringCornerSegments" ("GeometryID", "SegmentLength", geom)
+        SELECT d."GeometryID", ST_Length(havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)),
+                        havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
+        FROM cornerDetails d;
+
+    DELETE FROM havering_operations."HaveringCornerSegments" c1
+    WHERE "GeometryID" = cnr_id
+    AND "GeometryID" IN (
+        SELECT "GeometryID"
+        FROM (
+            SELECT "GeometryID", count(*)
+            FROM havering_operations."HaveringCornerSegments"
+            GROUP BY "GeometryID"
+            HAVING count(*) > 1) a
+            );
+
+    ALTER TABLE ONLY havering_operations."HaveringCornerSegments"
+        ADD CONSTRAINT "HaveringCornerSegments_pkey" PRIMARY KEY ("GeometryID");
+
+    -- clear the relevant record  ** may need to check record exists
+    DELETE FROM havering_operations."HaveringCornerSegmentEndPts"
+    WHERE "GeometryID" = cnr_id;
+
+    INSERT INTO havering_operations."HaveringCornerSegmentEndPts" ("GeometryID", "StartPt", "EndPt")
+    SELECT d."GeometryID", ST_StartPoint(d.geom), ST_EndPoint(d.geom)
+    FROM havering_operations."HaveringCornerSegments" d
+    WHERE d."GeometryID" = cnr_id;
+
+    -- now look at corners ...
+
+    UPDATE havering_operations."HaveringCorners" AS c
+    SET line_from_corner_point_geom = s.geom
+    FROM havering_operations."HaveringCornerSegments" s
+    WHERE s."GeometryID" = c."GeometryID"
+    AND c."GeometryID" = cnr_id;
+
+    NEW."line_from_corner_point_geom" := cornerProtectionLineString;
+
+    -- would be worth checking to see whether or not apex_pt_geom exists and creating if not ...
+
+    IF OLD."apex_point_geom" IS NULL THEN
+        RAISE NOTICE '-- creating apex point for cnr_id(%)', cnr_id;
+        UPDATE havering_operations."HaveringCorners" AS c
+        SET apex_point_geom = havering_operations."getCornerApexPoint"(cnr_id, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
+        WHERE c."GeometryID" = cnr_id;
+        --NEW."apex_point_geom" := apex_pt_geom;
+    END IF;
+
+    -- also check to see if part of a junction ...
+    IF OLD."corner_point_geom" IS NULL THEN
+
+        RAISE NOTICE '-- adding cnr_id(%) to junctions', cnr_id;
+
+        SELECT havering_operations."get_nearest_junction_to_corner"(cnr_id) INTO nearestJunction;
+
+        IF nearestJunction IS NOT NULL THEN
+            INSERT INTO havering_operations."CornersWithinJunctions" ("CornerID", "JunctionID")
+            VALUES (cnr_id, nearestJunction);
+
+            -- also reset check status for junction ...
+
+            UPDATE havering_operations."HaveringJunctions"
+            SET "MHTC_CheckIssueTypeID" = NULL;
+
+        END IF;
+
+    END IF;
+
+    RETURN NEW;
+
+END;
+$BODY$;
+
+--
+CREATE OR REPLACE FUNCTION havering_operations."set_line_from_apex_point_geom"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   cornerProtectionLineString geometry;
+   cnr_id text;
+BEGIN
+
+    cnr_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN update_line_from_apex_point_geom: cnr_id(%)', cnr_id;
+
+    UPDATE havering_operations."HaveringCorners" AS c
+    SET line_from_apex_point_geom = ST_GeometryN(havering_operations."getCornerExtentsFromApex"(cnr_id), 1)
+    WHERE c."GeometryID" = cnr_id;
+
+    --NEW."line_from_apex_point_geom" := cornerProtectionLineString;
+    RETURN NEW;
+
+END;
+$BODY$;
+
+--
+
+CREATE OR REPLACE FUNCTION havering_operations."set_new_corner_protection_geom"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   cornerProtectionLineString geometry;
+   cnr_id text;
+   nearestJunction text;
+BEGIN
+
+    cnr_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN set_new_corner_protection_geom: cnr_id(%)', cnr_id;
+
+    DELETE FROM havering_operations."HaveringCornerConformingSegments"
+    WHERE "GeometryID" = cnr_id;
+
+    INSERT INTO havering_operations."HaveringCornerConformingSegments" ("GeometryID", geom)
+    SELECT u."GeometryID", ST_Multi(ST_Union(u.geom))
+    FROM
+    (SELECT c."GeometryID" as "GeometryID", r.geom as geom
+    FROM havering_operations."HaveringCorners" c, "toms"."Lines" r
+    WHERE ST_Intersects(r.geom, ST_Buffer(ST_SetSRID(c.line_from_apex_point_geom, 27700), 0.1))
+    AND r."RestrictionTypeID" NOT IN (201, 221, 224, 216, 220)
+    AND c."GeometryID" = cnr_id
+    UNION
+    SELECT c."GeometryID" as id, ST_Multi(r.geom)
+    FROM havering_operations."HaveringCorners" c, "toms"."Bays" r
+    WHERE ST_Intersects(r.geom, ST_Buffer(ST_SetSRID(c.line_from_apex_point_geom, 27700), 0.1))
+    AND c."GeometryID" = cnr_id
+     ) AS u
+     GROUP BY u."GeometryID";
+
+    UPDATE havering_operations."HaveringCorners" AS c
+    SET new_corner_protection_geom = ST_Multi(ST_Difference(ST_Multi(c.line_from_apex_point_geom), ST_Buffer(d.geom, 0.1)))
+    FROM havering_operations."HaveringCornerConformingSegments" d
+    WHERE d."GeometryID" = c."GeometryID"
+    AND c."GeometryID" = cnr_id;
+
+    UPDATE havering_operations."HaveringCorners" AS c
+    SET new_corner_protection_geom = ST_Multi(c.line_from_apex_point_geom)
+    WHERE c."GeometryID" = cnr_id
+    AND c."GeometryID" NOT IN (
+        SELECT d."GeometryID"
+        FROM havering_operations."HaveringCornerConformingSegments" d);
+
+    -- regenerate dimension lines
+    UPDATE havering_operations."HaveringCorners" AS c
+    SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"(cnr_id))
+    WHERE havering_operations."get_all_new_corner_dimension_lines"(cnr_id) IS NOT NULL
+    AND c."GeometryID" = cnr_id;
+
+    -- classify corners
+
+    UPDATE havering_operations."HaveringCorners"
+        SET "CornerProtectionCategoryTypeID" = 1
+        WHERE ST_Length(new_corner_protection_geom) = 0.0
+        OR ST_Length(new_corner_protection_geom) IS NULL
+        AND "GeometryID" = cnr_id;
+
+    UPDATE havering_operations."HaveringCorners"
+        SET "CornerProtectionCategoryTypeID" = 2
+        WHERE ST_Length(new_corner_protection_geom) > 0.0 and ST_Length(new_corner_protection_geom) < 16.0
+        AND "GeometryID" = cnr_id;
+
+    UPDATE havering_operations."HaveringCorners"
+        SET "CornerProtectionCategoryTypeID" = 3
+        WHERE ST_Length(new_corner_protection_geom) >= 16.0
+        AND "GeometryID" = cnr_id;
+
+    -- change corner check status
+    SELECT havering_operations."get_nearest_junction_to_corner"(cnr_id) INTO nearestJunction;
+
+    UPDATE havering_operations."HaveringJunctions"
+    SET "MHTC_CheckIssueTypeID" = NULL
+    WHERE "GeometryID" = nearestJunction;
+
+    UPDATE havering_operations."HaveringCorners"
+    SET "MHTC_CheckIssueTypeID" = NULL
+    WHERE "GeometryID" = cnr_id;
+
+    --NEW."new_corner_protection_geom" := cornerProtectionLineString;
+    RETURN NEW;
+
+END;
+$BODY$;
 
 -- set up triggers
-
+DROP TRIGGER IF EXISTS "create_geometryid_havering_corners" ON havering_operations."HaveringCorners";
+DROP TRIGGER IF EXISTS "set_last_update_details_havering_corners" ON havering_operations."HaveringCorners";
+DROP TRIGGER IF EXISTS "set_create_details_havering_corners" ON havering_operations."HaveringCorners";
 CREATE TRIGGER "create_geometryid_havering_corners" BEFORE INSERT ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."create_geometryid_havering"();
-CREATE TRIGGER "set_last_update_details_HaveringCorners" BEFORE INSERT OR UPDATE ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
+CREATE TRIGGER "set_last_update_details_havering_corners" BEFORE INSERT OR UPDATE ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
+CREATE TRIGGER "set_create_details_havering_corners" BEFORE INSERT ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION "public"."set_create_details"();
 
+DROP TRIGGER IF EXISTS "create_geometryid_havering_junctions" ON havering_operations."HaveringJunctions";
+DROP TRIGGER IF EXISTS "set_last_update_details_havering_junctions" ON havering_operations."HaveringJunctions";
+DROP TRIGGER IF EXISTS "set_create_details_havering_junctions" ON havering_operations."HaveringJunctions";
 CREATE TRIGGER "create_geometryid_havering_junctions" BEFORE INSERT ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."create_geometryid_havering"();
-CREATE TRIGGER "set_last_update_details_HaveringJunctions" BEFORE INSERT OR UPDATE ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
-
-
-
+CREATE TRIGGER "set_last_update_details_havering_junctions" BEFORE INSERT OR UPDATE ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
+CREATE TRIGGER "set_create_details_havering_junctions" BEFORE INSERT ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION "public"."set_create_details"();
