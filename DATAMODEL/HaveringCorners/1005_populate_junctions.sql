@@ -72,4 +72,17 @@ SET map_frame_geom = ST_MakeEnvelope(ST_X(junction_point_geom)-20.0, ST_Y(juncti
                                      ST_X(junction_point_geom)+20.0, ST_Y(junction_point_geom)+25.0, 27700)
 WHERE "JunctionProtectionCategoryTypeID" != 1;
 
+-- triggers for junctions
+
+-- if "JunctionProtectionCategoryTypeID" = 1 then delete frame - or set from if not
+
+DROP TRIGGER IF EXISTS "update_corners_within_junctions" ON havering_operations."HaveringJunctions";
+
+CREATE TRIGGER "update_corners_within_junctions"
+    AFTER INSERT ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_corners_within_junctions"();
+
+DROP TRIGGER IF EXISTS "update_junction_map_frame_geom" ON havering_operations."HaveringJunctions";
+
+CREATE TRIGGER "update_junction_map_frame_geom"
+    AFTER INSERT OR UPDATE OF "JunctionProtectionCategoryTypeID" ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_junction_map_frame_geom"();
 

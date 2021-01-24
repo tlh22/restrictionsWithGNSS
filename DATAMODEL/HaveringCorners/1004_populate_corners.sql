@@ -155,8 +155,8 @@ UPDATE havering_operations."HaveringCorners"
 -- generate the dimensioning lines
 
 UPDATE havering_operations."HaveringCorners" AS c
-SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"("GeometryID"))
-WHERE havering_operations."get_all_new_corner_dimension_lines"("GeometryID") IS NOT NULL;
+SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"(c."GeometryID"))
+WHERE havering_operations."get_all_new_corner_dimension_lines"(c."GeometryID") IS NOT NULL;
 
 -- Now set up triggers to update details
 /*

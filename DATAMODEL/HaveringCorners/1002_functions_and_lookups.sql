@@ -90,7 +90,6 @@ CREATE OR REPLACE FUNCTION havering_operations."get_road_casement_section"(corne
 
 $$ LANGUAGE plpython3u;
 
-
 --
 DROP FUNCTION IF EXISTS havering_operations."getCornerApexPoint";
 
@@ -113,8 +112,8 @@ DECLARE
     apexPt_GeometryType text;
 BEGIN
 
-	RAISE NOTICE '***** cnr_id(%)', cnr_id;
-    RAISE NOTICE 'tolerance(%)', tolerance;
+	RAISE NOTICE '***** In getCornerApexPoint cnr_id(%)', cnr_id;
+    RAISE NOTICE ' -    tolerance(%)', tolerance;
 
     -- get an approximate line of the kerb
     SELECT c."StartPt", c."EndPt",
@@ -310,11 +309,13 @@ BEGIN
 
     corner_dimension_lines_geom = NULL;
 
-	--RAISE NOTICE ' - cnr_pt_location: %', cnr_pt_location;
     SELECT ST_NumGeometries(new_cnr_protection_geom) INTO nr_geometries;
+
     IF nr_geometries IS NULL THEN
         nr_geometries = 0;
     END IF;
+
+    RAISE NOTICE ' - cnr_pt_location: %; nr geoms: %', cnr_pt_location, nr_geometries;
 
     FOR i IN 1..nr_geometries LOOP
 
@@ -329,7 +330,7 @@ BEGIN
         SELECT ST_LineLocatePoint(line_from_corner_pt_geom, endPt)
         INTO end_pt_location;
 
-	    --RAISE NOTICE ' - loop: %; start_pt_location: %: end_point_location: %', i, start_pt_location, end_pt_location;
+	    RAISE NOTICE ' - loop: %; start_pt_location: %: end_point_location: %', i, start_pt_location, end_pt_location;
 
         IF start_pt_location > end_pt_location THEN
             tmp_pt_location = start_pt_location;
@@ -365,13 +366,13 @@ BEGIN
             INTO dimLine1;
             SELECT ST_MakeLine(apex_pt_geom, ST_ClosestPoint(line_apex_end, startPt))
             INTO dimLine2;
-            SELECT ST_Union(dimLine1, dimLine2)
+            SELECT ST_Collect(dimLine1, dimLine2)
             INTO dimensionLine;
 
         END IF;
 
         -- Now add to multiline
-        SELECT ST_Union(corner_dimension_lines_geom, dimensionLine)
+        SELECT ST_CollectionHomogenize(ST_Collect(corner_dimension_lines_geom, dimensionLine))
         INTO corner_dimension_lines_geom;
 
     END LOOP;
@@ -464,7 +465,7 @@ BEGIN
     IF OLD."apex_point_geom" IS NULL THEN
         RAISE NOTICE '-- creating apex point for cnr_id(%)', cnr_id;
         UPDATE havering_operations."HaveringCorners" AS c
-        SET apex_point_geom = havering_operations."getCornerApexPoint"(cnr_id, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
+        SET apex_point_geom = havering_operations."getCornerApexPoint"(cnr_id, 25.0)
         WHERE c."GeometryID" = cnr_id;
         --NEW."apex_point_geom" := apex_pt_geom;
     END IF;
@@ -604,6 +605,69 @@ BEGIN
 
 END;
 $BODY$;
+
+--
+CREATE OR REPLACE FUNCTION havering_operations."set_junction_map_frame_geom"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   cornerProtectionLineString geometry;
+   junction_id text;
+   jn_protection_category_type integer;
+BEGIN
+
+    junction_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN set_junction_map_frame_geom: junction_id(%)', junction_id;
+
+    jn_protection_category_type = NEW."JunctionProtectionCategoryTypeID";
+
+    IF NEW."JunctionProtectionCategoryTypeID" = 1 THEN
+
+        UPDATE havering_operations."HaveringJunctions"
+        SET map_frame_geom = NULL
+        WHERE "GeometryID" = junction_id;
+
+    ELSE
+
+        UPDATE havering_operations."HaveringJunctions"
+        SET map_frame_geom = ST_MakeEnvelope(ST_X(junction_point_geom)-20.0, ST_Y(junction_point_geom)-25.0,
+                                     ST_X(junction_point_geom)+20.0, ST_Y(junction_point_geom)+25.0, 27700)
+        WHERE "GeometryID" = junction_id;
+
+    END IF;
+
+    --NEW."line_from_apex_point_geom" := cornerProtectionLineString;
+    RETURN NEW;
+
+END;
+$BODY$;
+
+--
+CREATE OR REPLACE FUNCTION havering_operations."set_corners_within_junctions"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   junction_id text;
+BEGIN
+
+    junction_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN set_corners_within_junctions: junction_id(%)', junction_id;
+
+    -- get possible corners in local area
+    INSERT INTO havering_operations."CornersWithinJunctions" ("CornerID", "JunctionID")
+    SELECT c."GeometryID" AS "CornerID", havering_operations."get_nearest_junction_to_corner"(c."GeometryID") AS "JunctionID"
+    FROM havering_operations."HaveringCorners" c
+    WHERE havering_operations."get_nearest_junction_to_corner"(c."GeometryID") = junction_id
+    AND ST_DWithin(c.corner_point_geom, NEW.junction_point_geom, 25.0);
+    --NEW."line_from_apex_point_geom" := cornerProtectionLineString;
+
+    RETURN NEW;
+
+END;
+$BODY$;
+
 
 -- set up triggers
 DROP TRIGGER IF EXISTS "create_geometryid_havering_corners" ON havering_operations."HaveringCorners";
