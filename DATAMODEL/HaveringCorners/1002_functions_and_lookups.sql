@@ -668,6 +668,75 @@ BEGIN
 END;
 $BODY$;
 
+--
+
+CREATE OR REPLACE FUNCTION havering_operations."set_new_corner_protection_output_geom"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   cornerProtectionLineString geometry;
+   cnr_id text;
+   nearestJunction text;
+BEGIN
+
+    cnr_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN set_new_corner_protection_output_geom: cnr_id(%)', cnr_id;
+
+    DELETE FROM havering_operations."HaveringCorners_Output"
+    WHERE "GeometryID" = cnr_id;
+
+    INSERT INTO havering_operations."HaveringCorners_Output" ("GeometryID", new_corner_protection_geom)
+    SELECT "GeometryID", (ST_Dump(new_corner_protection_geom)).geom
+    FROM havering_operations."HaveringCorners"
+    WHERE "GeometryID" = cnr_id;
+
+    UPDATE havering_operations."HaveringCorners_Output"
+    SET "AzimuthToRoadCentreLine" = degrees(mhtc_operations."AzToNearestRoadCentreLine"(ST_AsText(ST_LineInterpolatePoint(new_corner_protection_geom, 0.5)), 25.0))
+    WHERE "GeometryID" = cnr_id;
+
+    RETURN NEW;
+
+END;
+$BODY$;
+
+--
+CREATE OR REPLACE FUNCTION havering_operations."set_roads_for_junctions"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   junction_id text;
+   road_names RECORD;
+BEGIN
+
+    junction_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN set_roads_for_junctions: junction_id(%)', junction_id;
+
+    -- reset field
+	UPDATE havering_operations."HaveringJunctions" AS j
+    SET "RoadsAtJunction" = NULL;
+
+    -- now update
+    FOR road_names IN
+        SELECT DISTINCT(name1) as road_name
+        FROM highways_network.roadlink r
+        WHERE ST_DWithin (NEW.junction_point_geom, r.geom, 0.1)
+    LOOP
+        UPDATE havering_operations."HaveringJunctions" AS j
+        SET "RoadsAtJunction" =
+            CASE WHEN LENGTH("RoadsAtJunction") = 0 THEN
+                road_names.road_name
+            ELSE
+                CONCAT("RoadsAtJunction", ' / ', road_names.road_name)
+            END
+        WHERE "GeometryID" = junction_id;
+    END LOOP;
+
+    RETURN NEW;
+
+END;
+$BODY$;
 
 -- set up triggers
 DROP TRIGGER IF EXISTS "create_geometryid_havering_corners" ON havering_operations."HaveringCorners";

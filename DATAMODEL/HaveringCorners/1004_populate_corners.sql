@@ -137,6 +137,20 @@ WHERE c."GeometryID" NOT IN (
     SELECT d."GeometryID"
     FROM havering_operations."HaveringCornerConformingSegments" d);
 
+-- set Az to CL
+
+UPDATE havering_operations."HaveringCorners" AS c
+SET "AzimuthToRoadCentreLine" = degrees(ST_Azimuth(corner_point_geom, apex_point_geom))
+
+-- havering_operations."HaveringCorners_Output"
+
+INSERT INTO havering_operations."HaveringCorners_Output" ("GeometryID", new_corner_protection_geom)
+SELECT "GeometryID", (ST_Dump(new_corner_protection_geom)).geom
+FROM havering_operations."HaveringCorners";
+
+UPDATE havering_operations."HaveringCorners_Output"
+SET "AzimuthToRoadCentreLine" = degrees(mhtc_operations."AzToNearestRoadCentreLine"(ST_AsText(ST_LineInterpolatePoint(new_corner_protection_geom, 0.5)), 25.0));
+
 -- classify corners
 
 UPDATE havering_operations."HaveringCorners"
@@ -178,6 +192,11 @@ DROP TRIGGER IF EXISTS "set_corner_protection_line_2_from_apex_point" ON haverin
 CREATE TRIGGER "update_corner_protection_line_2_from_apex_point"
     AFTER INSERT OR UPDATE OF apex_point_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_line_from_apex_point_geom"();
 
+DROP TRIGGER IF EXISTS "update_corner_protection_line_3_from_apex_point" ON havering_operations."HaveringCorners";
 
 CREATE TRIGGER "update_corner_protection_line_3_from_apex_point"
     AFTER UPDATE OF line_from_apex_point_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_new_corner_protection_geom"();
+
+CREATE TRIGGER "update_corner_protection_line_4_from_apex_point"
+    AFTER INSERT OR UPDATE OF new_corner_protection_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_new_corner_protection_output_geom"();
+

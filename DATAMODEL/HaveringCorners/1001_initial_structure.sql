@@ -67,11 +67,32 @@ CREATE TABLE havering_operations."HaveringCorners"
     CONSTRAINT "HaveringCorners_pkey" PRIMARY KEY ("RestrictionID"),
     CONSTRAINT "HaveringCorners_GeometryID_key" UNIQUE ("GeometryID"),
     CONSTRAINT "HaveringCorners_CornerProtectionCategoryTypeID_fkey" FOREIGN KEY ("CornerProtectionCategoryTypeID")
-        REFERENCES mhtc_operations."CornerProtectionCategoryTypes" ("Code")
+        REFERENCES havering_operations."CornerProtectionCategoryTypes" ("Code")
 )
 INHERITS ("highway_assets"."HighwayAssets");
 
 CREATE INDEX "sidx_HaveringCorners_apex_point_geom" ON havering_operations."HaveringCorners" USING "gist" ("apex_point_geom");
+
+--
+
+DROP TABLE IF EXISTS havering_operations."HaveringCorners_Output" CASCADE;
+
+CREATE TABLE havering_operations."HaveringCorners_Output"
+(
+    gid SERIAL,
+    "GeometryID" character varying(12) NOT NULL,
+    new_corner_protection_geom geometry(LineString,27700) NOT NULL,
+    "RestrictionTypeID" integer DEFAULT 202,
+    "AzimuthToRoadCentreLine" double precision DEFAULT 0.0,
+    "GeomShapeID" integer DEFAULT 10,
+    CONSTRAINT "HaveringCorners_Output_pkey" PRIMARY KEY ("gid"),
+    CONSTRAINT "HaveringCorners_Output_GeometryID_fkey" FOREIGN KEY ("GeometryID")
+        REFERENCES havering_operations."HaveringCorners" ("GeometryID")
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+);
+
+CREATE INDEX "sidx_HaveringCorners_Output_new_corner_protection_geom" ON havering_operations."HaveringCorners_Output" USING "gist" ("new_corner_protection_geom");
 
 -- HaveringJunctions
 
@@ -97,6 +118,7 @@ CREATE TABLE havering_operations."HaveringJunctions"
     map_frame_orientation integer,
     map_scale integer,
     "JunctionProtectionCategoryTypeID" integer,
+    "RoadsAtJunction" character varying(254),
     CONSTRAINT "HaveringJunctions_pkey" PRIMARY KEY ("RestrictionID"),
     CONSTRAINT "HaveringJunctions_GeometryID_key" UNIQUE ("GeometryID"),
     CONSTRAINT "HaveringJunctions_JunctionProtectionCategoryTypeID_fkey" FOREIGN KEY ("JunctionProtectionCategoryTypeID")

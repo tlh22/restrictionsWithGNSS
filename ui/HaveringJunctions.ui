@@ -128,7 +128,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="Type1_4">
          <property name="text">
-          <string>Corner Status:</string>
+          <string>Junction Status:</string>
          </property>
         </widget>
        </item>
@@ -163,25 +163,14 @@
         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
        </property>
        <item row="0" column="0">
-        <widget class="QLabel" name="lbl_RoadName">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>16</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
+        <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Length of conforming details within corner area:</string>
+          <string>Roads leading to junction:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="length_conforming_within_line_from_corner_point"/>
+        <widget class="QLineEdit" name="RoadsAtJunction"/>
        </item>
        <item row="2" column="1">
         <spacer name="verticalSpacer">
