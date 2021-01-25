@@ -127,7 +127,7 @@ WHERE ST_Intersects(r.geom, ST_Buffer(ST_SetSRID(c.line_from_apex_point_geom, 27
  GROUP BY u."GeometryID";
 
 UPDATE havering_operations."HaveringCorners" AS c
-SET new_corner_protection_geom = ST_Multi(ST_Difference(ST_Multi(c.line_from_apex_point_geom), ST_Buffer(d.geom, 0.1)))
+SET new_corner_protection_geom = ST_Multi(ST_CollectionExtract(ST_Difference(ST_Multi(c.line_from_apex_point_geom), ST_Buffer(d.geom, 0.1)), 2))
 FROM havering_operations."HaveringCornerConformingSegments" d
 WHERE d."GeometryID" = c."GeometryID";
 
@@ -136,11 +136,6 @@ SET new_corner_protection_geom = ST_Multi(c.line_from_apex_point_geom)
 WHERE c."GeometryID" NOT IN (
     SELECT d."GeometryID"
     FROM havering_operations."HaveringCornerConformingSegments" d);
-
--- set Az to CL
-
-UPDATE havering_operations."HaveringCorners" AS c
-SET "AzimuthToRoadCentreLine" = degrees(ST_Azimuth(corner_point_geom, apex_point_geom))
 
 -- havering_operations."HaveringCorners_Output"
 
@@ -180,23 +175,3 @@ Triggers to be:
  - when line_from_apex_point_geom updated, update new_corner_protection_geom and length_conforming_within_line_from_corner_point (and CornerProtectionCategoryTypeID??)
  - when new_corner_protection_geom updated, update corner_dimension_lines_geom
 */
-
-DROP TRIGGER IF EXISTS "set_corner_protection_line_1_from_corner_point" ON havering_operations."HaveringCorners";
-
-CREATE TRIGGER "update_corner_protection_line_1_from_corner_point"
-    AFTER INSERT OR UPDATE OF corner_point_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_line_from_corner_point_geom"();
-
-
-DROP TRIGGER IF EXISTS "set_corner_protection_line_2_from_apex_point" ON havering_operations."HaveringCorners";
-
-CREATE TRIGGER "update_corner_protection_line_2_from_apex_point"
-    AFTER INSERT OR UPDATE OF apex_point_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_line_from_apex_point_geom"();
-
-DROP TRIGGER IF EXISTS "update_corner_protection_line_3_from_apex_point" ON havering_operations."HaveringCorners";
-
-CREATE TRIGGER "update_corner_protection_line_3_from_apex_point"
-    AFTER UPDATE OF line_from_apex_point_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_new_corner_protection_geom"();
-
-CREATE TRIGGER "update_corner_protection_line_4_from_apex_point"
-    AFTER INSERT OR UPDATE OF new_corner_protection_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_new_corner_protection_output_geom"();
-

@@ -553,7 +553,7 @@ BEGIN
      GROUP BY u."GeometryID";
 
     UPDATE havering_operations."HaveringCorners" AS c
-    SET new_corner_protection_geom = ST_Multi(ST_Difference(ST_Multi(c.line_from_apex_point_geom), ST_Buffer(d.geom, 0.1)))
+    SET new_corner_protection_geom = ST_Multi(ST_CollectionExtract(ST_Difference(ST_Multi(c.line_from_apex_point_geom), ST_Buffer(d.geom, 0.1)), 2))
     FROM havering_operations."HaveringCornerConformingSegments" d
     WHERE d."GeometryID" = c."GeometryID"
     AND c."GeometryID" = cnr_id;
@@ -590,7 +590,10 @@ BEGIN
         AND "GeometryID" = cnr_id;
 
     -- change corner check status
-    SELECT havering_operations."get_nearest_junction_to_corner"(cnr_id) INTO nearestJunction;
+    --SELECT havering_operations."get_nearest_junction_to_corner"(cnr_id) INTO nearestJunction;
+    SELECT "JunctionID" INTO nearestJunction
+    FROM havering_operations."CornersWithinJunctions"
+    WHERE "CornerID" = cnr_id;
 
     UPDATE havering_operations."HaveringJunctions"
     SET "MHTC_CheckIssueTypeID" = NULL
@@ -618,9 +621,8 @@ DECLARE
 BEGIN
 
     junction_id = NEW."GeometryID";
-    RAISE NOTICE '***** IN set_junction_map_frame_geom: junction_id(%)', junction_id;
-
     jn_protection_category_type = NEW."JunctionProtectionCategoryTypeID";
+    RAISE NOTICE '***** IN set_junction_map_frame_geom: junction_id(%); jn_protection_category_type (%)', junction_id, jn_protection_category_type;
 
     IF NEW."JunctionProtectionCategoryTypeID" = 1 THEN
 
@@ -715,40 +717,124 @@ BEGIN
 
     -- reset field
 	UPDATE havering_operations."HaveringJunctions" AS j
-    SET "RoadsAtJunction" = NULL;
-
-    -- now update
-    FOR road_names IN
-        SELECT DISTINCT(name1) as road_name
-        FROM highways_network.roadlink r
-        WHERE ST_DWithin (NEW.junction_point_geom, r.geom, 0.1)
-    LOOP
-        UPDATE havering_operations."HaveringJunctions" AS j
-        SET "RoadsAtJunction" =
-            CASE WHEN LENGTH("RoadsAtJunction") = 0 THEN
-                road_names.road_name
-            ELSE
-                CONCAT("RoadsAtJunction", ' / ', road_names.road_name)
-            END
-        WHERE "GeometryID" = junction_id;
-    END LOOP;
+    SET "RoadsAtJunction" = havering_operations."update_roads_for_junctions"(junction_id)
+    WHERE "GeometryID" = junction_id;
 
     RETURN NEW;
 
 END;
 $BODY$;
 
+--
+CREATE OR REPLACE FUNCTION havering_operations."update_roads_for_junctions"(junction_id text)
+RETURNS text
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   road_names RECORD;
+   junction_pt_geom geometry;
+   roads_at_junction text = '';
+   len_road_details float;
+BEGIN
+
+    --junction_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN update_roads_for_junctions: junction_id(%)', junction_id;
+
+    SELECT junction_point_geom
+    INTO junction_pt_geom
+    FROM havering_operations."HaveringJunctions"
+    WHERE "GeometryID" = junction_id;
+
+    -- now update
+    FOR road_names IN
+        SELECT DISTINCT(name1) as road_name
+        FROM highways_network.roadlink r
+        WHERE ST_DWithin (junction_pt_geom, r.geom, 0.1)
+    LOOP
+        SELECT LENGTH(roads_at_junction)
+        INTO len_road_details;
+
+        IF len_road_details = 0 THEN
+            roads_at_junction = road_names.road_name;
+        ELSE
+            SELECT CONCAT(roads_at_junction, ' / ', road_names.road_name)
+            INTO roads_at_junction;
+        END IF;
+    END LOOP;
+
+    RETURN roads_at_junction;
+
+END;
+$BODY$;
+
+-- trigger for when corner status is changed
+--
+CREATE OR REPLACE FUNCTION havering_operations."set_junction_status_from_corner"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   cnrs_within_junction RECORD;
+   cnr_id text;
+   this_cnr_id text;
+   junction_id text;
+   jn_protection_category_type integer;
+   cnr_protection_category_type integer;
+   road_markings_status integer;
+BEGIN
+
+    cnr_id = NEW."GeometryID";
+
+    SELECT "JunctionID" INTO junction_id
+    FROM havering_operations."CornersWithinJunctions"
+    WHERE "CornerID" = cnr_id;
+
+    RAISE NOTICE '***** IN set_junction_status_from_corner: cnr_id(%); junction_id (%)', cnr_id, junction_id;
+
+    jn_protection_category_type = 1;
+
+    FOR cnrs_within_junction IN
+        SELECT "CornerID"
+        FROM havering_operations."CornersWithinJunctions" cj
+        WHERE cj."JunctionID" = junction_id
+    LOOP
+
+        SELECT "CornerProtectionCategoryTypeID","ComplianceRoadMarkingsFadedTypeID"
+        INTO cnr_protection_category_type, road_markings_status
+        FROM havering_operations."HaveringCorners"
+        WHERE "GeometryID" = cnrs_within_junction."CornerID";
+
+        RAISE NOTICE '***** IN set_junction_status_from_corner: cnr_id (%); cnr_protection_category_type(%)', cnrs_within_junction."CornerID", cnr_protection_category_type;
+
+        IF cnr_protection_category_type = 2 OR
+           cnr_protection_category_type = 3 THEN
+            jn_protection_category_type = 2;
+
+        ELSIF road_markings_status != 1 THEN
+            jn_protection_category_type = 3;
+        END IF;
+
+    END LOOP;
+
+    RAISE NOTICE '***** IN set_junction_status_from_corner: jn_protection_category_type(%)', jn_protection_category_type;
+
+    UPDATE havering_operations."HaveringJunctions" AS j
+        SET "JunctionProtectionCategoryTypeID" = jn_protection_category_type
+        WHERE "GeometryID" = junction_id;
+
+    RETURN NEW;
+
+END;
+$BODY$;
+
+
 -- set up triggers
 DROP TRIGGER IF EXISTS "create_geometryid_havering_corners" ON havering_operations."HaveringCorners";
-DROP TRIGGER IF EXISTS "set_last_update_details_havering_corners" ON havering_operations."HaveringCorners";
 DROP TRIGGER IF EXISTS "set_create_details_havering_corners" ON havering_operations."HaveringCorners";
 CREATE TRIGGER "create_geometryid_havering_corners" BEFORE INSERT ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."create_geometryid_havering"();
-CREATE TRIGGER "set_last_update_details_havering_corners" BEFORE INSERT OR UPDATE ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
 CREATE TRIGGER "set_create_details_havering_corners" BEFORE INSERT ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION "public"."set_create_details"();
 
 DROP TRIGGER IF EXISTS "create_geometryid_havering_junctions" ON havering_operations."HaveringJunctions";
-DROP TRIGGER IF EXISTS "set_last_update_details_havering_junctions" ON havering_operations."HaveringJunctions";
 DROP TRIGGER IF EXISTS "set_create_details_havering_junctions" ON havering_operations."HaveringJunctions";
 CREATE TRIGGER "create_geometryid_havering_junctions" BEFORE INSERT ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."create_geometryid_havering"();
-CREATE TRIGGER "set_last_update_details_havering_junctions" BEFORE INSERT OR UPDATE ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION "public"."set_last_update_details"();
 CREATE TRIGGER "set_create_details_havering_junctions" BEFORE INSERT ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION "public"."set_create_details"();

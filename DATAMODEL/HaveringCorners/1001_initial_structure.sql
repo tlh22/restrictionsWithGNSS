@@ -64,9 +64,12 @@ CREATE TABLE havering_operations."HaveringCorners"
     corner_dimension_lines_geom geometry(MultiLineString,27700),
     length_conforming_within_line_from_corner_point double precision,
     "CornerProtectionCategoryTypeID" integer,
+    "ComplianceRoadMarkingsFadedTypeID" integer,
     CONSTRAINT "HaveringCorners_pkey" PRIMARY KEY ("RestrictionID"),
     CONSTRAINT "HaveringCorners_GeometryID_key" UNIQUE ("GeometryID"),
     CONSTRAINT "HaveringCorners_CornerProtectionCategoryTypeID_fkey" FOREIGN KEY ("CornerProtectionCategoryTypeID")
+        REFERENCES havering_operations."CornerProtectionCategoryTypes" ("Code")
+    CONSTRAINT "HaveringCorners_ComplianceRoadMarkingsFadedTypeID_fkey" FOREIGN KEY ("ComplianceRoadMarkingsFadedTypeID")
         REFERENCES havering_operations."CornerProtectionCategoryTypes" ("Code")
 )
 INHERITS ("highway_assets"."HighwayAssets");

@@ -74,29 +74,5 @@ WHERE "JunctionProtectionCategoryTypeID" != 1;
 
 -- update road details
 UPDATE havering_operations."HaveringJunctions" AS j
-SELECT DISTINCT(name1)
-FROM highways_network.roadlink r
-WHERE ST_DWithin ST_Intersects (r.junction_point_geom, r.geom, 0.1);
+SET "RoadsAtJunction" = havering_operations."update_roads_for_junctions";
 
--- triggers for junctions
-
--- if "JunctionProtectionCategoryTypeID" = 1 then delete frame - or set from if not
-
-DROP TRIGGER IF EXISTS "update_corners_within_junctions" ON havering_operations."HaveringJunctions";
-
-CREATE TRIGGER "update_corners_within_junctions"
-    AFTER INSERT ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_corners_within_junctions"();
-
-DROP TRIGGER IF EXISTS "update_junction_map_frame_geom" ON havering_operations."HaveringJunctions";
-
-CREATE TRIGGER "update_junction_map_frame_geom"
-    AFTER INSERT OR UPDATE OF "JunctionProtectionCategoryTypeID" ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_junction_map_frame_geom"();
-
-DROP TRIGGER IF EXISTS "update_roads_for_junctions" ON havering_operations."HaveringJunctions";
-
-CREATE TRIGGER "update_roads_for_junctions"
-    AFTER INSERT OR UPDATE OF "junction_point_geom" ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_roads_for_junctions"();
-
--- now trigger this trigger
-UPDATE havering_operations."HaveringJunctions"
-SET "junction_point_geom" = "junction_point_geom";
