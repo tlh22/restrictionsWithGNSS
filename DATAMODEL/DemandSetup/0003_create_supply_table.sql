@@ -15,7 +15,7 @@ DECLARE
 	 nextSeqVal varchar := '';
 BEGIN
 
-	SELECT concat('S_', to_char(nextval('"mhtc_operations"."Supply_id_seq"'::regclass), '000000000'::text)) INTO nextSeqVal;
+	SELECT concat('S_', to_char(nextval('"mhtc_operations"."Supply_id_seq"'::regclass), 'FM000000'::text)) INTO nextSeqVal;
 
     NEW."GeometryID" := nextSeqVal;
 	RETURN NEW;
