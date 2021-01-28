@@ -173,3 +173,12 @@ WHERE s1."RestrictionTypeID" < 200
 AND s2."RestrictionTypeID" = 220
 AND s2."UnacceptableTypeID" IN (1, 4)
 AND ST_Intersects(s1.geom, ST_Buffer(ST_LineInterpolatePoint(s2.geom, 0.5), 0.1));
+
+-- delete unmarked unacceptable lines intersecting with bays
+
+DELETE FROM "mhtc_operations"."Supply" AS s2
+USING "mhtc_operations"."Supply" s1
+WHERE s2."RestrictionTypeID" = 220
+AND s2."UnacceptableTypeID" IN (1, 4)
+AND s1."RestrictionTypeID" < 200
+AND ST_Intersects(s1.geom, ST_Buffer(ST_LineInterpolatePoint(s2.geom, 0.5), 0.1));

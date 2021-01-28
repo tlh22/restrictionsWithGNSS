@@ -119,6 +119,7 @@ WHERE "RestrictionTypeID" IN (202, 218)
 AND "NoWaitingTimeID" IS NULL;
 
 --
+DROP MATERIALIZED VIEW IF EXISTS toms_lookups."BayLineTypesInUse_View";
 
 DROP MATERIALIZED VIEW IF EXISTS toms_lookups."BayLineTypesInUse_View";
 
@@ -150,3 +151,5 @@ CREATE UNIQUE INDEX "BayLineTypesInUse_View_key"
     ON toms_lookups."BayLineTypesInUse_View" USING btree
     ("Code")
     TABLESPACE pg_default;
+
+REFRESH MATERIALIZED VIEW toms_lookups."BayLineTypesInUse_View" WITH DATA;
