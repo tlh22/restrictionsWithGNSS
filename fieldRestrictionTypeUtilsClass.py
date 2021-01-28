@@ -420,6 +420,15 @@ class FieldRestrictionTypeUtilsMixin():
         except:
             None
 
+        # deal with issue whereby a null field provided by PayParkingAreaID is a 0 length string (rather than integer)
+
+        if currFeatureLayer.name() == "Bays":
+            try:
+                if len (currFeature[currFeatureLayer.fields().indexFromName("PayParkingAreaID")].strip()) == 0:
+                    currFeature[currFeatureLayer.fields().indexFromName("PayParkingAreaID")] = None
+            except:
+                None
+                
         attrs1 = currFeature.attributes()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currRestriction: " + str(attrs1),
                                  level=Qgis.Warning)
