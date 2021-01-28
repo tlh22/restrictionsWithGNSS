@@ -27,15 +27,21 @@ DROP TRIGGER IF EXISTS "update_corner_protection_line_4_from_apex_point" ON have
 CREATE TRIGGER "update_corner_protection_line_4_from_apex_point"
     AFTER INSERT OR UPDATE OF new_corner_protection_geom ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_new_corner_protection_output_geom"();
 
+DROP TRIGGER IF EXISTS "update_corner_protection_line_5_from_apex_point" ON havering_operations."HaveringCorners_Output";
+
+CREATE TRIGGER "update_corner_protection_line_5_from_apex_point"
+    AFTER INSERT ON havering_operations."HaveringCorners_Output" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_new_corner_dimension_lines_geom"();
+
+
 DROP TRIGGER IF EXISTS "update_junction_status_from_corner_1" ON havering_operations."HaveringCorners";
 
-CREATE TRIGGER "update_junction_status_from_corner_1"
-    AFTER INSERT OR UPDATE OF "CornerProtectionCategoryTypeID" ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_junction_status_from_corner"();
+--CREATE TRIGGER "update_junction_status_from_corner_1"
+--    AFTER INSERT OR UPDATE OF "CornerProtectionCategoryTypeID" ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_junction_status_from_corner"();
 
 DROP TRIGGER IF EXISTS "update_junction_status_from_corner_2" ON havering_operations."HaveringCorners";
 
-CREATE TRIGGER "update_junction_status_from_corner_2"
-    AFTER INSERT OR UPDATE OF "ComplianceRoadMarkingsFadedTypeID" ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_junction_status_from_corner"();
+--CREATE TRIGGER "update_junction_status_from_corner_2"
+--    AFTER INSERT OR UPDATE OF "ComplianceRoadMarkingsFadedTypeID" ON havering_operations."HaveringCorners" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_junction_status_from_corner"();
 
 -- triggers for junctions
 

@@ -147,6 +147,8 @@ BEGIN
     SELECT ST_MakeLine(end_pt, ST_SetSRID(ST_MakePoint(ST_X(end_pt) + distance * sin(end_pt_azimuth_to_apex), ST_Y(end_pt) + distance * cos(end_pt_azimuth_to_apex)), 27700))
     INTO line_from_end_pt;
 
+
+    --RAISE NOTICE 'line_from_start_pt', ST_AsText(line_from_start_pt);
     --RAISE NOTICE 'line_from_start_pt', ST_AsText(line_from_start_pt);
 
     SELECT ST_Intersection (line_from_start_pt, line_from_end_pt)
@@ -155,7 +157,7 @@ BEGIN
     SELECT ST_GeometryType(apexPt)
     INTO apexPt_GeometryType;
 
-    --RAISE NOTICE 'apexPt_GeometryType(%)', apexPt_GeometryType;
+    RAISE NOTICE 'apexPt_GeometryType(%)', apexPt_GeometryType;
 
     IF apexPt_GeometryType != 'ST_Point' THEN
         apexPt = NULL;
@@ -174,9 +176,17 @@ CREATE OR REPLACE FUNCTION havering_operations."getCornerExtentsFromApex"(cnr_id
 AS $BODY$
 DECLARE
    cornerProtectionLineString geometry;
+   apex_point_geom_txt text;
 BEGIN
 
     -- get the corner protection distance from "project_parameters"
+
+    SELECT ST_AsText(apex_point_geom)
+    INTO apex_point_geom_txt
+    FROM havering_operations."HaveringCorners"
+    WHERE "GeometryID" = cnr_id;
+
+    RAISE NOTICE '***** IN getCornerExtentsFromApex: cnr_id(%); apex_pt (%)', cnr_id, apex_point_geom_txt;
 
     -- get intersection points between apex point buffer and corner segment
     SELECT ST_Intersection(c.geom, ST_Buffer(a.apex_point_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float))
@@ -204,9 +214,9 @@ BEGIN
 
 	CASE TG_TABLE_NAME
 	WHEN 'HaveringCorners' THEN
-			SELECT concat('CO_', to_char(nextval('havering_operations."HaveringCorners_id_seq"'::regclass), '00000000'::text)) INTO nextSeqVal;
+			SELECT concat('CO_', to_char(nextval('havering_operations."HaveringCorners_id_seq"'::regclass), 'FM00000'::text)) INTO nextSeqVal;
 	WHEN 'HaveringJunctions' THEN
-			SELECT concat('JU_', to_char(nextval('havering_operations."HaveringJunctions_id_seq"'::regclass), '00000000'::text)) INTO nextSeqVal;
+			SELECT concat('JU_', to_char(nextval('havering_operations."HaveringJunctions_id_seq"'::regclass), 'FM00000'::text)) INTO nextSeqVal;
 	ELSE
 	    nextSeqVal = 'U';
 	END CASE;
@@ -401,6 +411,7 @@ AS $BODY$
 DECLARE
    cornerProtectionLineString geometry;
    apex_pt_geom geometry;
+   apex_pt_geom_txt text;
    cnr_id text;
    nearestJunction text;
 BEGIN
@@ -414,9 +425,9 @@ BEGIN
 
     -- add in new details
 
-    ALTER TABLE havering_operations."HaveringCornerSegments" DROP CONSTRAINT "HaveringCornerSegments_pkey";
+    --ALTER TABLE havering_operations."HaveringCornerSegments" DROP CONSTRAINT "HaveringCornerSegments_pkey";
 
-    WITH cornerDetails AS (
+    /*WITH cornerDetails AS (
     SELECT c."GeometryID" as "GeometryID", c.corner_point_geom As corner_geom, r.geom as road_casement_geom
     FROM havering_operations."HaveringCorners" c, topography."road_casement" r
     WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
@@ -425,9 +436,19 @@ BEGIN
         INSERT INTO havering_operations."HaveringCornerSegments" ("GeometryID", "SegmentLength", geom)
         SELECT d."GeometryID", ST_Length(havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)),
                         havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
-        FROM cornerDetails d;
+        FROM cornerDetails d
+        WHERE d."GeometryID" = cnr_id
+        LIMIT 1;*/
 
-    DELETE FROM havering_operations."HaveringCornerSegments" c1
+    INSERT INTO havering_operations."HaveringCornerSegments" ("GeometryID", "SegmentLength", geom)
+    SELECT c."GeometryID", ST_Length(havering_operations."get_road_casement_section"(c."GeometryID", r.geom, c.corner_point_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)),
+    havering_operations."get_road_casement_section"(c."GeometryID", r.geom, c.corner_point_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
+        FROM havering_operations."HaveringCorners" c, topography."road_casement" r
+        WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
+        AND "GeometryID" = cnr_id;
+
+
+    /*DELETE FROM havering_operations."HaveringCornerSegments" c1
     WHERE "GeometryID" = cnr_id
     AND "GeometryID" IN (
         SELECT "GeometryID"
@@ -439,7 +460,7 @@ BEGIN
             );
 
     ALTER TABLE ONLY havering_operations."HaveringCornerSegments"
-        ADD CONSTRAINT "HaveringCornerSegments_pkey" PRIMARY KEY ("GeometryID");
+        ADD CONSTRAINT "HaveringCornerSegments_pkey" PRIMARY KEY ("GeometryID");*/
 
     -- clear the relevant record  ** may need to check record exists
     DELETE FROM havering_operations."HaveringCornerSegmentEndPts"
@@ -463,11 +484,21 @@ BEGIN
     -- would be worth checking to see whether or not apex_pt_geom exists and creating if not ...
 
     IF OLD."apex_point_geom" IS NULL THEN
+
         RAISE NOTICE '-- creating apex point for cnr_id(%)', cnr_id;
         UPDATE havering_operations."HaveringCorners" AS c
         SET apex_point_geom = havering_operations."getCornerApexPoint"(cnr_id, 25.0)
         WHERE c."GeometryID" = cnr_id;
-        --NEW."apex_point_geom" := apex_pt_geom;
+
+        SELECT ST_AsText(havering_operations."getCornerApexPoint"(cnr_id, 25.0)), havering_operations."getCornerApexPoint"(cnr_id, 25.0)
+        INTO apex_pt_geom_txt, apex_pt_geom
+        FROM havering_operations."HaveringCorners" AS c
+        WHERE c."GeometryID" = cnr_id;
+
+        RAISE NOTICE '-- creating apex point - (%)', apex_pt_geom_txt;
+
+        NEW."apex_point_geom" := apex_pt_geom;
+
     END IF;
 
     -- also check to see if part of a junction ...
@@ -484,7 +515,8 @@ BEGIN
             -- also reset check status for junction ...
 
             UPDATE havering_operations."HaveringJunctions"
-            SET "MHTC_CheckIssueTypeID" = NULL;
+            SET "MHTC_CheckIssueTypeID" = NULL
+            WHERE "GeometryID" = nearestJunction;
 
         END IF;
 
@@ -502,11 +534,14 @@ LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE
    cornerProtectionLineString geometry;
+   apex_pt_geom geometry;
    cnr_id text;
 BEGIN
 
     cnr_id = NEW."GeometryID";
-    RAISE NOTICE '***** IN update_line_from_apex_point_geom: cnr_id(%)', cnr_id;
+    apex_pt_geom = NEW."apex_point_geom";
+
+    RAISE NOTICE '***** IN update_line_from_apex_point_geom: cnr_id(%); apex geom(%)', cnr_id, apex_pt_geom;
 
     UPDATE havering_operations."HaveringCorners" AS c
     SET line_from_apex_point_geom = ST_GeometryN(havering_operations."getCornerExtentsFromApex"(cnr_id), 1)
@@ -565,12 +600,6 @@ BEGIN
         SELECT d."GeometryID"
         FROM havering_operations."HaveringCornerConformingSegments" d);
 
-    -- regenerate dimension lines
-    UPDATE havering_operations."HaveringCorners" AS c
-    SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"(cnr_id))
-    WHERE havering_operations."get_all_new_corner_dimension_lines"(cnr_id) IS NOT NULL
-    AND c."GeometryID" = cnr_id;
-
     -- classify corners
 
     UPDATE havering_operations."HaveringCorners"
@@ -602,6 +631,31 @@ BEGIN
     UPDATE havering_operations."HaveringCorners"
     SET "MHTC_CheckIssueTypeID" = NULL
     WHERE "GeometryID" = cnr_id;
+
+    --NEW."new_corner_protection_geom" := cornerProtectionLineString;
+    RETURN NEW;
+
+END;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION havering_operations."set_new_corner_dimension_lines_geom"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   cornerProtectionLineString geometry;
+   cnr_id text;
+   nearestJunction text;
+BEGIN
+
+    cnr_id = NEW."GeometryID";
+    RAISE NOTICE '***** IN set_new_corner_dimension_lines_geom: cnr_id(%)', cnr_id;
+
+    -- regenerate dimension lines
+    UPDATE havering_operations."HaveringCorners" AS c
+    SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"(cnr_id))
+    WHERE havering_operations."get_all_new_corner_dimension_lines"(cnr_id) IS NOT NULL
+    AND c."GeometryID" = cnr_id;
 
     --NEW."new_corner_protection_geom" := cornerProtectionLineString;
     RETURN NEW;

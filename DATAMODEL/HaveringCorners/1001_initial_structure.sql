@@ -55,7 +55,7 @@ DROP TABLE IF EXISTS havering_operations."HaveringCorners" CASCADE;
 
 CREATE TABLE havering_operations."HaveringCorners"
 (
-    "GeometryID" character varying(12) DEFAULT ('CO_'::"text" || "to_char"("nextval"('havering_operations."HaveringCorners_id_seq"'::"regclass"), '00000'::"text")),
+    "GeometryID" character varying(12) DEFAULT ('CO_'::"text" || "to_char"("nextval"('havering_operations."HaveringCorners_id_seq"'::"regclass"), 'FM00000'::"text")),
     corner_point_geom geometry(Point,27700) NOT NULL,
     apex_point_geom geometry(Point,27700),
     line_from_corner_point_geom geometry(LineString,27700),
@@ -68,7 +68,7 @@ CREATE TABLE havering_operations."HaveringCorners"
     CONSTRAINT "HaveringCorners_pkey" PRIMARY KEY ("RestrictionID"),
     CONSTRAINT "HaveringCorners_GeometryID_key" UNIQUE ("GeometryID"),
     CONSTRAINT "HaveringCorners_CornerProtectionCategoryTypeID_fkey" FOREIGN KEY ("CornerProtectionCategoryTypeID")
-        REFERENCES havering_operations."CornerProtectionCategoryTypes" ("Code")
+        REFERENCES havering_operations."CornerProtectionCategoryTypes" ("Code"),
     CONSTRAINT "HaveringCorners_ComplianceRoadMarkingsFadedTypeID_fkey" FOREIGN KEY ("ComplianceRoadMarkingsFadedTypeID")
         REFERENCES havering_operations."CornerProtectionCategoryTypes" ("Code")
 )
@@ -115,13 +115,14 @@ DROP TABLE IF EXISTS havering_operations."HaveringJunctions" CASCADE;
 
 CREATE TABLE havering_operations."HaveringJunctions"
 (
-    "GeometryID" character varying(12) DEFAULT ('JU_'::"text" || "to_char"("nextval"('havering_operations."HaveringJunctions_id_seq"'::"regclass"), '00000'::"text")),
+    "GeometryID" character varying(12) DEFAULT ('JU_'::"text" || "to_char"("nextval"('havering_operations."HaveringJunctions_id_seq"'::"regclass"), 'FM00000'::"text")),
     junction_point_geom geometry(Point,27700),
     map_frame_geom geometry(Polygon,27700),
     map_frame_orientation integer,
     map_scale integer,
     "JunctionProtectionCategoryTypeID" integer,
     "RoadsAtJunction" character varying(254),
+    "NotesOnExistingRestrictions" character varying(254),
     CONSTRAINT "HaveringJunctions_pkey" PRIMARY KEY ("RestrictionID"),
     CONSTRAINT "HaveringJunctions_GeometryID_key" UNIQUE ("GeometryID"),
     CONSTRAINT "HaveringJunctions_JunctionProtectionCategoryTypeID_fkey" FOREIGN KEY ("JunctionProtectionCategoryTypeID")
