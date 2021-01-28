@@ -3,10 +3,5 @@
 *.orig
 /venv/
 /__pychache__/
-*.pyc
-__pycache__/fieldRestrictionTypeUtilsClass.cpython-37.pyc
-*.pyc
-*.pyc
 *.qgs~
-*.pyc
-*.pyc
+
