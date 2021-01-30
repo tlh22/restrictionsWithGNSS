@@ -33,7 +33,8 @@ BEGIN
     SELECT cl."id"
 	INTO roadlink_id
     FROM "highways_network"."roadlink" cl, "mhtc_operations"."RC_Sections_merged" s
-    WHERE ST_DWithin(ST_LineInterpolatePoint(s.geom, 0.5), cl.geom, 30.0)
+    WHERE s.gid = section_id
+    AND ST_DWithin(ST_LineInterpolatePoint(s.geom, 0.5), cl.geom, 30.0)
     ORDER BY
       ST_Distance(ST_LineInterpolatePoint(s.geom, 0.5), ST_ClosestPoint(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)))
     LIMIT 1;
@@ -46,5 +47,4 @@ $BODY$;
 UPDATE "mhtc_operations"."RC_Sections_merged" AS c
 SET "USRN" = r."localid"
 FROM "highways_network"."roadlink" r
-WHERE r."id" = mhtc_operations."get_nearest_roadlink_to_section"(s.gid);
-
+WHERE r."id" = mhtc_operations."get_nearest_roadlink_to_section"(c.gid);
