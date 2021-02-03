@@ -1,17 +1,8 @@
--- Table: mhtc_operations.Supply
+-- Supply_orig3
 
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "SectionID" integer;
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "StartStreet" character varying(254);
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "EndStreet" character varying(254);
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "SideOfStreet" character varying(100);
+DROP TABLE IF EXISTS mhtc_operations."Supply_orig3" CASCADE;
 
-DROP TABLE IF EXISTS mhtc_operations."Supply_orig" CASCADE;
-
-CREATE TABLE mhtc_operations."Supply_orig"
+CREATE TABLE mhtc_operations."Supply_orig3"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
     "GeometryID" character varying(12) COLLATE pg_catalog."default" NOT NULL,
@@ -66,16 +57,14 @@ CREATE TABLE mhtc_operations."Supply_orig"
 	"StartStreet" character varying(254),
     "EndStreet" character varying(254),
     "SideOfStreet" character varying(100),
-    --CONSTRAINT "Supply_orig_pkey" PRIMARY KEY ("RestrictionID"),
-    --CONSTRAINT "Supply_orig_GeometryID_key" UNIQUE ("GeometryID")
-    CONSTRAINT "Supply_orig_pkey" PRIMARY KEY ("GeometryID")
+    CONSTRAINT "Supply_orig3_pkey" PRIMARY KEY ("GeometryID")
 )
 
 TABLESPACE pg_default;
 
 --- populate
 
-INSERT INTO mhtc_operations."Supply_orig"(
+INSERT INTO mhtc_operations."Supply_orig3"(
 	--"RestrictionID",
 	"GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet")
@@ -85,48 +74,78 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
 	FROM mhtc_operations."Supply";
 
--- set up corner table
 
-DROP TABLE IF EXISTS mhtc_operations."Corners_Single" CASCADE;
+-- set up crossover nodes table
+DROP TABLE IF EXISTS  mhtc_operations."CrossoverNodes" CASCADE;
 
-CREATE TABLE mhtc_operations."Corners_Single"
+CREATE TABLE mhtc_operations."CrossoverNodes"
 (
   id SERIAL,
   geom geometry(Point,27700),
-  CONSTRAINT "Corners_Single_pkey" PRIMARY KEY (id)
+  CONSTRAINT "CrossoverNodes_pkey" PRIMARY KEY (id)
 )
 WITH (
   OIDS=FALSE
 );
 
-ALTER TABLE mhtc_operations."Corners_Single"
+ALTER TABLE mhtc_operations."CrossoverNodes"
   OWNER TO postgres;
-GRANT ALL ON TABLE mhtc_operations."Corners_Single" TO postgres;
+GRANT ALL ON TABLE mhtc_operations."CrossoverNodes" TO postgres;
 
--- Index: public."sidx_Corners_Single_geom"
-
--- DROP INDEX public."sidx_Corners_Single_geom";
-
-CREATE INDEX "sidx_Corners_Single_geom"
-  ON mhtc_operations."Corners_Single"
+CREATE INDEX "sidx_CrossoverNodes_geom"
+  ON mhtc_operations."CrossoverNodes"
   USING gist
   (geom);
 
-INSERT INTO mhtc_operations."Corners_Single" (geom)
-SELECT (ST_Dump(geom)).geom As geom
-FROM mhtc_operations."Corners"
-UNION
-SELECT (ST_Dump(geom)).geom As geom
-FROM mhtc_operations."SectionBreakPoints";
-
 /*
-CREATE OR REPLACE FUNCTION mhtc_operations.cnrPoint(geometry) RETURNS geometry AS
-'SELECT ST_ClosestPoint($1, c.geom) AS geom
-FROM mhtc_operations."Corners_Single" c
-WHERE ST_Intersects($1, ST_Buffer(c.geom, 2.0))
-AND ST_DWithin($1, c.geom, 1.0)'
-LANGUAGE SQL;
+INSERT INTO mhtc_operations."CrossoverNodes" (geom)
+SELECT ST_StartPoint(geom) As geom
+FROM mhtc_operations."Supply_orig3"
+WHERE "RestrictionTypeID" = 220
+AND "UnacceptableTypeID" IN (1, 4);
+
+INSERT INTO mhtc_operations."CrossoverNodes" (geom)
+SELECT ST_EndPoint(geom) As geom
+FROM mhtc_operations."Supply_orig3"
+WHERE "RestrictionTypeID" = 220
+AND "UnacceptableTypeID" IN (1, 4);
 */
+
+INSERT INTO mhtc_operations."CrossoverNodes" (geom)
+SELECT ST_StartPoint(geom) As geom
+FROM highway_assets."CrossingPoints";
+
+INSERT INTO mhtc_operations."CrossoverNodes" (geom)
+SELECT ST_EndPoint(geom) As geom
+FROM highway_assets."CrossingPoints";
+
+-- Make "blade" geometry
+
+DROP TABLE IF EXISTS  mhtc_operations."CrossoverNodes_Single" CASCADE;
+
+CREATE TABLE mhtc_operations."CrossoverNodes_Single"
+(
+  id SERIAL,
+  geom geometry(MultiPoint,27700),
+  CONSTRAINT "CrossoverNodes_Single_pkey" PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+ALTER TABLE mhtc_operations."CrossoverNodes_Single"
+  OWNER TO postgres;
+GRANT ALL ON TABLE mhtc_operations."CrossoverNodes_Single" TO postgres;
+
+CREATE INDEX "sidx_CrossoverNodes_Single_geom"
+  ON mhtc_operations."CrossoverNodes_Single"
+  USING gist
+  (geom);
+
+INSERT INTO mhtc_operations."CrossoverNodes_Single" (geom)
+SELECT ST_Multi(ST_Collect(geom)) As geom
+FROM mhtc_operations."CrossoverNodes";
+
 -- ***
 
 DELETE FROM mhtc_operations."Supply";
@@ -138,25 +157,39 @@ INSERT INTO "mhtc_operations"."Supply" (
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
        geom)
-	SELECT
+SELECT
 	--"RestrictionID", "GeometryID",
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
-     (ST_Dump(ST_Split(
-	                            ST_Snap(lg1.geom, mhtc_operations.cnrPoint(lg1.geom), 0.00000001),
-	                            mhtc_operations.cnrPoint(lg1.geom)))).geom
-	FROM "mhtc_operations"."Supply_orig" lg1 LEFT JOIN LATERAL mhtc_operations.cnrPoint(lg1.geom) pt ON TRUE
+    (ST_Dump(ST_Split(s3.geom, ST_Buffer(c.geom, 0.00001)))).geom
+    FROM "mhtc_operations"."Supply_orig3" s3, mhtc_operations."CrossoverNodes_Single" c
+    WHERE s3."RestrictionTypeID" < 200
 
 UNION
 
-	SELECT
+SELECT
 	--"RestrictionID", "GeometryID",
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
-    geom
-	FROM "mhtc_operations"."Supply_orig" lg1
-    WHERE mhtc_operations.cnrPoint(lg1.geom) IS NULL;
+    s3.geom
+    FROM "mhtc_operations"."Supply_orig3" s3, mhtc_operations."CrossoverNodes_Single" c
+    WHERE s3."RestrictionTypeID" IN (201, 216, 224, 225)
+
+UNION
+
+SELECT
+	--"RestrictionID", "GeometryID",
+	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    s3.geom
+    FROM "mhtc_operations"."Supply_orig3" s3, mhtc_operations."CrossoverNodes_Single" c
+    WHERE s3."RestrictionTypeID" > 200
+    AND s3."RestrictionTypeID" NOT IN (201, 216, 224, 225);
+
+DELETE FROM "mhtc_operations"."Supply"
+WHERE ST_Length(geom) < 0.0001;
 */
+
 
 INSERT INTO "mhtc_operations"."Supply" (
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
@@ -166,53 +199,54 @@ SELECT
     "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
     (ST_Dump(ST_Split(s1.geom, ST_Buffer(c.geom, 0.00001)))).geom
-FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
-									  FROM "mhtc_operations"."Supply_orig" s1,
+FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
+									  FROM "mhtc_operations"."Supply_orig3" s1,
 									  (SELECT geom
-									  FROM "mhtc_operations"."Corners"
-									  union
-									  SELECT geom
-									  FROM "mhtc_operations"."SectionBreakPoints") cnr) c
+									  FROM "mhtc_operations"."CrossoverNodes"
+									  ) cnr) c
 WHERE ST_DWithin(s1.geom, c.geom, 0.25)
 union
 SELECT
     "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
     s1.geom
-FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
-									  FROM "mhtc_operations"."Supply_orig" s1,
+FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
+									  FROM "mhtc_operations"."Supply_orig3" s1,
 									  (SELECT geom
-									  FROM "mhtc_operations"."Corners"
-									  union
-									  SELECT geom
-									  FROM "mhtc_operations"."SectionBreakPoints") cnr) c
+									  FROM "mhtc_operations"."CrossoverNodes"
+									  ) cnr) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
 
 DELETE FROM "mhtc_operations"."Supply"
 WHERE ST_Length(geom) < 0.0001;
 
--- set road details
 
-UPDATE mhtc_operations."Supply" AS c
-SET "SectionID" = closest."SectionID", "RoadName" = closest."RoadName", "SideOfStreet" = closest."SideOfStreet", "StartStreet" =  closest."StartStreet", "EndStreet" = closest."EndStreet"
-FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "SectionID",
-        ST_ClosestPoint(c1.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS geom,
-        ST_Distance(c1.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, c1."RoadName", c1."SideOfStreet", c1."StartStreet", c1."EndStreet"
-      FROM mhtc_operations."Supply" s, mhtc_operations."RC_Sections_merged" c1
-      WHERE ST_DWithin(c1.geom, s.geom, 2.0)
-      ORDER BY s."GeometryID", length) AS closest
-WHERE c."GeometryID" = closest.id;
+-- Change acceptability type of bay
 
--- set up corner protection parameter
+UPDATE "mhtc_operations"."Supply" AS s1
+SET "UnacceptableTypeID" = CASE WHEN s2."CrossingPointTypeID" = 1 or s2."CrossingPointTypeID" = 2 THEN 4
+                                ELSE 1
+                                END
+FROM highway_assets."CrossingPoints" s2
+WHERE s1."RestrictionTypeID" < 200
+AND ST_Intersects(s1.geom, ST_Buffer(ST_LineInterpolatePoint(s2.geom, 0.5), 0.1));
 
-INSERT INTO mhtc_operations.project_parameters(
-	"Field", "Value")
-	VALUES ('CornerProtectionDistance', 5.0);
+UPDATE "mhtc_operations"."Supply" AS s1
+SET "UnacceptableTypeID" = CASE WHEN s2."CrossingPointTypeID" = 1 or s2."CrossingPointTypeID" = 2 THEN 4
+                                ELSE 1
+                                END
+FROM highway_assets."CrossingPoints" s2
+WHERE s1."RestrictionTypeID" > 200
+AND s1."RestrictionTypeID" IN (201, 216, 224, 225)
+AND ST_Intersects(s1.geom, ST_Buffer(ST_LineInterpolatePoint(s2.geom, 0.5), 0.1));
 
---DROP FUNCTION IF EXISTS mhtc_operations."getParameter";
+-- delete unmarked unacceptable lines intersecting with bays
 
-CREATE OR REPLACE FUNCTION mhtc_operations."getParameter"(param text) RETURNS text AS
-'SELECT "Value"
-FROM mhtc_operations."project_parameters"
-WHERE "Field" = $1'
-LANGUAGE SQL;
+/*
+DELETE FROM "mhtc_operations"."Supply" AS s2
+USING "mhtc_operations"."Supply" s1
+WHERE s2."RestrictionTypeID" = 220
+AND s2."UnacceptableTypeID" IN (1, 4)
+AND s1."RestrictionTypeID" < 200
+AND ST_Intersects(s1.geom, ST_Buffer(ST_LineInterpolatePoint(s2.geom, 0.5), 0.1));
+*/
