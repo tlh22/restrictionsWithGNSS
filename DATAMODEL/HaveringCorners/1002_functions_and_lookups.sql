@@ -53,24 +53,19 @@ CREATE OR REPLACE FUNCTION havering_operations."get_road_casement_section"(corne
         line_segment_geom = plpy.execute(plan, [road_casement_geom, end_point_location, start_point_location])[0]["x"]
     """
     #el
+    parts = False
+
     if start_point_location < 0.0:
         # line becomes start->1 + 0->end
         start_point_location = 1.0 + start_point_location
+        parts = True
 
-        line_segment_pts = []
-
-        plan = plpy.prepare("SELECT ST_LineSubstring($1, $2, 1.0) as x", ['geometry', 'float'])
-        start_segment_geom = plpy.execute(plan, [road_casement_geom, start_point_location])[0]["x"]
-
-        plan = plpy.prepare("SELECT ST_LineSubstring($1, 0.0, $2) as x", ['geometry', 'float'])
-        end_segment_geom = plpy.execute(plan, [road_casement_geom, end_point_location])[0]["x"]
-
-        plan = plpy.prepare("SELECT ST_SetSRID(ST_MakeLine($1, $2),27700)  as x", ['geometry', 'geometry'])
-        line_segment_geom = plpy.execute(plan, [start_segment_geom, end_segment_geom])[0]["x"]
-
-    elif end_point_location > 1.0:
+    if end_point_location > 1.0:
         # line becomes start->1 + 0->end
         end_point_location = end_point_location - 1.0
+        parts = True
+
+    if parts:
         #
         plan = plpy.prepare("SELECT ST_LineSubstring($1::geometry, $2, 1.0)  as x", ['geometry', 'float'])
         start_segment_geom = plpy.execute(plan, [road_casement_geom, start_point_location])[0]["x"]
@@ -117,9 +112,9 @@ BEGIN
 
     -- get an approximate line of the kerb
     SELECT c."StartPt", c."EndPt",
-           mhtc_operations."AzToNearestRoadCentreLine"(ST_AsText(c."StartPt"), tolerance) + PI()/2.0,
-           mhtc_operations."AzToNearestRoadCentreLine"(ST_AsText(c."EndPt"), tolerance) + PI()/2.0,
-           ST_Azimuth(c."StartPt", cn.corner_point_geom), ST_Azimuth(c."EndPt", cn.corner_point_geom)
+           mhtc_operations."AzToNearestRoadCentreLine"(ST_AsText(c."StartPt_10m"), tolerance) + PI()/2.0,
+           mhtc_operations."AzToNearestRoadCentreLine"(ST_AsText(c."EndPt_10m"), tolerance) + PI()/2.0,
+           ST_Azimuth(c."StartPt_10m", cn.corner_point_geom), ST_Azimuth(c."EndPt_10m", cn.corner_point_geom)
     INTO start_pt, end_pt, start_pt_azimuth_to_apex, end_pt_azimuth_to_apex, start_pt_azimuth_to_cnr, end_pt_azimuth_to_cnr
     FROM havering_operations."HaveringCornerSegmentEndPts" c, havering_operations."HaveringCorners" cn
     WHERE c."GeometryID" = cnr_id
@@ -466,7 +461,7 @@ BEGIN
     DELETE FROM havering_operations."HaveringCornerSegmentEndPts"
     WHERE "GeometryID" = cnr_id;
 
-    INSERT INTO havering_operations."HaveringCornerSegmentEndPts" ("GeometryID", "StartPt", "EndPt")
+    INSERT INTO havering_operations."HaveringCornerSegmentEndPts" ("GeometryID", "StartPt_10m", "EndPt_10m")
     SELECT d."GeometryID", ST_StartPoint(d.geom), ST_EndPoint(d.geom)
     FROM havering_operations."HaveringCornerSegments" d
     WHERE d."GeometryID" = cnr_id;

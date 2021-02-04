@@ -100,11 +100,6 @@ WHERE "GeometryID" IN (
 ALTER TABLE ONLY havering_operations."HaveringCornerSegments"
     ADD CONSTRAINT "HaveringCornerSegments_pkey" PRIMARY KEY ("GeometryID");
 
-UPDATE havering_operations."HaveringCorners" AS c
- SET line_from_corner_point_geom = s.geom
- FROM havering_operations."HaveringCornerSegments" s
- WHERE s."GeometryID" = c."GeometryID";
-
 -- line_from_apex_point_geom
 
 UPDATE havering_operations."HaveringCorners" AS c

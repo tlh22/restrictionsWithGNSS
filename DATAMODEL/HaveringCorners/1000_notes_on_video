@@ -1,0 +1,4 @@
+-- Notes on video
+
+To extract the gps track pikc out the A records - see  https://www.youtube.com/watch?v=ulYxlUl9GTo
+grep *.map -e A > test_cam.map
