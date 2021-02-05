@@ -111,7 +111,7 @@ BEGIN
     RAISE NOTICE ' -    tolerance(%)', tolerance;
 
     -- get an approximate line of the kerb
-    SELECT c."StartPt", c."EndPt",
+    SELECT c."StartPt_10m", c."EndPt_10m",
            mhtc_operations."AzToNearestRoadCentreLine"(ST_AsText(c."StartPt_10m"), tolerance) + PI()/2.0,
            mhtc_operations."AzToNearestRoadCentreLine"(ST_AsText(c."EndPt_10m"), tolerance) + PI()/2.0,
            ST_Azimuth(c."StartPt_10m", cn.corner_point_geom), ST_Azimuth(c."EndPt_10m", cn.corner_point_geom)
