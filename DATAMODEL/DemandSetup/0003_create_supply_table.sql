@@ -76,6 +76,7 @@ CREATE TABLE mhtc_operations."Supply"
     "PayParkingAreaID" character varying(255) COLLATE pg_catalog."default",
     "PermitCode" character varying(255) COLLATE pg_catalog."default",
     "MatchDayTimePeriodID" integer,
+    "MatchDayEventDayZone" character varying(40),
     --CONSTRAINT "Supply_pkey" PRIMARY KEY ("RestrictionID"),
     --CONSTRAINT "Supply_GeometryID_key" UNIQUE ("GeometryID")
     CONSTRAINT "Supply_pkey" UNIQUE ("GeometryID")

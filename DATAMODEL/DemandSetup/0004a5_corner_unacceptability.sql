@@ -53,6 +53,7 @@ CREATE TABLE mhtc_operations."Supply_orig2"
     "PayParkingAreaID" character varying(255) COLLATE pg_catalog."default",
     "PermitCode" character varying(255) COLLATE pg_catalog."default",
     "MatchDayTimePeriodID" integer,
+    "MatchDayEventDayZone" character varying(40),
     "SectionID" integer,
 	"StartStreet" character varying(254),
     "EndStreet" character varying(254),
