@@ -2,3 +2,16 @@
 
 To extract the gps track pikc out the A records - see  https://www.youtube.com/watch?v=ulYxlUl9GTo
 grep *.map -e A > test_cam.map
+
+Create .csv
+
+File	 Date	 Time	 lat	 N	 lon	 W	elevation	 pos2	 pos3	 pos4	Latitude	Longitude
+2021_0217_102615_358A.map:A	170221	102632	5131.0083	N	11.5009	E	0.07	0	-2.75	0	51.516805	0.191681666666667
+
+lat/long values are in a bit strange (decimal minutes?)
+
+latitude is =51+((<lat>-5100)/60)
+longitude is =<lon>/60
+
+Import as CSV
+Save (ideally with CSV 27700)
