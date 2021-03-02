@@ -431,19 +431,19 @@ class FieldRestrictionTypeUtilsMixin():
                 
         attrs1 = currFeature.attributes()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currRestriction: " + str(attrs1),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
 
         TOMsMessageLog.logMessage(
             ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().asWkt())),
-            level=Qgis.Warning)
+            level=Qgis.Info)
 
         currFeatureID = currFeature.id()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currFeatureID: " + str(currFeatureID),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
 
         status = currFeatureLayer.updateFeature(currFeature)
         TOMsMessageLog.logMessage("In onSaveDemandDetails: feature updated: " + str(currFeatureID),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
         """if currFeatureID > 0:   # Not sure what this value should if the feature has not been created ...
 
             # TODO: Sort out this for UPDATE
@@ -457,7 +457,7 @@ class FieldRestrictionTypeUtilsMixin():
 
         status = dialog.attributeForm().close()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: dialog saved: " + str(currFeatureID),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
         #currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
         #status = currFeatureLayer.updateFeature(currFeature)  # TH (added for v3)
 
