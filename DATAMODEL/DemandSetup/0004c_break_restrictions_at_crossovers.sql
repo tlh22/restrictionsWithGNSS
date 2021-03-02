@@ -230,7 +230,7 @@ SET "UnacceptableTypeID" = CASE WHEN s2."CrossingPointTypeID" = 1 or s2."Crossin
                                 END
 FROM highway_assets."CrossingPoints" s2
 WHERE s1."RestrictionTypeID" < 200
-AND ST_Intersects(s1.geom, ST_Buffer(ST_LineInterpolatePoint(s2.geom, 0.5), 0.1));
+AND ST_Within(s1.geom, ST_Buffer(s2.geom, 0.1));
 
 UPDATE "mhtc_operations"."Supply" AS s1
 SET "UnacceptableTypeID" = CASE WHEN s2."CrossingPointTypeID" = 1 or s2."CrossingPointTypeID" = 2 THEN 4
@@ -239,7 +239,7 @@ SET "UnacceptableTypeID" = CASE WHEN s2."CrossingPointTypeID" = 1 or s2."Crossin
 FROM highway_assets."CrossingPoints" s2
 WHERE s1."RestrictionTypeID" > 200
 AND s1."RestrictionTypeID" IN (201, 216, 224, 225)
-AND ST_Within(s1.geom, ST_Buffer(ST_LineInterpolatePoint(s2.geom, 0.5), 0.1));
+AND ST_Within(s1.geom, ST_Buffer(s2.geom, 0.1));
 
 -- delete unmarked unacceptable lines intersecting with bays
 
