@@ -497,10 +497,12 @@ class FieldRestrictionTypeUtilsMixin():
         self.currDemandLayer = currRestrictionLayer
         self.currFeature = currRestriction
 
-        TOMsMessageLog.logMessage("In photoDetails", level=Qgis.Info)
+        TOMsMessageLog.logMessage("gnns: In photoDetails", level=Qgis.Info)
 
         photoPath = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('PhotoPath')
-        projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_folder')
+        #path_absolute = photoPath
+
+        projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_home')
 
         path_absolute = os.path.join(projectFolder, photoPath)
 
