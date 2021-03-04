@@ -65,6 +65,7 @@ from .gnss_thread import GPS_Thread
 
 from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsParams
 from .SelectTool import GeometryInfoMapTool, RemoveRestrictionTool
+from .changeLayerMapTool import ChangeLayerMapTool
 from .formManager import mtrForm
 from TOMs.restrictionTypeUtilsClass import TOMsLayers, TOMsConfigFile
 
@@ -122,6 +123,12 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                                                     self.iface.mainWindow())
         self.actionCreateMTR.setCheckable(True)
 
+        self.actionMoveFeatureToDifferentLayer = QAction(QIcon(""),
+                                         QCoreApplication.translate("MyPlugin", "Move feature to different layer"),
+                                         self.iface.mainWindow())
+        self.actionMoveFeatureToDifferentLayer.setCheckable(True)
+        self.gnssToolGroup.addAction(self.actionMoveFeatureToDifferentLayer)
+
         # Add actions to the toolbar
 
         self.featuresWithGPSToolbar.addAction(self.actionCreateRestriction)
@@ -130,6 +137,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         #self.featuresWithGPSToolbar.addAction(self.actionRemoveRestriction)
         self.featuresWithGPSToolbar.addAction(self.actionCreateSign)
         #self.featuresWithGPSToolbar.addAction(self.actionCreateMTR)
+        self.featuresWithGPSToolbar.addAction(self.actionMoveFeatureToDifferentLayer)
 
         self.gnssToolGroup.addAction(self.actionCreateRestriction)
         #self.gnssToolGroup.addAction(self.actionAddGPSLocation)
@@ -137,6 +145,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.gnssToolGroup.addAction(self.actionRestrictionDetails)
         #self.gnssToolGroup.addAction(self.actionCreateSign)
         #self.gnssToolGroup.addAction(self.actionCreateMTR)
+        self.gnssToolGroup.addAction(self.actionMoveFeatureToDifferentLayer)
+
         self.gnssToolGroup.setExclusive(True)
         self.gnssToolGroup.triggered.connect(self.onGroupTriggered)
 
@@ -148,6 +158,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         #self.actionRemoveRestriction.triggered.connect(self.doRemoveRestriction)
         self.actionCreateSign.triggered.connect(self.doCreateSign)
         #self.actionCreateMTR.triggered.connect(self.doCreateMTR)
+        self.actionMoveFeatureToDifferentLayer.triggered.connect(self.doMoveFeatureToDifferentLayer)
 
         self.actionCreateRestriction.setEnabled(False)
         self.actionAddGPSLocation.setEnabled(False)
@@ -155,6 +166,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         #self.actionRemoveRestriction.setEnabled(False)
         self.actionCreateSign.setEnabled(False)
         #self.actionCreateMTR.setEnabled(False)
+        self.actionMoveFeatureToDifferentLayer.setEnabled(False)
 
         self.searchBar = searchBar(self.iface, self.featuresWithGPSToolbar)
         self.searchBar.disableSearchBar()
@@ -248,6 +260,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         #self.actionRemoveRestriction.setEnabled(True)
         #self.actionCreateSign.setEnabled(True)
         #self.actionCreateMTR.setEnabled(True)
+        self.actionMoveFeatureToDifferentLayer.setEnabled(True)
 
         self.searchBar.enableSearchBar()
 
@@ -274,7 +287,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.actionRestrictionDetails.setEnabled(False)
         self.actionRemoveRestriction.setEnabled(False)
         self.actionCreateSign.setEnabled(False)
-        self.actionCreateMTR.setEnabled(False)
+        #self.actionCreateMTR.setEnabled(False)
+        self.actionMoveFeatureToDifferentLayer.setEnabled(False)
 
         self.searchBar.disableSearchBar()
 
@@ -752,6 +766,38 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
                 self.iface.setActiveLayer(self.currentlySelectedLayer)
 
             self.iface.mapCanvas().setMapTool(self.currMapTool)
+
+
+    def doMoveFeatureToDifferentLayer(self):
+        """
+            Select point and then display details. Assume that there is only one of these map tools in existence at any one time ??
+        """
+        TOMsMessageLog.logMessage("In doMoveFeatureToDifferentLayer", level=Qgis.Info)
+
+        # TODO: Check whether or not there is a create maptool available. If so, stop this and finish using that/those tools
+
+        if not self.iface.activeLayer():
+            reply = QMessageBox.information(self.iface.mainWindow(), "Information", "Please choose a layer ...",
+                                            QMessageBox.Ok)
+            return
+
+        if self.actionMoveFeatureToDifferentLayer.isChecked():
+
+            TOMsMessageLog.logMessage("In doMoveFeatureToDifferentLayer - tool activated", level=Qgis.Warning)
+
+            self.moveFeatureToDifferentLayerMapTool = ChangeLayerMapTool(self.iface)
+            self.iface.mapCanvas().setMapTool(self.moveFeatureToDifferentLayerMapTool)
+            #self.showRestrictionMapTool.notifyFeatureFound.connect(self.showRestrictionDetails)
+
+        else:
+
+            TOMsMessageLog.logMessage("In doMoveFeatureToDifferentLayer - tool deactivated", level=Qgis.Warning)
+
+            if self.moveFeatureToDifferentLayerMapTool:
+                self.iface.mapCanvas().unsetMapTool(self.moveFeatureToDifferentLayerMapTool)
+
+            self.actionMoveFeatureToDifferentLayer.setChecked(False)
+
 
     #@pyqtSlot(QgsGpsConnection)
     def gpsStarted(self, connection):
