@@ -208,7 +208,7 @@ class FieldRestrictionTypeUtilsMixin():
         #self.TOMsUtils = RestrictionTypeUtilsMixin(self.iface)
 
     def setDefaultFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, currDate):
-        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: {}".format(currRestrictionLayer.name()), level=Qgis.Info)
+        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: {}".format(currRestrictionLayer.name()), level=Qgis.Warning)
 
         # TODO: Need to check whether or not these fields exist. Also need to retain the last values and reuse
         # gis.stackexchange.com/questions/138563/replacing-action-triggered-script-by-one-supplied-through-qgis-plugin
@@ -240,7 +240,7 @@ class FieldRestrictionTypeUtilsMixin():
         newRestrictionID = str(uuid.uuid4())
         currRestriction.setAttribute("RestrictionID", newRestrictionID)
         TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. newRestID: {}, {}".format(newRestrictionID, currRestriction[currRestrictionLayer.fields().indexFromName("RestrictionID")]),
-                                  level=Qgis.Info)
+                                  level=Qgis.Warning)
 
         if currRestrictionLayer.name() == "Lines":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Lines", "RestrictionTypeID", 201))  # 10 = SYL (Lines)
