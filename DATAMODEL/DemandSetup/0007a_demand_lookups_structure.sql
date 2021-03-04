@@ -1,3 +1,7 @@
+-- Demand lookups
+CREATE SCHEMA IF NOT EXISTS "demand_lookups";
+ALTER SCHEMA "demand_lookups" OWNER TO "postgres";
+
 -- RestrictionTypes In Use
 
 CREATE MATERIALIZED VIEW "demand_lookups"."SupplyRestrictionTypesInUse_View" AS
@@ -10,23 +14,10 @@ CREATE MATERIALIZED VIEW "demand_lookups"."SupplyRestrictionTypesInUse_View" AS
 
 ALTER TABLE "demand_lookups"."SupplyRestrictionTypesInUse_View" OWNER TO "postgres";
 
--- Demand lookups
-CREATE SCHEMA "demand_lookups";
-ALTER SCHEMA "demand_lookups" OWNER TO "postgres";
-
 -- Vehicle types
 
-CREATE SEQUENCE "demand_lookups"."VehicleTypes_Code_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-ALTER TABLE "demand_lookups"."VehicleTypes_Code_seq" OWNER TO "postgres";
-
 CREATE TABLE "demand_lookups"."VehicleTypes" (
-    "Code" integer DEFAULT "nextval"('"demand_lookups"."VehicleTypes_Code_seq"'::"regclass") NOT NULL,
+    "Code" SERIAL,
     "Description" character varying
 );
 
@@ -34,7 +25,6 @@ ALTER TABLE "demand_lookups"."VehicleTypes" OWNER TO "postgres";
 
 ALTER TABLE demand_lookups."VehicleTypes"
     ADD PRIMARY KEY ("Code");
-
 
 -- permit types
 

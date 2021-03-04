@@ -1,5 +1,5 @@
 --	Merge sections that are broken
---9.	Merge sections that are broken
+
 DROP TABLE IF EXISTS "mhtc_operations"."RC_Sections_merged" CASCADE;
 
 CREATE TABLE "mhtc_operations"."RC_Sections_merged"
@@ -58,6 +58,7 @@ BEGIN
       ST_Distance(ST_LineInterpolatePoint(s.geom, 0.5), ST_ClosestPoint(ST_LineInterpolatePoint(s.geom, 0.5), cl.geom))
     LIMIT 1;
 
+
     SELECT ARRAY[roadlink_id::TEXT, closest_pt_wkt] INTO details;
 
     RETURN details;
@@ -103,7 +104,7 @@ AND degrees("Az") <= 135.0;
 
 --
 
-CREATE FUNCTION "mhtc_operations".set_section_length()
+CREATE OR REPLACE FUNCTION "mhtc_operations".set_section_length()
     RETURNS trigger
     LANGUAGE 'plpgsql'
     COST 100

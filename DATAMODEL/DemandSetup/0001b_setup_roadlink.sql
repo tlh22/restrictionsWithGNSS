@@ -7,15 +7,6 @@ ALTER TABLE "highways_network"."roadlink"
 ALTER TABLE "highways_network"."roadlink"
 ALTER COLUMN geom TYPE geometry(linestring, 27700) USING ST_GeometryN(geom, 1);
 
-CREATE SEQUENCE "highways_network"."roadlink_id_seq"
-  INCREMENT 1
-  MINVALUE 1
-  MAXVALUE 9223372036854775807
-  START 1
-  CACHE 1;
-ALTER TABLE "highways_network"."roadlink_id_seq"
-  OWNER TO postgres;
-
 ALTER TABLE "highways_network"."roadlink"
    ALTER COLUMN id SET DEFAULT nextval('"highways_network"."roadlink_id_seq"'::regclass);
 

@@ -208,7 +208,7 @@ class FieldRestrictionTypeUtilsMixin():
         #self.TOMsUtils = RestrictionTypeUtilsMixin(self.iface)
 
     def setDefaultFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, currDate):
-        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: {}".format(currRestrictionLayer.name()), level=Qgis.Info)
+        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: {}".format(currRestrictionLayer.name()), level=Qgis.Warning)
 
         # TODO: Need to check whether or not these fields exist. Also need to retain the last values and reuse
         # gis.stackexchange.com/questions/138563/replacing-action-triggered-script-by-one-supplied-through-qgis-plugin
@@ -240,7 +240,7 @@ class FieldRestrictionTypeUtilsMixin():
         newRestrictionID = str(uuid.uuid4())
         currRestriction.setAttribute("RestrictionID", newRestrictionID)
         TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. newRestID: {}, {}".format(newRestrictionID, currRestriction[currRestrictionLayer.fields().indexFromName("RestrictionID")]),
-                                  level=Qgis.Info)
+                                  level=Qgis.Warning)
 
         if currRestrictionLayer.name() == "Lines":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Lines", "RestrictionTypeID", 201))  # 10 = SYL (Lines)
@@ -420,21 +420,30 @@ class FieldRestrictionTypeUtilsMixin():
         except:
             None
 
+        # deal with issue whereby a null field provided by PayParkingAreaID is a 0 length string (rather than integer)
+
+        if currFeatureLayer.name() == "Bays":
+            try:
+                if len (currFeature[currFeatureLayer.fields().indexFromName("PayParkingAreaID")].strip()) == 0:
+                    currFeature[currFeatureLayer.fields().indexFromName("PayParkingAreaID")] = None
+            except:
+                None
+                
         attrs1 = currFeature.attributes()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currRestriction: " + str(attrs1),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
 
         TOMsMessageLog.logMessage(
             ("In onSaveDemandDetails. geometry: " + str(currFeature.geometry().asWkt())),
-            level=Qgis.Warning)
+            level=Qgis.Info)
 
         currFeatureID = currFeature.id()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currFeatureID: " + str(currFeatureID),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
 
         status = currFeatureLayer.updateFeature(currFeature)
         TOMsMessageLog.logMessage("In onSaveDemandDetails: feature updated: " + str(currFeatureID),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
         """if currFeatureID > 0:   # Not sure what this value should if the feature has not been created ...
 
             # TODO: Sort out this for UPDATE
@@ -448,7 +457,7 @@ class FieldRestrictionTypeUtilsMixin():
 
         status = dialog.attributeForm().close()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: dialog saved: " + str(currFeatureID),
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
         #currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
         #status = currFeatureLayer.updateFeature(currFeature)  # TH (added for v3)
 
@@ -488,10 +497,12 @@ class FieldRestrictionTypeUtilsMixin():
         self.currDemandLayer = currRestrictionLayer
         self.currFeature = currRestriction
 
-        TOMsMessageLog.logMessage("In photoDetails", level=Qgis.Info)
+        TOMsMessageLog.logMessage("gnns: In photoDetails", level=Qgis.Info)
 
         photoPath = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('PhotoPath')
-        projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_folder')
+        #path_absolute = photoPath
+
+        projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_home')
 
         path_absolute = os.path.join(projectFolder, photoPath)
 
