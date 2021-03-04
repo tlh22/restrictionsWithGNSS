@@ -1,4 +1,5 @@
 --	Merge sections that are broken
+
 DROP TABLE IF EXISTS "mhtc_operations"."RC_Sections_merged" CASCADE;
 
 CREATE TABLE "mhtc_operations"."RC_Sections_merged"
@@ -6,6 +7,7 @@ CREATE TABLE "mhtc_operations"."RC_Sections_merged"
   gid SERIAL,
   geom geometry(LineString,27700),
   "RoadName" character varying(100),
+  "USRN" bigint,
   "Az" double precision,
   "StartStreet" character varying(254),
   "EndStreet" character varying(254),
@@ -29,20 +31,56 @@ CREATE INDEX "sidx_RC_Sections_merged_geom"
 
 INSERT INTO "mhtc_operations"."RC_Sections_merged" (geom)
 SELECT (ST_Dump(ST_LineMerge(ST_Collect(a.geom)))).geom As geom
-
 FROM "mhtc_operations"."RC_Sections" as a
 LEFT JOIN "mhtc_operations"."RC_Sections" as b ON
 ST_Touches(a.geom,b.geom)
 GROUP BY ST_Touches(a.geom,b.geom);
 
+DROP FUNCTION IF EXISTS mhtc_operations."get_nearest_roadlink_to_section"(section_id integer);
+CREATE OR REPLACE FUNCTION mhtc_operations."get_nearest_roadlink_to_section"(section_id integer)
+    RETURNS text[]
+    LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+	 roadlink_id integer;
+	 closest_pt_wkt text;
+	 details text[] := ARRAY[]::TEXT[];
+BEGIN
+
+    -- find nearest junction
+
+    SELECT cl."id", ST_AsText(ST_ClosestPoint(ST_LineInterpolatePoint(s.geom, 0.5), cl.geom))
+	INTO roadlink_id, closest_pt_wkt
+    FROM "highways_network"."roadlink" cl, "mhtc_operations"."RC_Sections_merged" s
+    WHERE s.gid = section_id
+    AND ST_DWithin(ST_LineInterpolatePoint(s.geom, 0.5), ST_ClosestPoint(ST_LineInterpolatePoint(s.geom, 0.5), cl.geom), 30.0)
+    ORDER BY
+      ST_Distance(ST_LineInterpolatePoint(s.geom, 0.5), ST_ClosestPoint(ST_LineInterpolatePoint(s.geom, 0.5), cl.geom))
+    LIMIT 1;
+
+
+    SELECT ARRAY[roadlink_id::TEXT, closest_pt_wkt] INTO details;
+
+    RETURN details;
+
+END;
+$BODY$;
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS c
-SET "RoadName" = closest."RoadName", "Az" = ST_Azimuth(ST_LineInterpolatePoint(c.geom, 0.5), closest.geom), "StartStreet" = closest."RoadFrom", "EndStreet" = closest."RoadTo"
+SET "RoadName" = r."name1", "USRN" = r."localid",
+    "Az" = ST_Azimuth(ST_LineInterpolatePoint(c.geom, 0.5), ST_GeomFromText((mhtc_operations."get_nearest_roadlink_to_section"(c.gid))[2], 27700)),
+    "StartStreet" = r."RoadFrom", "EndStreet" = r."RoadTo"
+FROM "highways_network"."roadlink" r
+WHERE r."id" = (mhtc_operations."get_nearest_roadlink_to_section"(c.gid))[1]::integer;
+
+/*
+UPDATE "mhtc_operations"."RC_Sections_merged" AS c
+SET "RoadName" = closest."RoadName", "USRN" = closest."USRN", "Az" = ST_Azimuth(ST_LineInterpolatePoint(c.geom, 0.5), closest.geom), "StartStreet" = closest."RoadFrom", "EndStreet" = closest."RoadTo"
 FROM (SELECT DISTINCT ON (s."gid") s."gid" AS id, cl."name1" AS "RoadName", ST_ClosestPoint(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS geom, ST_Distance(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, cl."RoadFrom", cl."RoadTo"
       FROM "highways_network"."roadlink" cl, "mhtc_operations"."RC_Sections_merged" s
       ORDER BY s."gid", length) AS closest
 WHERE c."gid" = closest.id;
-
+*/
 
 UPDATE "mhtc_operations"."RC_Sections_merged"
 SET "SideOfStreet" = 'North'
