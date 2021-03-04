@@ -1,4 +1,9 @@
 -- create road casement
+-- may be required
+
+UPDATE topography.os_mastermap_topography_polygons
+   SET geom = ST_SnapToGrid(geom, 0.00001);
+
 DROP TABLE IF EXISTS topography.road_casement CASCADE;
 
 CREATE TABLE topography.road_casement
@@ -11,6 +16,8 @@ TABLESPACE pg_default;
 
 ALTER TABLE topography.road_casement
     OWNER to postgres;
+
+
 
 INSERT INTO "topography"."road_casement" (geom)
 SELECT (ST_Dump(ST_Multi(ST_Boundary(ST_Union (c.geom))))).geom AS geom

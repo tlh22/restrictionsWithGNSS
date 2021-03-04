@@ -202,7 +202,6 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.transformation = QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4326"), self.dest_crs,
                                                      self.prj)
 
-        self.tableNames.getLayers(self.TOMsConfigFileObject)
         self.params.getParams()
 
         if self.closeTOMs:
