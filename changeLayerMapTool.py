@@ -60,7 +60,10 @@ from qgis.core import (
     QgsMessageLog,
     QgsExpressionContextUtils,
     QgsWkbTypes,
-    QgsMapLayer, Qgis, QgsRectangle, QgsFeatureRequest, QgsVectorLayer, QgsFeature, QgsProject, QgsMapLayerType, QgsTransactionGroup
+    QgsMapLayer,
+    Qgis, QgsRectangle, QgsFeatureRequest, QgsVectorLayer,
+    QgsFeature, QgsProject, QgsMapLayerType, QgsTransactionGroup,
+    QgsGeometry
 )
 from qgis.gui import (
     QgsMapToolIdentify
@@ -70,19 +73,22 @@ from qgis.gui import (
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
 from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsParams
 from .SelectTool import GeometryInfoMapTool
+
 from TOMs.restrictionTypeUtilsClass import TOMsLayers, TOMsConfigFile
 from TOMs.core.TOMsTransaction import TOMsTransaction
+from TOMs.restrictionTypeUtilsClass import (originalFeature)
 import functools
-
+import uuid
 #from .formUtils import demandFormUtils
 
 #############################################################################
 
 class ChangeLayerMapTool(GeometryInfoMapTool):
 
-    def __init__(self, iface):
+    def __init__(self, iface, localTransactionGroup):
         GeometryInfoMapTool.__init__(self, iface)
         self.iface = iface
+        self.localTransactionGroup = localTransactionGroup
 
     def canvasReleaseEvent(self, event):
         # Return point under cursor
@@ -168,206 +174,205 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
     def moveFeatureToNewLayer(self, currLayer, currFeature, newLayer):
 
         # generate transaction ...
-        localTransactionGroup = MoveLayerTransaction(self.iface, [currLayer, newLayer])
-        localTransactionGroup.startTransactionGroup()
+        self.localTransactionGroup.prepareLayerSet([currLayer, newLayer])
+        self.localTransactionGroup.startTransactionGroup()
 
         #status = newLayer.startEditing()
 
         #if not status:
         #    TOMsMessageLog.logMessage("In moveFeatureToNewLayer: problem starting editing ... {}".format(newLayer.name()), level=Qgis.Warning)
 
-        newFeature = QgsFeature(currFeature)
+        newLayerProvider = newLayer.dataProvider()
+        newLayerFields = newLayerProvider.fields()
+        newFeatureEmpty = QgsFeature(newLayerFields)
 
-        currLayer.deleteFeature(currFeature.id())
+        newFeature = self.copyRestriction(currFeature, newFeatureEmpty)
 
-        #newLayer.addFeature(newFeature)
+        if newFeature:
+            # add new feature - and delete original
+            """status = newLayerProvider.addFeatures([newFeature])
+            TOMsMessageLog.logMessage("In moveFeatureToNewLayer: addFeature ... {}".format(status),
+                                      level=Qgis.Warning)
 
-        dialog = self.iface.getFeatureForm(newLayer, newFeature)
-        self.setupFieldRestrictionDialog(dialog, newLayer, newFeature)
+            if status:"""
 
-        dialog.show()
+            currLayer.deleteFeature(currFeature.id())
 
-        commitStatus = localTransactionGroup.commitTransactionGroup(None)
+            dialog = self.iface.getFeatureForm(newLayer, newFeature)
+            self.setupMoveRestrictionDialog(dialog, newLayer, newFeature)
 
-        return commitStatus
+            dialog.show()
 
-class MoveLayerTransaction(QObject):
-    #transactionCompleted = pyqtSignal()
-    """Signal will be emitted, when the transaction is finished - either committed or rollback"""
+            """else:
 
-    def __init__(self, iface, layerList):
+                TOMsMessageLog.logMessage(
+                    "In moveFeatureToNewLayer: problem with adding feature on {} ...".format(newLayer.name()), level=Qgis.Warning)"""
 
-        QObject.__init__(self)
+        #commitStatus = localTransactionGroup.commitTransactionGroup(None)
+        #self.localTransactionGroup.deleteTransactionGroup()
+        #return commitStatus
 
-        self.iface = iface
+    def setupMoveRestrictionDialog(self, restrictionDialog, currRestrictionLayer, currRestriction):
 
-        # self.currTransactionGroup = None
-        self.currTransactionGroup = QgsTransactionGroup()
-        self.setTransactionGroup = []
-        self.TOMsTransactionList = []
-        for layer in layerList:
-            self.TOMsTransactionList.append(layer)
-        self.prepareLayerSet()
+        self.params.getParams()
 
-    def prepareLayerSet(self):
+        # Create a copy of the feature
+        self.origFeature = originalFeature()
+        self.origFeature.setFeature(currRestriction)
 
-        # Function to create group of layers to be in Transaction for changing proposal
-
-        TOMsMessageLog.logMessage("In MoveLayerTransaction. prepareLayerSet: ", level=Qgis.Warning)
-
-        for layer in self.TOMsTransactionList:
-            self.setTransactionGroup.append(layer)
-            TOMsMessageLog.logMessage("In MoveLayerTransaction.prepareLayerSet. Adding " + layer.name(), level=Qgis.Warning)
-
-    def createTransactionGroup(self):
-
-        TOMsMessageLog.logMessage("In MoveLayerTransaction.createTransactionGroup",
-                                 level=Qgis.Warning)
-
-        if self.currTransactionGroup:
-
-            for layer in self.setTransactionGroup:
-
-                try:
-                    self.currTransactionGroup.addLayer(layer)
-                except Exception as e:
-                    TOMsMessageLog.logMessage("In MoveLayerTransaction:createTransactionGroup: adding {}. error: {}".format(layer.name(), e), level=Qgis.Warning)
-
-                TOMsMessageLog.logMessage("In MoveLayerTransaction:createTransactionGroup. Adding " + str(layer.name()), level=Qgis.Warning)
-
-                layer.raiseError.connect(functools.partial(self.printRaiseError, layer))
-
-            self.modified = False
-            self.errorOccurred = False
-
-            #self.transactionCompleted.connect(self.proposalsManager.updateMapCanvas)
-
-            return
-
-    def startTransactionGroup(self):
-
-        TOMsMessageLog.logMessage("In MoveLayerTransaction:startTransactionGroup.", level=Qgis.Info)
-
-        if self.currTransactionGroup.isEmpty():
-            TOMsMessageLog.logMessage("In MoveLayerTransaction:startTransactionGroup. Currently empty adding layers", level=Qgis.Info)
-            self.createTransactionGroup()
-
-        status = self.TOMsTransactionList[0].startEditing()  # could be any table ...
-        if status == False:
-            TOMsMessageLog.logMessage("In MoveLayerTransaction:startTransactionGroup. *** Error starting transaction ...", level=Qgis.Info)
-        else:
-            TOMsMessageLog.logMessage("In MoveLayerTransaction:startTransactionGroup. Transaction started correctly!!! ...", level=Qgis.Info)
-        return status
-
-    def layerModified(self):
-        self.modified = True
-
-    def isTransactionGroupModified(self):
-        # indicates whether or not there has been any change within the transaction
-        return self.modified
-
-    def printMessage(self, layer, message):
-        TOMsMessageLog.logMessage("In MoveLayerTransaction:printMessage. " + str(message) + " ... " + str(layer.name()),
-                                 level=Qgis.Info)
-
-    def printAttribChanged(self, fid, idx, v):
-        TOMsMessageLog.logMessage("TOMsTransaction: Attributes changed for feature " + str(fid),
-                                 level=Qgis.Info)
-
-    def printRaiseError(self, layer, message):
-        TOMsMessageLog.logMessage("TOMsTransaction: Error from " + str(layer.name()) + ": " + str(message),
-                                 level=Qgis.Info)
-        self.errorOccurred = True
-        self.errorMessage = message
-
-    def commitTransactionGroup(self, currRestrictionLayer=None):
-
-        TOMsMessageLog.logMessage("In MoveLayerTransaction:commitTransactionGroup",
-                                 level=Qgis.Warning)
-
-        # unset map tool. I don't understand why this is required, but ... without it QGIS crashes
-        currMapTool = self.iface.mapCanvas().mapTool()
-        # currMapTool.deactivate()
-        self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
-        self.mapTool = None
-
-        if not self.currTransactionGroup:
-            TOMsMessageLog.logMessage("In MoveLayerTransaction:commitTransactionGroup. Transaction DOES NOT exist",
-                                     level=Qgis.Warning)
-            return
-
-        if self.errorOccurred == True:
+        if restrictionDialog is None:
             reply = QMessageBox.information(None, "Error",
-                                            str(self.errorMessage), QMessageBox.Ok)
-            self.rollBackTransactionGroup()
-            return False
+                                            "setupFieldRestrictionDialog. Correct form not found",
+                                            QMessageBox.Ok)
+            TOMsMessageLog.logMessage(
+                "In setupRestrictionDialog. dialog not found",
+                level=Qgis.Warning)
+            return
 
-        for layer in self.setTransactionGroup:
+        restrictionDialog.attributeForm().disconnectButtonBox()
+        button_box = restrictionDialog.findChild(QDialogButtonBox, "button_box")
 
-            TOMsMessageLog.logMessage("In MoveLayerTransaction:commitTransactionGroup. Considering: " + layer.name(),
-                                     level=Qgis.Warning)
+        if button_box is None:
+            TOMsMessageLog.logMessage(
+                "In setupRestrictionDialog. button box not found",
+                level=Qgis.Warning)
+            return
 
-            commitStatus = layer.commitChanges()
+        button_box.accepted.connect(functools.partial(self.onSaveMoveRestrictionDetails, currRestriction,
+                                      currRestrictionLayer, restrictionDialog))
 
-            if commitStatus == False:
-                reply = QMessageBox.information(None, "Error",
-                                                "Changes to " + layer.name() + " failed: " + str(
-                                                    layer.commitErrors()), QMessageBox.Ok)
-                commitErrors = layer.rollBack()
+        button_box.rejected.connect(functools.partial(self.onRejectMoveRestrictionDetailsFromForm, restrictionDialog, currRestrictionLayer))
 
-            break
+        restrictionDialog.attributeForm().attributeChanged.connect(functools.partial(self.onAttributeChangedClass2_local, currRestriction, currRestrictionLayer))
 
-        self.modified = False
-        self.errorOccurred = False
+        self.photoDetails_field(restrictionDialog, currRestrictionLayer, currRestriction)
 
-        # signal for redraw ...
-        #self.transactionCompleted.emit()
+        self.addScrollBars(restrictionDialog)
 
-        return commitStatus
-
-    def layersInTransaction(self):
-        return self.setTransactionGroup
-
-    def errorInTransaction(self, errorMsg):
-        reply = QMessageBox.information(None, "Error",
-                                        "TOMsTransaction:Proposal changes failed: " + errorMsg, QMessageBox.Ok)
-        TOMsMessageLog.logMessage("In errorInTransaction: " + errorMsg,
-                                 level=Qgis.Info)
-
-    def deleteTransactionGroup(self):
-
-        if self.currTransactionGroup:
-
-            if self.currTransactionGroup.modified():
-                TOMsMessageLog.logMessage("In MoveLayerTransaction:deleteTransactionGroup. Transaction contains edits ... NOT deleting",
-                                         level=Qgis.Info)
-                return
-
-            self.currTransactionGroup.commitError.disconnect(self.errorInTransaction)
-            self.currTransactionGroup = None
-
-        pass
-
-        return
-
-    def rollBackTransactionGroup(self):
-
-        TOMsMessageLog.logMessage("In MoveLayerTransaction:rollBackTransactionGroup",
-                                 level=Qgis.Info)
-
-        # unset map tool. I don't understand why this is required, but ... without it QGIS crashes
-        self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
+    def onSaveMoveRestrictionDetails(self, currFeature, currFeatureLayer, dialog):
+        TOMsMessageLog.logMessage("In onSaveMoveRestrictionDetails: ", level=Qgis.Info)
 
         try:
-            self.TOMsTransactionList[0].rollBack()  # could be any table ...
-            TOMsMessageLog.logMessage("In MoveLayerTransaction:rollBackTransactionGroup. Transaction rolled back correctly ...",
-                                     level=Qgis.Info)
+            self.camera1.endCamera()
+            self.camera2.endCamera()
+            self.camera3.endCamera()
         except:
-            TOMsMessageLog.logMessage("In MoveLayerTransaction:rollBackTransactionGroup. error: ...",
-                                     level=Qgis.Info)
+            None
 
-        self.modified = False
-        self.errorOccurred = False
-        self.errorMessage = None
+        # deal with issue whereby a null field provided by PayParkingAreaID is a 0 length string (rather than integer)
 
-        return
+        if currFeatureLayer.name() == "Bays":
+            try:
+                if len(currFeature[currFeatureLayer.fields().indexFromName("PayParkingAreaID")].strip()) == 0:
+                    currFeature[currFeatureLayer.fields().indexFromName("PayParkingAreaID")] = None
+            except:
+                None
+
+        currFeatureID = currFeature.id()
+
+        status = currFeatureLayer.addFeature(currFeature)
+        # need to set up a double loop to copy the attributes from
+
+        #status = currFeatureLayer.updateFeature(currFeature)
+        TOMsMessageLog.logMessage("In onSaveMoveRestrictionDetails: feature added: {}: status: {}".format(currFeatureID, status),
+                                  level=Qgis.Warning)
+
+        status = dialog.attributeForm().close()
+        TOMsMessageLog.logMessage("In onSaveMoveRestrictionDetails: dialog saved: " + str(currFeatureID),
+                                  level=Qgis.Info)
+        # currRestrictionLayer.addFeature(currRestriction)  # TH (added for v3)
+        # status = currFeatureLayer.updateFeature(currFeature)  # TH (added for v3)
+
+        try:
+            self.localTransactionGroup.commitTransactionGroup()
+        except Exception as e:
+            reply = QMessageBox.information(None, "Information", "Problem committing changes: {}".format(e),
+                                            QMessageBox.Ok)
+
+        # currFeatureLayer.blockSignals(False)
+
+        TOMsMessageLog.logMessage("In onSaveDemandDetails: changes committed", level=Qgis.Info)
+
+        status = dialog.close()
+        # self.mapTool = None
+        # self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
+        #self.localTransactionGroup.deleteTransactionGroup()
+
+    def onRejectMoveRestrictionDetailsFromForm(self, restrictionDialog, currFeatureLayer):
+        TOMsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", level=Qgis.Info)
+
+        try:
+            self.camera1.endCamera()
+            self.camera2.endCamera()
+            self.camera3.endCamera()
+        except:
+            None
+
+        self.localTransactionGroup.rollBackTransactionGroup()
+        #restrictionDialog.reject()
+        #self.localTransactionGroup.deleteTransactionGroup()
+
+    def copyRestriction(self, currFeature, newFeature):
+
+        TOMsMessageLog.logMessage("In TOMsNodeTool:copyRestriction",
+                                 level=Qgis.Info)
+        #  This one is not in the current Proposal, so now we need to:
+        #  - generate a new ID and assign it to the feature for which the geometry has changed
+        #  - switch the geometries arround so that the original feature has the original geometry and the new feature has the new geometry
+        #  - add the details to RestrictionsInProposal
+
+        newFeatureFieldMap = newFeature.fields()
+        currFeatureFieldMap = currFeature.fields()
+
+        for field in newFeature.fields():
+
+            fieldName = field.name()
+            idx_newFeature = newFeatureFieldMap.indexFromName(field.name())
+            # see if can find same field name ... adn set
+            idx_currFeature = currFeatureFieldMap.indexFromName(fieldName)
+            if idx_currFeature >= 0:
+                if not newFeature.setAttribute(idx_newFeature, currFeature.attribute(idx_currFeature)):
+                    reply = QMessageBox.information(None, "Information", "Problem adding: {}".format(field.name()),
+                                                    QMessageBox.Ok)
+                    return None
+        # set new restriction id and geometry id
+        newRestrictionID = str(uuid.uuid4())
+        idxRestrictionID = newFeature.fields().indexFromName("RestrictionID")
+        newFeature[idxRestrictionID] = newRestrictionID
+
+        idxGeometryID = newFeature.fields().indexFromName("GeometryID")
+        newFeature[idxGeometryID] = None
+
+        # copy geometry ...
+        newFeature.setGeometry(QgsGeometry(currFeature.geometry()))
+
+        """#abstractGeometry = originalFeature.geometry().geometry().clone()  # make a deep copy of the geometry ... https://gis.stackexchange.com/questions/232056/how-to-deep-copy-a-qgis-memory-layer
+
+        #newFeature.setGeometry(QgsGeometry(originalFeature.geometry()))
+        #geomStatus = restrictionLayer.changeGeometry(newFeature.id(), QgsGeometry(abstractGeometry))
+
+        # if a new feature has been added to the layer, the featureAdded signal is emitted by the layer ... and the fid is obtained
+        # self.newFid = None
+        restrictionLayer.featureAdded.connect(self.onFeatureAdded)
+
+        addStatus = restrictionLayer.addFeature(newFeature, True)
+
+        restrictionLayer.featureAdded.disconnect(self.onFeatureAdded)
+
+        restrictionLayer.updateExtents()
+        restrictionLayer.updateFields()
+
+        TOMsMessageLog.logMessage("In TOMsNodeTool:cloneRestriction - addStatus: " + str(addStatus) + " featureID: " + str(self.newFid), #+ " geomStatus: " + str(geomStatus),
+                                 level=Qgis.Info)
+
+        TOMsMessageLog.logMessage("In TOMsNodeTool:cloneRestriction - attributes: (fid=" + str(newFeature.id()) + ") " + str(newFeature.attributes()),
+                                 level=Qgis.Info)
+
+        TOMsMessageLog.logMessage("In TOMsNodeTool:cloneRestriction - newGeom: " + newFeature.geometry().asWkt(),
+                                 level=Qgis.Info)
+
+        # test to see that feature has been added ...
+        feat = restrictionLayer.getFeatures(
+            QgsFeatureRequest().setFilterExpression('GeometryID = \'{}\''.format(newFeature['GeometryID']))).next()"""
+
+        return newFeature

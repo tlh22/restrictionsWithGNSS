@@ -66,6 +66,7 @@ from .gnss_thread import GPS_Thread
 from .fieldRestrictionTypeUtilsClass import FieldRestrictionTypeUtilsMixin, gpsParams
 from .SelectTool import GeometryInfoMapTool, RemoveRestrictionTool
 from .changeLayerMapTool import ChangeLayerMapTool
+from .moveLayerTransaction import MoveLayerTransaction
 from .formManager import mtrForm
 from TOMs.restrictionTypeUtilsClass import TOMsLayers, TOMsConfigFile
 
@@ -269,6 +270,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.iface.currentLayerChanged.connect(self.changeCurrLayer2)
         self.canvas.mapToolSet.connect(self.changeMapTool2)
         self.canvas.extentsChanged.connect(self.changeExtents)
+
+        # transaction for move ...
+        self.localTransaction = MoveLayerTransaction(self.iface)
 
     def enableGnssToolbarItem(self):
         if self.gpsConnection:
@@ -784,7 +788,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
             TOMsMessageLog.logMessage("In doMoveFeatureToDifferentLayer - tool activated", level=Qgis.Warning)
 
-            self.moveFeatureToDifferentLayerMapTool = ChangeLayerMapTool(self.iface)
+            self.moveFeatureToDifferentLayerMapTool = ChangeLayerMapTool(self.iface, self.localTransaction)
             self.iface.mapCanvas().setMapTool(self.moveFeatureToDifferentLayerMapTool)
             #self.showRestrictionMapTool.notifyFeatureFound.connect(self.showRestrictionDetails)
 
