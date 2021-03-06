@@ -189,9 +189,10 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
             currLayer.deleteFeature(currFeature.id())
 
             dialog = self.iface.getFeatureForm(newLayer, newFeature)
-            self.setupMoveRestrictionDialog(dialog, newLayer, newFeature)
+            status = self.setupMoveRestrictionDialog(dialog, newLayer, newFeature)
 
-            dialog.show()
+            if status:
+                dialog.show()
 
 
     def setupMoveRestrictionDialog(self, restrictionDialog, currRestrictionLayer, currRestriction):
@@ -204,21 +205,26 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
 
         if restrictionDialog is None:
             reply = QMessageBox.information(None, "Error",
-                                            "setupFieldRestrictionDialog. Correct form not found",
+                                            "setupMoveRestrictionDialog. Correct form not found. Rolling back",
                                             QMessageBox.Ok)
             TOMsMessageLog.logMessage(
                 "In setupRestrictionDialog. dialog not found",
                 level=Qgis.Warning)
-            return
+            self.localTransactionGroup.rollBackTransactionGroup()
+            return False
 
         restrictionDialog.attributeForm().disconnectButtonBox()
         button_box = restrictionDialog.findChild(QDialogButtonBox, "button_box")
 
         if button_box is None:
+            reply = QMessageBox.information(None, "Error",
+                                            "setupMoveRestrictionDialog. Problem with form. Rolling back",
+                                            QMessageBox.Ok)
             TOMsMessageLog.logMessage(
                 "In setupRestrictionDialog. button box not found",
                 level=Qgis.Warning)
-            return
+            self.localTransactionGroup.rollBackTransactionGroup()
+            return False
 
         button_box.accepted.connect(functools.partial(self.onSaveMoveRestrictionDetails, currRestriction,
                                       currRestrictionLayer, restrictionDialog))
@@ -230,6 +236,8 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
         self.photoDetails_field(restrictionDialog, currRestrictionLayer, currRestriction)
 
         self.addScrollBars(restrictionDialog)
+
+        return True
 
     def onSaveMoveRestrictionDetails(self, currFeature, currFeatureLayer, dialog):
         TOMsMessageLog.logMessage("In onSaveMoveRestrictionDetails: ", level=Qgis.Info)
@@ -286,6 +294,8 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
             None
 
         self.localTransactionGroup.rollBackTransactionGroup()
+
+        status = restrictionDialog.reject()
 
     def copyRestriction(self, currFeature, newFeature):
 

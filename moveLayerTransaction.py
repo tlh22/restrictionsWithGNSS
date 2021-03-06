@@ -101,19 +101,21 @@ class MoveLayerTransaction(QObject):
 
         # Function to create group of layers to be in Transaction for changing proposal
 
-        TOMsMessageLog.logMessage("In MoveLayerTransaction. prepareLayerSet: ", level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In MoveLayerTransaction. prepareLayerSet: ", level=Qgis.Info)
 
         for layer in layerList:
             self.TOMsTransactionList.append(layer)
 
         for layer in self.TOMsTransactionList:
             self.setTransactionGroup.append(layer)
-            TOMsMessageLog.logMessage("In MoveLayerTransaction.prepareLayerSet. Adding " + layer.name(), level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In MoveLayerTransaction.prepareLayerSet. Adding " + layer.name(), level=Qgis.Info)
+
+        self.createTransactionGroup()
 
     def createTransactionGroup(self):
 
         TOMsMessageLog.logMessage("In MoveLayerTransaction.createTransactionGroup",
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
 
         if self.currTransactionGroup:
 
@@ -124,7 +126,7 @@ class MoveLayerTransaction(QObject):
                 except Exception as e:
                     TOMsMessageLog.logMessage("In MoveLayerTransaction:createTransactionGroup: adding {}. error: {}".format(layer.name(), e), level=Qgis.Warning)
 
-                TOMsMessageLog.logMessage("In MoveLayerTransaction:createTransactionGroup. Adding " + str(layer.name()), level=Qgis.Warning)
+                TOMsMessageLog.logMessage("In MoveLayerTransaction:createTransactionGroup. Adding " + str(layer.name()), level=Qgis.Info)
 
                 layer.raiseError.connect(functools.partial(self.printRaiseError, layer))
 
@@ -137,10 +139,10 @@ class MoveLayerTransaction(QObject):
 
     def startTransactionGroup(self):
 
-        TOMsMessageLog.logMessage("In MoveLayerTransaction:startTransactionGroup.", level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In MoveLayerTransaction:startTransactionGroup.", level=Qgis.Info)
 
         if self.currTransactionGroup.isEmpty():
-            TOMsMessageLog.logMessage("In MoveLayerTransaction:startTransactionGroup. Currently empty adding layers", level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In MoveLayerTransaction:startTransactionGroup. Currently empty adding layers", level=Qgis.Info)
             self.createTransactionGroup()
 
         status = self.TOMsTransactionList[0].startEditing()  # could be any table ...
@@ -174,7 +176,7 @@ class MoveLayerTransaction(QObject):
     def commitTransactionGroup(self, currRestrictionLayer=None):
 
         TOMsMessageLog.logMessage("In MoveLayerTransaction:commitTransactionGroup",
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
 
         # unset map tool. I don't understand why this is required, but ... without it QGIS crashes
         currMapTool = self.iface.mapCanvas().mapTool()
@@ -196,7 +198,7 @@ class MoveLayerTransaction(QObject):
         for layer in self.setTransactionGroup:
 
             TOMsMessageLog.logMessage("In MoveLayerTransaction:commitTransactionGroup. Considering: " + layer.name(),
-                                     level=Qgis.Warning)
+                                     level=Qgis.Info)
 
             commitStatus = layer.commitChanges()
 
@@ -242,7 +244,7 @@ class MoveLayerTransaction(QObject):
     def rollBackTransactionGroup(self):
 
         TOMsMessageLog.logMessage("In MoveLayerTransaction:rollBackTransactionGroup",
-                                 level=Qgis.Warning)
+                                 level=Qgis.Info)
 
         # unset map tool. I don't understand why this is required, but ... without it QGIS crashes
         self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
@@ -250,7 +252,7 @@ class MoveLayerTransaction(QObject):
         try:
             self.TOMsTransactionList[0].rollBack()  # could be any table ...
             TOMsMessageLog.logMessage("In MoveLayerTransaction:rollBackTransactionGroup. Transaction rolled back correctly ...",
-                                     level=Qgis.Warning)
+                                     level=Qgis.Info)
         except:
             TOMsMessageLog.logMessage("In MoveLayerTransaction:rollBackTransactionGroup. error: ...",
                                      level=Qgis.Warning)
