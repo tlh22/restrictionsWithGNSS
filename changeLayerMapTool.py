@@ -97,7 +97,7 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
 
         closestFeature, closestLayer = self.findNearestFeatureAtC(event.pos())
 
-        TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent."), level=Qgis.Warning)
+        TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent."), level=Qgis.Info)
 
         # Remove any current selection and add the new ones (if appropriate)
 
@@ -109,7 +109,7 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
         else:
 
             TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent. Feature selected from layer: " + closestLayer.name() + " id: " + str(
-                    closestFeature.id())), level=Qgis.Warning)
+                    closestFeature.id())), level=Qgis.Info)
 
             if not closestLayer == self.iface.activeLayer():
                 if self.iface.activeLayer():
@@ -118,17 +118,17 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
 
             if closestLayer.type() == QgsMapLayer.VectorLayer:
                 TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent. layer type " + str(closestLayer.type())),
-                                         level=Qgis.Warning)
+                                         level=Qgis.Info)
 
             if closestLayer.geometryType() == QgsWkbTypes.PointGeometry:
-                TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent. point layer type "), level=Qgis.Warning)
+                TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent. point layer type "), level=Qgis.Info)
 
             if closestLayer.geometryType() == QgsWkbTypes.LineGeometry:
-                TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent. line layer type "), level=Qgis.Warning)
+                TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent. line layer type "), level=Qgis.Info)
 
             status = self.changeLayerForFeature(closestLayer, closestFeature)
 
-            TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent. status: {}".format(status)), level=Qgis.Warning)
+            TOMsMessageLog.logMessage(("In ChangeLayerMapTool.canvasReleaseEvent. status: {}".format(status)), level=Qgis.Info)
 
 
     def changeLayerForFeature(self, currLayer, currFeature):
@@ -137,7 +137,7 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
 
         sameGeomTypeLayerList = self.getSameGeomTypeLayerList(currLayer, currFeature)
 
-        TOMsMessageLog.logMessage("In setNewLayerForFeature: sameGeomTypeLayerList: {}".format(sameGeomTypeLayerList), level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In setNewLayerForFeature: sameGeomTypeLayerList: {}".format(sameGeomTypeLayerList), level=Qgis.Info)
 
         surveyDialog = QInputDialog()
         surveyDialog.setLabelText("Please confirm new layer for this feature ")
@@ -146,7 +146,7 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
 
         if surveyDialog.exec_() == QDialog.Accepted:
             newLayerName = surveyDialog.textValue()
-            TOMsMessageLog.logMessage("In setNewLayerForFeature: {}".format(newLayerName), level=Qgis.Warning)
+            TOMsMessageLog.logMessage("In setNewLayerForFeature: {}".format(newLayerName), level=Qgis.Info)
 
             if currLayer.name() != newLayerName:
                 newLayer = QgsProject.instance().mapLayersByName(newLayerName)[0]
@@ -177,11 +177,6 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
         self.localTransactionGroup.prepareLayerSet([currLayer, newLayer])
         self.localTransactionGroup.startTransactionGroup()
 
-        #status = newLayer.startEditing()
-
-        #if not status:
-        #    TOMsMessageLog.logMessage("In moveFeatureToNewLayer: problem starting editing ... {}".format(newLayer.name()), level=Qgis.Warning)
-
         newLayerProvider = newLayer.dataProvider()
         newLayerFields = newLayerProvider.fields()
         newFeatureEmpty = QgsFeature(newLayerFields)
@@ -190,11 +185,6 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
 
         if newFeature:
             # add new feature - and delete original
-            """status = newLayerProvider.addFeatures([newFeature])
-            TOMsMessageLog.logMessage("In moveFeatureToNewLayer: addFeature ... {}".format(status),
-                                      level=Qgis.Warning)
-
-            if status:"""
 
             currLayer.deleteFeature(currFeature.id())
 
@@ -203,14 +193,6 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
 
             dialog.show()
 
-            """else:
-
-                TOMsMessageLog.logMessage(
-                    "In moveFeatureToNewLayer: problem with adding feature on {} ...".format(newLayer.name()), level=Qgis.Warning)"""
-
-        #commitStatus = localTransactionGroup.commitTransactionGroup(None)
-        #self.localTransactionGroup.deleteTransactionGroup()
-        #return commitStatus
 
     def setupMoveRestrictionDialog(self, restrictionDialog, currRestrictionLayer, currRestriction):
 
@@ -271,11 +253,9 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
         currFeatureID = currFeature.id()
 
         status = currFeatureLayer.addFeature(currFeature)
-        # need to set up a double loop to copy the attributes from
 
-        #status = currFeatureLayer.updateFeature(currFeature)
         TOMsMessageLog.logMessage("In onSaveMoveRestrictionDetails: feature added: {}: status: {}".format(currFeatureID, status),
-                                  level=Qgis.Warning)
+                                  level=Qgis.Info)
 
         status = dialog.attributeForm().close()
         TOMsMessageLog.logMessage("In onSaveMoveRestrictionDetails: dialog saved: " + str(currFeatureID),
@@ -294,9 +274,6 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
         TOMsMessageLog.logMessage("In onSaveDemandDetails: changes committed", level=Qgis.Info)
 
         status = dialog.close()
-        # self.mapTool = None
-        # self.iface.mapCanvas().unsetMapTool(self.iface.mapCanvas().mapTool())
-        #self.localTransactionGroup.deleteTransactionGroup()
 
     def onRejectMoveRestrictionDetailsFromForm(self, restrictionDialog, currFeatureLayer):
         TOMsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", level=Qgis.Info)
@@ -309,17 +286,11 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
             None
 
         self.localTransactionGroup.rollBackTransactionGroup()
-        #restrictionDialog.reject()
-        #self.localTransactionGroup.deleteTransactionGroup()
 
     def copyRestriction(self, currFeature, newFeature):
 
         TOMsMessageLog.logMessage("In TOMsNodeTool:copyRestriction",
                                  level=Qgis.Info)
-        #  This one is not in the current Proposal, so now we need to:
-        #  - generate a new ID and assign it to the feature for which the geometry has changed
-        #  - switch the geometries arround so that the original feature has the original geometry and the new feature has the new geometry
-        #  - add the details to RestrictionsInProposal
 
         newFeatureFieldMap = newFeature.fields()
         currFeatureFieldMap = currFeature.fields()
@@ -345,34 +316,5 @@ class ChangeLayerMapTool(GeometryInfoMapTool):
 
         # copy geometry ...
         newFeature.setGeometry(QgsGeometry(currFeature.geometry()))
-
-        """#abstractGeometry = originalFeature.geometry().geometry().clone()  # make a deep copy of the geometry ... https://gis.stackexchange.com/questions/232056/how-to-deep-copy-a-qgis-memory-layer
-
-        #newFeature.setGeometry(QgsGeometry(originalFeature.geometry()))
-        #geomStatus = restrictionLayer.changeGeometry(newFeature.id(), QgsGeometry(abstractGeometry))
-
-        # if a new feature has been added to the layer, the featureAdded signal is emitted by the layer ... and the fid is obtained
-        # self.newFid = None
-        restrictionLayer.featureAdded.connect(self.onFeatureAdded)
-
-        addStatus = restrictionLayer.addFeature(newFeature, True)
-
-        restrictionLayer.featureAdded.disconnect(self.onFeatureAdded)
-
-        restrictionLayer.updateExtents()
-        restrictionLayer.updateFields()
-
-        TOMsMessageLog.logMessage("In TOMsNodeTool:cloneRestriction - addStatus: " + str(addStatus) + " featureID: " + str(self.newFid), #+ " geomStatus: " + str(geomStatus),
-                                 level=Qgis.Info)
-
-        TOMsMessageLog.logMessage("In TOMsNodeTool:cloneRestriction - attributes: (fid=" + str(newFeature.id()) + ") " + str(newFeature.attributes()),
-                                 level=Qgis.Info)
-
-        TOMsMessageLog.logMessage("In TOMsNodeTool:cloneRestriction - newGeom: " + newFeature.geometry().asWkt(),
-                                 level=Qgis.Info)
-
-        # test to see that feature has been added ...
-        feat = restrictionLayer.getFeatures(
-            QgsFeatureRequest().setFilterExpression('GeometryID = \'{}\''.format(newFeature['GeometryID']))).next()"""
 
         return newFeature
