@@ -67,7 +67,7 @@ import math
 
 from abc import ABCMeta
 from TOMs.generateGeometryUtils import generateGeometryUtils
-from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers, originalFeature, RestrictionTypeUtilsMixin)
+from TOMs.restrictionTypeUtilsClass import (TOMsParams, TOMsLayers, originalFeature, TOMsConfigFile, RestrictionTypeUtilsMixin)
 
 from TOMs.ui.TOMsCamera import (formCamera)
 from restrictionsWithGNSS.ui.imageLabel import (imageLabel)
@@ -527,6 +527,11 @@ class FieldRestrictionTypeUtilsMixin():
 
         TOMsMessageLog.logMessage("In photoDetails_field: cameraNr is: {}".format(cameraNr), level=Qgis.Info)
 
+        # get image resolution
+
+        frameWidth, frameHeight = self.getCameraResolution()
+        TOMsMessageLog.logMessage("In gnns: In photoDetails: ... resolution: {}*{} ".format(frameWidth, frameHeight), level=Qgis.Warning)
+
         layerName = self.currDemandLayer.name()
 
         # Generate the full path to the file
@@ -592,7 +597,7 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_1 = self.demandDialog.findChild(QPushButton, "getPhoto1")
                 TAKE_PHOTO_1.setEnabled(False)
 
-                self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr)
+                self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr, frameWidth, frameHeight)
                 START_CAMERA_1.clicked.connect(
                     functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1, FIELD1))
                 self.camera1.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
@@ -636,7 +641,7 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_2 = self.demandDialog.findChild(QPushButton, "getPhoto2")
                 TAKE_PHOTO_2.setEnabled(False)
 
-                self.camera2 = formCamera(path_absolute, newPhotoFileName2, cameraNr)
+                self.camera2 = formCamera(path_absolute, newPhotoFileName2, cameraNr, frameWidth, frameHeight)
                 START_CAMERA_2.clicked.connect(
                     functools.partial(self.camera2.useCamera, START_CAMERA_2, TAKE_PHOTO_2, FIELD2))
                 self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
@@ -681,13 +686,21 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_3 = self.demandDialog.findChild(QPushButton, "getPhoto3")
                 TAKE_PHOTO_3.setEnabled(False)
 
-                self.camera3 = formCamera(path_absolute, newPhotoFileName3, cameraNr)
+                self.camera3 = formCamera(path_absolute, newPhotoFileName3, cameraNr, frameWidth, frameHeight)
                 START_CAMERA_3.clicked.connect(
                     functools.partial(self.camera3.useCamera, START_CAMERA_3, TAKE_PHOTO_3, FIELD3))
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
                 self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))
 
         pass
+
+    def getCameraResolution(self):
+        TOMsConfigFileObject = TOMsConfigFile(self.iface)
+        TOMsConfigFileObject.initialiseTOMsConfigFile()
+        frameWidth = TOMsConfigFileObject.getTOMsConfigElement('Camera', 'Width')
+        frameHeight = TOMsConfigFileObject.getTOMsConfigElement('Camera', 'Height')
+        return int(frameWidth), int(frameHeight)
+
 
     def addScrollBars(self, restrictionDialog):
         TOMsMessageLog.logMessage("In addScrollBars", level=Qgis.Info)
