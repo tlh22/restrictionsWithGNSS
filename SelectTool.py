@@ -60,7 +60,9 @@ from qgis.core import (
     QgsMessageLog,
     QgsExpressionContextUtils,
     QgsWkbTypes,
-    QgsMapLayer, Qgis, QgsRectangle, QgsFeatureRequest, QgsVectorLayer, QgsFeature
+    QgsMapLayer, Qgis, QgsRectangle,
+    QgsFeatureRequest, QgsVectorLayer, QgsFeature,
+    QgsProject
 )
 from qgis.gui import (
     QgsMapToolIdentify
@@ -83,6 +85,8 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
         QgsMapToolIdentify.__init__(self, iface.mapCanvas())
         self.iface = iface
         FieldRestrictionTypeUtilsMixin.__init__(self, iface)
+
+        self.SIGN_TYPES = QgsProject.instance().mapLayersByName("SignTypes")[0]
 
     def canvasReleaseEvent(self, event):
         # Return point under cursor
@@ -178,7 +182,7 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
             featureList.append(f)
             layerList.append(self.currLayer)
 
-        TOMsMessageLog.logMessage("In findNearestFeatureAt: Considering layer: {}; nrFeatures: {}".format(self.currLayer.name(), len(featureList)), level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In findNearestFeatureAt: Considering layer: {}; nrFeatures: {}".format(self.currLayer.name(), len(featureList)), level=Qgis.Info)
 
         if len(featureList) == 0:
             return None, None
@@ -212,14 +216,30 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
 
         for feature in featureList:
 
-            try:
+            #title = str(feature.id())
 
-                title = str(feature.id())
-                TOMsMessageLog.logMessage("In featureContextMenu: adding: " + str(title), level=Qgis.Info)
+            # might be able to do same for each restriction/feature ...
 
-            except TypeError:
+            currGeometryID = str(feature.attribute('GeometryID'))
+            if self.currLayer.name() == "Signs":
+                # Need to get each of the signs ...
+                for i in range (1,10):
+                    field_index = self.currLayer.fields().indexFromName("SignType_{counter}".format(counter=i))
+                    if field_index == -1:
+                        break
+                    if feature[field_index]:
+                        title = "Sign: {RestrictionDescription} [{GeometryID}]".format(RestrictionDescription=str(
+                            self.getLookupDescription(self.SIGN_TYPES, feature[field_index])),
+                                                                                GeometryID=currGeometryID)
+                        #featureList.append(title)
 
-                title = " (" + feature.attribute("SignType_1") + ")"
+            else:
+
+                title = "[{GeometryID}]".format(GeometryID=currGeometryID)
+                #featureList.append(title)
+
+            TOMsMessageLog.logMessage("In featureContextMenu: adding: " + str(title), level=Qgis.Info)
+
 
             action = QAction(title, self.menu)
             self.actions.append(action)
