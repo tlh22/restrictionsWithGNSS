@@ -16,6 +16,7 @@ UPDATE mhtc_operations."Supply" SET
     "label_loading_pos" = ST_Multi(ST_SetSRID(ST_MakePoint("labelLoading_X", "labelLoading_Y"), 27700))
 WHERE "labelLoading_X" IS NOT NULL AND "labelLoading_Y" IS NOT NULL;
 
+DROP TRIGGER IF EXISTS "insert_mngmt" ON mhtc_operations."Supply";
 CREATE TRIGGER insert_mngmt BEFORE INSERT OR UPDATE ON mhtc_operations."Supply" FOR EACH ROW EXECUTE PROCEDURE toms."labelling_for_restrictions"();
 
 -- Run the trigger once to populate leaders

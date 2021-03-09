@@ -19,15 +19,18 @@ DECLARE
 	 restrictionLength real := 0.0;
 BEGIN
 
+    /*
     IF vehicleLength IS NULL OR vehicleWidth IS NULL OR motorcycleWidth IS NULL THEN
         RAISE EXCEPTION 'Capacity parameters not available ...';
         RETURN OLD;
     END IF;
+    */
 
-    NEW."Demand" = COALESCE(NEW."ncars"::float, 0.0) + COALESCE(NEW."nlgvs"::float, 0.0)
-                    + COALESCE(NEW."nmcls"::float, 0.0)*0.33
-                    + (COALESCE(NEW."nogvs"::float, 0) + COALESCE(NEW."nogvs2"::float, 0) + COALESCE(NEW."nminib"::float, 0) + COALESCE(NEW."nbuses"::float, 0))*1.5
-                    + COALESCE(NEW."ntaxis"::float, 0);
+    NEW."Demand" = COALESCE(NULLIF(NEW."ncars",'')::float, 0.0) + COALESCE(NULLIF(NEW."nlgvs",'')::float, 0.0)
+                    + COALESCE(NULLIF(NEW."nmcls",'')::float, 0.0)*0.33
+                    + (COALESCE(NULLIF(NEW."nogvs",'')::float, 0) + COALESCE(NULLIF(NEW."nogvs2",'')::float, 0)
+                    + COALESCE(NULLIF(NEW."nminib",'')::float, 0) + COALESCE(NULLIF(NEW."nbuses",'')::float, 0))*1.5
+                    + COALESCE(NULLIF(NEW."ntaxis",'')::float, 0);
 
     /* What to do about suspensions */
 
@@ -39,8 +42,8 @@ BEGIN
             END CASE;
         ELSE
             CASE
-                WHEN NEW."Capacity"::float - COALESCE(NEW."sbays"::float, 0.0) > 0.0 THEN
-                    NEW."Stress" = NEW."Demand" / (NEW."Capacity"::float - COALESCE(NEW."sbays"::float, 0.0)) * 100.0;
+                WHEN NEW."Capacity"::float - COALESCE(NULLIF(NEW."sbays",'')::float, 0.0) > 0.0 THEN
+                    NEW."Stress" = NEW."Demand" / (NEW."Capacity"::float - COALESCE(NULLIF(NEW."sbays",'')::float, 0.0)) * 100.0;
                 ELSE
                     CASE
                         WHEN NEW."Demand" > 0.0 THEN NEW."Stress" = 100.0;
@@ -56,6 +59,7 @@ $$;
 
 -- create trigger
 
+DROP TRIGGER IF EXISTS "update_demand" ON "demand"."Demand_Merged";
 CREATE TRIGGER "update_demand" BEFORE INSERT OR UPDATE ON "demand"."Demand_Merged" FOR EACH ROW EXECUTE FUNCTION "demand"."update_demand"();
 
 -- trigger trigger
@@ -66,10 +70,10 @@ UPDATE "demand"."Demand_Merged" SET "RestrictionLength" = "RestrictionLength";
 
 SELECT
 d."SurveyID", s."SurveyDay" As "Survey Day", s."BeatStartTime" || '-' || s."BeatEndTime" As "Survey Time", "GeometryID",
-       (COALESCE("ncars"::float, 0)+COALESCE("ntaxis"::float, 0)) As "Nr Cars", COALESCE("nlgvs"::float, 0) As "Nr LGVs",
-       COALESCE("nmcls"::float, 0) AS "Nr MCLs", COALESCE("nogvs"::float, 0) AS "Nr OGVs", COALESCE("nbuses"::float, 0) AS "Nr Buses",
-       COALESCE("nspaces"::float, 0) AS "Nr Spaces",
-       COALESCE(d."sbays"::integer, 0) AS "Bays Suspended", d."snotes" AS "Suspension Notes", "Demand" As "Demand",
+       (COALESCE(NULLIF("ncars",'')::float, 0)+COALESCE(NULLIF("ntaxis",'')::float, 0)) As "Nr Cars", COALESCE(NULLIF("nlgvs",'')::float, 0) As "Nr LGVs",
+       COALESCE(NULLIF("nmcls",'')::float, 0) AS "Nr MCLs", COALESCE(NULLIF("nogvs",'')::float, 0) AS "Nr OGVs", COALESCE(NULLIF("nbuses",'')::float, 0) AS "Nr Buses",
+       COALESCE(NULLIF("nspaces",'')::float, 0) AS "Nr Spaces",
+       COALESCE(NULLIF(d."sbays",'')::integer, 0) AS "Bays Suspended", d."snotes" AS "Suspension Notes", "Demand" As "Demand",
              d."nnotes" AS "Surveyor Notes"
 
 FROM --"SYL_AllowableTimePeriods" syls,
