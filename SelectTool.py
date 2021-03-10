@@ -88,6 +88,7 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
 
         try:
             self.SIGN_TYPES = QgsProject.instance().mapLayersByName("SignTypes")[0]
+            self.MHTC_CHECK_ISSUE_TYPES = QgsProject.instance().mapLayersByName("MHTC_CheckIssueTypes")[0]
         except:
             None   # if "Signs" is not present
 
@@ -208,9 +209,10 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
     def getFeatureDetails(self, featureList, layerList):
         TOMsMessageLog.logMessage("In getFeatureDetails", level=Qgis.Info)
 
-        self.featureList = featureList
-        self.layerList = layerList
+        #self.featureList = featureList
+        #self.layerList = layerList
 
+        actionFeatureList = []
         # Creates the context menu and returns the selected feature and layer
         TOMsMessageLog.logMessage("In getFeatureDetails: nrFeatures: " + str(len(featureList)), level=Qgis.Info)
 
@@ -231,10 +233,12 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
                     if field_index == -1:
                         break
                     if feature[field_index]:
-                        title = "Sign: {RestrictionDescription} [{GeometryID}]".format(RestrictionDescription=str(
+                        title = "Sign: {RestrictionDescription} [{GeometryID}] ({CheckStatus})".format(RestrictionDescription=str(
                             self.getLookupDescription(self.SIGN_TYPES, feature[field_index])),
-                                                                                GeometryID=currGeometryID)
-                        #featureList.append(title)
+                             GeometryID=currGeometryID,
+                             CheckStatus=str(self.getLookupDescription(self.MHTC_CHECK_ISSUE_TYPES, feature.attribute('MHTC_CheckIssueTypeID'))))
+
+                        actionFeatureList.append(title)
 
             else:
 
@@ -252,38 +256,35 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
         TOMsMessageLog.logMessage("In getFeatureDetails: showing menu?", level=Qgis.Info)
 
         clicked_action = self.menu.exec_(self.iface.mapCanvas().mapToGlobal(self.event.pos()))
-        TOMsMessageLog.logMessage(("In getFeatureDetails:clicked_action: " + str(clicked_action)), level=Qgis.Info)
+        TOMsMessageLog.logMessage(("In getFeatureDetails:clicked_action: " + str(clicked_action)), level=Qgis.Warning)
 
         if clicked_action is not None:
 
             TOMsMessageLog.logMessage(("In getFeatureDetails:clicked_action: " + str(clicked_action.text())),
-                                     level=Qgis.Info)
+                                     level=Qgis.Warning)
             idxList = self.getIdxFromGeometryID(clicked_action.text(), featureList)
 
-            TOMsMessageLog.logMessage("In getFeatureDetails: idx = " + str(idxList), level=Qgis.Info)
+            TOMsMessageLog.logMessage("In getFeatureDetails: idx = " + str(idxList), level=Qgis.Warning)
 
             if idxList >= 0:
                 # TODO: need to be careful here so that we use primary key
-                """TOMsMessageLog.logMessage("In getFeatureDetails: feat = " + str(featureList[idxList].attribute('id')),
-                                         level=Qgis.Info)"""
                 return featureList[idxList], layerList[idxList]
 
-        TOMsMessageLog.logMessage(("In getFeatureDetails. No action found."), level=Qgis.Info)
+        TOMsMessageLog.logMessage(("In getFeatureDetails. No action found."), level=Qgis.Warning)
 
         return None, None
 
 
-    def getIdxFromGeometryID(self, selectedGeometryID, featureList):
+    def getIdxFromGeometryID(self, clicked_action_text, featureList):
         #
         TOMsMessageLog.logMessage("In getIdxFromGeometryID", level=Qgis.Info)
 
+        selectedGeometryID = clicked_action_text[clicked_action_text.find('[') + 1:clicked_action_text.find(']')]
         idx = -1
-        for feature in featureList:
-            idx = idx + 1
-            if str(feature.id()) == selectedGeometryID:
+        TOMsMessageLog.logMessage("In getFeatureDetails. id = {}".format(selectedGeometryID), level=Qgis.Warning)
+        for idx in range(len(featureList)):
+            if featureList[idx].attribute('GeometryID') == selectedGeometryID:
                 return idx
-
-        pass
 
         return idx
 
@@ -305,15 +306,6 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
                 TOMsMessageLog.logMessage("In showRestrictionDetails: changes committed", level=Qgis.Info)
 
         status = self.iface.activeLayer().startEditing()
-        """if self.iface.activeLayer().readOnly() == True:
-            TOMsMessageLog.logMessage("In showSignDetails - Not able to start transaction ...",
-                                     level=Qgis.Info)
-        else:
-            if self.iface.activeLayer().startEditing() == False:
-                reply = QMessageBox.information(None, "Information",
-                                                "Could not start transaction on " + self.currLayer.name(),
-                                                QMessageBox.Ok)
-                return"""
 
         dialog = self.iface.getFeatureForm(closestLayer, closestFeature)
         #self.TOMsUtils.setupRestrictionDialog(self.dialog, closestLayer, closestFeature)
