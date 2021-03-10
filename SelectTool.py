@@ -86,7 +86,10 @@ class GeometryInfoMapTool(FieldRestrictionTypeUtilsMixin, QgsMapToolIdentify):
         self.iface = iface
         FieldRestrictionTypeUtilsMixin.__init__(self, iface)
 
-        self.SIGN_TYPES = QgsProject.instance().mapLayersByName("SignTypes")[0]
+        try:
+            self.SIGN_TYPES = QgsProject.instance().mapLayersByName("SignTypes")[0]
+        except:
+            None   # if "Signs" is not present
 
     def canvasReleaseEvent(self, event):
         # Return point under cursor
