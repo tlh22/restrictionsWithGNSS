@@ -2,5 +2,5 @@
 
 INSERT INTO toms."MapGrid" (id, geom)
 SELECT id, ST_Multi(ST_Buffer(geom, 100.0)) AS geom
-FROM local_authority."Lb_Islington" s;
+FROM local_authority."SiteArea" s;
 
