@@ -159,6 +159,10 @@ UNION
     WHERE mhtc_operations.cnrPoint(lg1.geom) IS NULL;
 */
 
+/***
+May need to vary the size of the buffer and the snapping tolerance. Not sure why, but ... (possibly buffer size of 0.1?, and snap tolerance of 0.24)
+***/
+
 INSERT INTO "mhtc_operations"."Supply" (
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
@@ -167,8 +171,8 @@ SELECT
     "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
     (ST_Dump(ST_Split(s1.geom, ST_Buffer(c.geom, 0.00001)))).geom
-FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
-									  FROM "mhtc_operations"."Supply_orig" s1,
+FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s2.geom, 0.001)) AS geom
+									  FROM "mhtc_operations"."Supply_orig" s2,
 									  (SELECT geom
 									  FROM "mhtc_operations"."Corners"
 									  union
@@ -180,7 +184,7 @@ SELECT
     "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
     s1.geom
-FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
+FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.001)) AS geom
 									  FROM "mhtc_operations"."Supply_orig" s1,
 									  (SELECT geom
 									  FROM "mhtc_operations"."Corners"

@@ -124,9 +124,9 @@ WHERE "RestrictionTypeID" IN (202, 218)
 AND "NoWaitingTimeID" IS NULL;
 
 --
-DROP MATERIALIZED VIEW IF EXISTS toms_lookups."BayLineTypesInUse_View";
+DROP MATERIALIZED VIEW IF EXISTS toms_lookups."BayLineTypesInUse_View" CASCADE;
 
-DROP MATERIALIZED VIEW IF EXISTS toms_lookups."BayLineTypesInUse_View";
+--DROP MATERIALIZED VIEW IF EXISTS toms_lookups."BayLineTypesInUse_View" CASCADE;
 
 CREATE MATERIALIZED VIEW toms_lookups."BayLineTypesInUse_View"
 TABLESPACE pg_default
