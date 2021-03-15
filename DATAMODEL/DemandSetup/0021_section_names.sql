@@ -18,7 +18,7 @@ WITH section_details AS (
 	FROM mhtc_operations."RC_Sections_merged"
         )
 
-UPDATE mhtc_operations."RC_Sections_merged_test" s
+UPDATE mhtc_operations."RC_Sections_merged" s
 SET "SectionName" = n."SectionName"
 FROM section_details n
 WHERE n.gid = s.gid

@@ -31,7 +31,7 @@ BEGIN
                     + COALESCE(NULLIF(NEW."nbikes", '')::float, 0.0) * 0.2
                     + COALESCE(NULLIF(NEW."nogvs",'')::float, 0) * 1.5
                     + COALESCE(NULLIF(NEW."nogvs2",'')::float, 0) * 2.3
-                    + COALESCE(NULLIF(NEW."nbuses",'')::float, 0)) * 2.0
+                    + COALESCE(NULLIF(NEW."nbuses",'')::float, 0) * 2.0
                     + COALESCE(NULLIF(NEW."ntaxis",'')::float, 0);
 
     /* What to do about suspensions */
