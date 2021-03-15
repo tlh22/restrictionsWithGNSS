@@ -24,9 +24,12 @@ BEGIN
         RETURN OLD;
     END IF;
 
-    NEW."Demand" = COALESCE(NEW."ncars"::float, 0.0) + COALESCE(NEW."nlgvs"::float, 0.0)
-                    + COALESCE(NEW."nmcls"::float, 0.0)*0.33
-                    + (COALESCE(NEW."nogvs"::float, 0) + COALESCE(NEW."nogvs2"::float, 0) + COALESCE(NEW."nminib"::float, 0) + COALESCE(NEW."nbuses"::float, 0))*1.5
+    NEW."Demand" = COALESCE(NEW."ncars"::float, 0.0) + COALESCE(NEW."nlgvs"::float, 0.0) + COALESCE(NEW."nminib"::float, 0)
+                    + COALESCE(NEW."nmcls"::float, 0.0) * 0.4
+                    + COALESCE(NEW."nbikes"::float, 0.0) * 0.2
+                    + COALESCE(NEW."nogvs"::float, 0) * 1.5
+                    + COALESCE(NEW."nogvs2"::float, 0) * 2.3
+                    + COALESCE(NEW."nbuses"::float, 0) * 2.0
                     + COALESCE(NEW."ntaxis"::float, 0);
 
     /* What to do about suspensions */
@@ -66,8 +69,9 @@ UPDATE "demand"."Demand_Merged" SET "RestrictionLength" = "RestrictionLength";
 
 SELECT
 d."SurveyID", s."SurveyDay" As "Survey Day", s."BeatStartTime" || '-' || s."BeatEndTime" As "Survey Time", "GeometryID",
-       (COALESCE("ncars"::float, 0)+COALESCE("ntaxis"::float, 0)) As "Nr Cars", COALESCE("nlgvs"::float, 0) As "Nr LGVs",
+       (COALESCE("ncars"::float, 0)+COALESCE("ntaxis"::float, 0)) As "Nr Cars", (COALESCE("nlgvs"::float, 0)+COALESCE("nminib"::float, 0)) As "Nr LGVs",
        COALESCE("nmcls"::float, 0) AS "Nr MCLs", COALESCE("nogvs"::float, 0) AS "Nr OGVs", COALESCE("nbuses"::float, 0) AS "Nr Buses",
+       COALESCE("nogv2s"::float, 0) AS "Nr OGV2s", COALESCE("nbikes"::float, 0) AS "Nr PCLs",
        COALESCE("nspaces"::float, 0) AS "Nr Spaces",
        COALESCE(d."sbays"::integer, 0) AS "Bays Suspended", d."snotes" AS "Suspension Notes", "Demand" As "Demand",
              d."nnotes" AS "Surveyor Notes"
