@@ -76,13 +76,13 @@ WHERE r."id" = (mhtc_operations."get_nearest_roadlink_to_section"(c.gid))[1]::in
 */
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS c
+
 SET "RoadName" = closest."RoadName", --"USRN" = closest."USRN",
 	"Az" = ST_Azimuth(ST_LineInterpolatePoint(c.geom, 0.5), closest.geom), "StartStreet" = closest."RoadFrom", "EndStreet" = closest."RoadTo"
 FROM (SELECT DISTINCT ON (s."gid") s."gid" AS id, cl."name1" AS "RoadName", ST_ClosestPoint(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS geom, ST_Distance(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, cl."RoadFrom", cl."RoadTo"
       FROM "highways_network"."roadlink" cl, "mhtc_operations"."RC_Sections_merged" s
       ORDER BY s."gid", length) AS closest
 WHERE c."gid" = closest.id;
-
 
 UPDATE "mhtc_operations"."RC_Sections_merged"
 SET "SideOfStreet" = 'North'
@@ -142,3 +142,30 @@ ALTER TABLE "mhtc_operations"."RC_Sections_merged"
     ADD COLUMN "Photos_02" character varying(255);
 ALTER TABLE "mhtc_operations"."RC_Sections_merged"
     ADD COLUMN "Photos_03" character varying(255);
+
+-- set up names for sections
+
+ALTER TABLE mhtc_operations."RC_Sections_merged" ADD COLUMN "SectionName" character varying(254);
+
+/***
+SELECT gid, geom, "RoadName", "Az", "StartStreet", "EndStreet", "SideOfStreet", "SurveyArea", "SectionName", n."SubID", n."SectionID", n."Road Name", n."Section Start", n."Section End", n."Section Side of Street"
+	FROM mhtc_operations."RC_Sections_merged" s, mhtc_operations."SectionNames" n
+	WHERE n."SubID" = s.gid
+***/
+
+WITH section_details AS (
+    SELECT gid,
+	"RoadName",
+	UPPER(CONCAT(REPLACE("RoadName", ' ', '_'), '_', to_char(ROW_NUMBER () OVER (
+                                                             PARTITION BY "RoadName"
+                                                             ORDER BY "RoadName"
+                                                            ), 'FM00'))) AS "SectionName"
+	FROM mhtc_operations."RC_Sections_merged"
+        )
+
+UPDATE mhtc_operations."RC_Sections_merged" s
+SET "SectionName" = n."SectionName"
+FROM section_details n
+WHERE n.gid = s.gid
+;
+
