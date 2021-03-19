@@ -32,12 +32,12 @@ FROM
 ORDER BY "RestrictionTypeID", "GeometryID"
 
 
----
+--- used in Haringey
 
 SELECT
 "GeometryID", "RestrictionTypeID", "BayLineTypes"."Description" AS "RestrictionDescription",
 "GeomShapeID", COALESCE("RestrictionGeomShapeTypes"."Description", '') AS "Restriction Shape Description",
-"RoadName", "StartStreet" AS "RoadFrom", "EndStreet" AS "RoadTo", "SideOfStreet", "SectionID", COALESCE("SurveyArea", ''),
+a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideOfStreet", COALESCE("SectionName", '') AS "SectionName", COALESCE(a."SurveyArea", '') AS "SurveyArea",
 
        CASE WHEN "RestrictionTypeID" < 200 THEN COALESCE("TimePeriods1"."Description", '')
             ELSE COALESCE("TimePeriods2"."Description", '')
@@ -57,12 +57,13 @@ SELECT
 	, "CPZ"
 
 FROM
-     (((((mhtc_operations."Supply_MASTER_210318" AS a
+     ((((((mhtc_operations."Supply_MASTER_210318" AS a
      LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
      LEFT JOIN "toms_lookups"."RestrictionGeomShapeTypes" AS "RestrictionGeomShapeTypes" ON a."GeomShapeID" is not distinct from "RestrictionGeomShapeTypes"."Code")
      LEFT JOIN "toms_lookups"."TimePeriods" AS "TimePeriods1" ON a."TimePeriodID" is not distinct from "TimePeriods1"."Code")
      LEFT JOIN "toms_lookups"."TimePeriods" AS "TimePeriods2" ON a."NoWaitingTimeID" is not distinct from "TimePeriods2"."Code")
 	 LEFT JOIN "toms_lookups"."UnacceptableTypes" AS "UnacceptableTypes" ON a."UnacceptableTypeID" is not distinct from "UnacceptableTypes"."Code")
+	 LEFT JOIN mhtc_operations."RC_Sections_merged" As "Sections" ON a."SectionID" is not distinct from "Sections"."gid")
 
 	WHERE a."CPZ" IN ('FP')
 
