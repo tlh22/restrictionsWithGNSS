@@ -27,7 +27,7 @@ BEGIN
     */
 
     NEW."Demand" = COALESCE(NULLIF(NEW."ncars",'')::float, 0.0) + COALESCE(NULLIF(NEW."nlgvs",'')::float, 0.0)
-                    + COALESCE(NULLIF(NEW."nmcls",'')::float, 0.0)*0.33
+                    + COALESCE(NULLIF(NEW."nmcls",'')::float, 0.0)*0.4
                     + (COALESCE(NULLIF(NEW."nogvs",'')::float, 0) + COALESCE(NULLIF(NEW."nogvs2",'')::float, 0)
                     + COALESCE(NULLIF(NEW."nminib",'')::float, 0) + COALESCE(NULLIF(NEW."nbuses",'')::float, 0))*1.5
                     + COALESCE(NULLIF(NEW."ntaxis",'')::float, 0);
