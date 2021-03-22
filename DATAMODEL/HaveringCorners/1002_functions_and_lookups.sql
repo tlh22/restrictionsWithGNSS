@@ -412,7 +412,7 @@ DECLARE
 BEGIN
 
     cnr_id = NEW."GeometryID";
-    RAISE NOTICE '***** IN update_line_from_corner_point_geom: cnr_id(%)', cnr_id;
+    RAISE NOTICE '***** IN set_line_from_corner_point_geom: cnr_id(%)', cnr_id;
 
     -- clear the relevant record  ** may need to check record exists
     DELETE FROM havering_operations."HaveringCornerSegments"
@@ -420,42 +420,12 @@ BEGIN
 
     -- add in new details
 
-    --ALTER TABLE havering_operations."HaveringCornerSegments" DROP CONSTRAINT "HaveringCornerSegments_pkey";
-
-    /*WITH cornerDetails AS (
-    SELECT c."GeometryID" as "GeometryID", c.corner_point_geom As corner_geom, r.geom as road_casement_geom
-    FROM havering_operations."HaveringCorners" c, topography."road_casement" r
-    WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
-    AND "GeometryID" = cnr_id
-    )
-        INSERT INTO havering_operations."HaveringCornerSegments" ("GeometryID", "SegmentLength", geom)
-        SELECT d."GeometryID", ST_Length(havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)),
-                        havering_operations."get_road_casement_section"(d."GeometryID", d.road_casement_geom, d.corner_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
-        FROM cornerDetails d
-        WHERE d."GeometryID" = cnr_id
-        LIMIT 1;*/
-
     INSERT INTO havering_operations."HaveringCornerSegments" ("GeometryID", "SegmentLength", geom)
     SELECT c."GeometryID", ST_Length(havering_operations."get_road_casement_section"(c."GeometryID", r.geom, c.corner_point_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)),
     havering_operations."get_road_casement_section"(c."GeometryID", r.geom, c.corner_point_geom, mhtc_operations."getParameter"('CornerProtectionDistance')::float)
         FROM havering_operations."HaveringCorners" c, topography."road_casement" r
         WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.corner_point_geom, 0.1))
         AND "GeometryID" = cnr_id;
-
-
-    /*DELETE FROM havering_operations."HaveringCornerSegments" c1
-    WHERE "GeometryID" = cnr_id
-    AND "GeometryID" IN (
-        SELECT "GeometryID"
-        FROM (
-            SELECT "GeometryID", count(*)
-            FROM havering_operations."HaveringCornerSegments"
-            GROUP BY "GeometryID"
-            HAVING count(*) > 1) a
-            );
-
-    ALTER TABLE ONLY havering_operations."HaveringCornerSegments"
-        ADD CONSTRAINT "HaveringCornerSegments_pkey" PRIMARY KEY ("GeometryID");*/
 
     -- clear the relevant record  ** may need to check record exists
     DELETE FROM havering_operations."HaveringCornerSegmentEndPts"
@@ -536,7 +506,7 @@ BEGIN
     cnr_id = NEW."GeometryID";
     apex_pt_geom = NEW."apex_point_geom";
 
-    RAISE NOTICE '***** IN update_line_from_apex_point_geom: cnr_id(%); apex geom(%)', cnr_id, apex_pt_geom;
+    RAISE NOTICE '***** IN set_line_from_apex_point_geom: cnr_id(%); apex geom(%)', cnr_id, apex_pt_geom;
 
     UPDATE havering_operations."HaveringCorners" AS c
     SET line_from_apex_point_geom = ST_GeometryN(havering_operations."getCornerExtentsFromApex"(cnr_id), 1)
@@ -646,6 +616,7 @@ BEGIN
     cnr_id = NEW."GeometryID";
     RAISE NOTICE '***** IN set_new_corner_dimension_lines_geom: cnr_id(%)', cnr_id;
 
+    -- TODO: Check that corner exists
     -- regenerate dimension lines
     UPDATE havering_operations."HaveringCorners" AS c
     SET corner_dimension_lines_geom = ST_Multi(havering_operations."get_all_new_corner_dimension_lines"(cnr_id))

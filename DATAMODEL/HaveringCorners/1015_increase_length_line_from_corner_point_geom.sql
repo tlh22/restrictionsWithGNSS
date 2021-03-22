@@ -1,0 +1,11 @@
+--
+
+ALTER TABLE havering_operations."HaveringCorners" DISABLE TRIGGER "update_corner_protection_line_4_from_apex_point";
+
+UPDATE havering_operations."HaveringCorners"
+SET corner_point_geom = corner_point_geom
+--WHERE "GeometryID" = 'CO_23887'
+;
+
+ALTER TABLE havering_operations."HaveringCorners" ENABLE TRIGGER "update_corner_protection_line_4_from_apex_point";
+
