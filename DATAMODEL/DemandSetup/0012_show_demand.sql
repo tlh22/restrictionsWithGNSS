@@ -34,6 +34,10 @@ CREATE INDEX "sidx_Supply_for_viewing_demand_geom"
 
 INSERT INTO demand."Supply_for_viewing_demand"(
 	"GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "BayOrientation", "NrBays", "Capacity")
-SELECT "GeometryID", geom, "RestrictionLength", "RestrictionTypeID", 21, "AzimuthToRoadCentreLine", "BayOrientation", "Capacity", "Capacity"
+SELECT "GeometryID", geom, "RestrictionLength", "RestrictionTypeID",
+        CASE WHEN "GeomShapeID" < 10 THEN "GeomShapeID" + 20
+             WHEN "GeomShapeID" >= 10 AND "GeomShapeID" < 20 THEN 21
+             ELSE "GeomShapeID"
+         END
+         , "AzimuthToRoadCentreLine", "BayOrientation", "Capacity", "Capacity"
 	FROM mhtc_operations."Supply";
-
