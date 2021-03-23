@@ -1,5 +1,9 @@
 --
 
+UPDATE mhtc_operations.project_parameters
+SET "Value" = 20.0
+WHERE "Field" = 'CornerProtectionDistance';
+
 ALTER TABLE havering_operations."HaveringCorners" DISABLE TRIGGER "update_corner_protection_line_4_from_apex_point";
 
 UPDATE havering_operations."HaveringCorners"

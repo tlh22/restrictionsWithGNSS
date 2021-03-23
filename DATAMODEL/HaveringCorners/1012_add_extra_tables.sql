@@ -62,6 +62,10 @@ INHERITS ("highway_assets"."HighwayAssets");
 
 CREATE INDEX "sidx_HaveringMapFrames_geom" ON havering_operations."HaveringMapFrames" USING "gist" ("map_frame_geom");
 
+-- change default value for "AssetConditionTypeID"
+
+ALTER TABLE havering_operations."HaveringMapFrames"
+    ALTER COLUMN "AssetConditionTypeID" DROP NOT NULL;
 
 -- CornersWithinJunctions
 
@@ -112,6 +116,5 @@ $BODY$;
 
 ALTER FUNCTION havering_operations.create_geometryid_havering()
     OWNER TO postgres;
-
 
 
