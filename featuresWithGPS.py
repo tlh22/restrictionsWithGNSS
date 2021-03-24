@@ -86,7 +86,11 @@ class featuresWithGPS:
 
         self.closeGPSToolsFlag = False
         # Set up log file and collect any relevant messages
-        logFilePath = os.environ.get('QGIS_LOGFILE_PATH')
+
+        loggingUtils = TOMsMessageLog()
+        loggingUtils.setLogFile()
+
+        """logFilePath = os.environ.get('QGIS_LOGFILE_PATH')
 
         if logFilePath:
 
@@ -95,7 +99,7 @@ class featuresWithGPS:
             logfile = 'qgis_' + datetime.date.today().strftime("%Y%m%d") + '.log'
             self.filename = os.path.join(logFilePath, logfile)
             QgsMessageLog.logMessage("Sorting out log file" + self.filename, tag="TOMs panel")
-            QgsApplication.instance().messageLog().messageReceived.connect(self.write_log_message)
+            QgsApplication.instance().messageLog().messageReceived.connect(self.write_log_message)"""
 
         # Set up local logging
         #loggingUtils = TOMsMessageLog()

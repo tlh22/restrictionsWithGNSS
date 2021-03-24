@@ -26,10 +26,12 @@ BEGIN
     END IF;
     */
 
-    NEW."Demand" = COALESCE(NULLIF(NEW."ncars",'')::float, 0.0) + COALESCE(NULLIF(NEW."nlgvs",'')::float, 0.0)
-                    + COALESCE(NULLIF(NEW."nmcls",'')::float, 0.0)*0.33
-                    + (COALESCE(NULLIF(NEW."nogvs",'')::float, 0) + COALESCE(NULLIF(NEW."nogvs2",'')::float, 0)
-                    + COALESCE(NULLIF(NEW."nminib",'')::float, 0) + COALESCE(NULLIF(NEW."nbuses",'')::float, 0))*1.5
+    NEW."Demand" = COALESCE(NULLIF(NEW."ncars",'')::float, 0.0) + COALESCE(NULLIF(NEW."nlgvs",'')::float, 0.0) + COALESCE(NULLIF(NEW."nminib",'')::float, 0.0)
+                    + COALESCE(NULLIF(NEW."nmcls",'')::float, 0.0)*0.4
+                    + COALESCE(NULLIF(NEW."nbikes", '')::float, 0.0) * 0.2
+                    + COALESCE(NULLIF(NEW."nogvs",'')::float, 0) * 1.5
+                    + COALESCE(NULLIF(NEW."nogvs2",'')::float, 0) * 2.3
+                    + COALESCE(NULLIF(NEW."nbuses",'')::float, 0) * 2.0
                     + COALESCE(NULLIF(NEW."ntaxis",'')::float, 0);
 
     /* What to do about suspensions */
@@ -70,10 +72,13 @@ UPDATE "demand"."Demand_Merged" SET "RestrictionLength" = "RestrictionLength";
 
 SELECT
 d."SurveyID", s."SurveyDay" As "Survey Day", s."BeatStartTime" || '-' || s."BeatEndTime" As "Survey Time", "GeometryID",
-       (COALESCE(NULLIF("ncars",'')::float, 0)+COALESCE(NULLIF("ntaxis",'')::float, 0)) As "Nr Cars", COALESCE(NULLIF("nlgvs",'')::float, 0) As "Nr LGVs",
+
+       (COALESCE(NULLIF("ncars",'')::float, 0) +COALESCE(NULLIF("ntaxis",'')::float, 0)) As "Nr Cars", COALESCE(NULLIF("nlgvs",'')::float, 0) As "Nr LGVs",
        COALESCE(NULLIF("nmcls",'')::float, 0) AS "Nr MCLs", COALESCE(NULLIF("nogvs",'')::float, 0) AS "Nr OGVs", COALESCE(NULLIF("nbuses",'')::float, 0) AS "Nr Buses",
+       COALESCE(NULLIF("nogv2s",'')::float, 0) AS "Nr OGV2s", COALESCE(NULLIF("nbikes",'')::float, 0) AS "Nr PCLs",
        COALESCE(NULLIF("nspaces",'')::float, 0) AS "Nr Spaces",
        COALESCE(NULLIF(d."sbays",'')::integer, 0) AS "Bays Suspended", d."snotes" AS "Suspension Notes", "Demand" As "Demand",
+
              d."nnotes" AS "Surveyor Notes"
 
 FROM --"SYL_AllowableTimePeriods" syls,
