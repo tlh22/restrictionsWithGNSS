@@ -41,3 +41,27 @@ SELECT "GeometryID", geom, "RestrictionLength", "RestrictionTypeID",
          END
          , "AzimuthToRoadCentreLine", "BayOrientation", "Capacity", "Capacity"
 	FROM mhtc_operations."Supply";
+
+-- create view with join to demand table
+
+DROP MATERIALIZED VIEW IF EXISTS demand."Supply_view_to_show_demand";
+
+CREATE MATERIALIZED VIEW demand."Supply_view_to_show_demand"
+TABLESPACE pg_default
+AS
+    SELECT row_number() OVER (PARTITION BY true::boolean) AS id,
+    s."GeometryID", s.geom, s."RestrictionTypeID", s."GeomShapeID", s."AzimuthToRoadCentreLine", s."BayOrientation", s."NrBays", s."Capacity",
+    d."SurveyID", d."Demand"
+	FROM demand."Supply_for_viewing_demand" s, demand."Demand_Merged_Marie" d
+	WHERE d."GeometryID" = s."GeometryID"
+WITH DATA;
+
+ALTER TABLE demand."Supply_view_to_show_demand"
+    OWNER TO postgres;
+
+CREATE UNIQUE INDEX "idx_supply_view_to_show_demand_id"
+    ON demand."Supply_view_to_show_demand" USING btree
+    (id)
+    TABLESPACE pg_default;
+
+REFRESH MATERIALIZED VIEW demand."Supply_view_to_show_demand";
