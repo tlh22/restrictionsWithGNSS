@@ -42,7 +42,7 @@ SELECT "GeometryID", geom, "RestrictionLength", "RestrictionTypeID",
          , "AzimuthToRoadCentreLine", "BayOrientation", "Capacity", "Capacity"
 	FROM mhtc_operations."Supply";
 
--- create view with join to demand table
+-- create view with to show stress
 
 DROP MATERIALIZED VIEW IF EXISTS demand."Supply_view_to_show_stress";
 
@@ -53,25 +53,29 @@ AS
     s."GeometryID", s.geom, s."RestrictionTypeID", s."GeomShapeID", s."AzimuthToRoadCentreLine", s."BayOrientation", s."NrBays", s."Capacity",
     d."SurveyID", d."sbays" AS "BaysSuspended", d."Demand" AS "Demand",
 
-    d."sbays" AS "BaysSuspended",
     /* What to do about suspensions */
     CASE
         WHEN s."Capacity" = 0 THEN
             CASE
                 WHEN d."Demand" > 0.0 THEN 1.0
                 ELSE 0.0
-            END
+                END
         ELSE
             CASE
-                WHEN s."Capacity"::float - COALESCE(NULLIF(d."sbays",'')::float, 0.0) > 0.0 THEN
-                    d."Demand" / (s."Capacity"::float - COALESCE(NULLIF(d."sbays",'')::float, 0.0)) * 1.0
-                ELSE
+                WHEN d."Done" IS TRUE THEN
                     CASE
-                        WHEN d."Demand" > 0.0 THEN 1.0
-                        ELSE  0.0
-                    END
-            END
-    END "Stress"
+                        WHEN s."Capacity"::float - COALESCE(NULLIF(d."sbays",'')::float, 0.0) > 0.0 THEN
+                            d."Demand" / (s."Capacity"::float - COALESCE(NULLIF(d."sbays",'')::float, 0.0)) * 1.0
+                        ELSE
+                            CASE
+                                WHEN d."Demand" > 0.0 THEN 1.0
+                                ELSE  0.0
+                                END
+                        END
+                ELSE
+                    0.0
+                END
+        END AS "Stress"
 
 	FROM mhtc_operations."Supply" s, demand."Demand_Merged" d
 	WHERE d."GeometryID" = s."GeometryID"

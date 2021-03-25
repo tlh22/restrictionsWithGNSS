@@ -73,10 +73,17 @@ create trigger "update_demand" before insert or update on "demand"."Demand_Merge
 
 UPDATE "demand"."Demand_Merged" SET "RestrictionLength" = "RestrictionLength";
 
+-- Update capacity
+
+UPDATE "demand"."Demand_Merged" AS d
+SET "Capacity" = s."Capacity"
+FROM mhtc_operations."Supply" s
+WHERE s."GeometryID" = d."GeometryID";
+
 -- Step 3: output demand
 
 SELECT
-d."SurveyID", s."SurveyDay" As "Survey Day", s."BeatStartTime" || '-' || s."BeatEndTime" As "Survey Time", "GeometryID",
+d."SurveyID", s."SurveyDay" As "Survey Day", s."BeatStartTime" || '-' || s."BeatEndTime" As "Survey Time", "GeometryID", "Done",
 
        (COALESCE(NULLIF("ncars",'')::float, 0) +COALESCE(NULLIF("ntaxis",'')::float, 0)) As "Nr Cars", COALESCE(NULLIF("nlgvs",'')::float, 0) As "Nr LGVs",
        COALESCE(NULLIF("nmcls",'')::float, 0) AS "Nr MCLs", COALESCE(NULLIF("nogvs",'')::float, 0) AS "Nr OGVs", COALESCE(NULLIF("nbuses",'')::float, 0) AS "Nr Buses",
@@ -88,14 +95,39 @@ d."SurveyID", s."SurveyDay" As "Survey Day", s."BeatStartTime" || '-' || s."Beat
              d."nnotes" AS "Surveyor Notes"
 
 FROM --"SYL_AllowableTimePeriods" syls,
-      demand."Demand_Merged" d, demand."Surveys" s
+      demand."Surveys" s,
+      (SELECT s."GeometryID",
+      "SurveyID", "DemandSurveyDateTime", "Done", ncars, nlgvs, nmcls, nogvs, ntaxis, nminib, nbuses, nbikes, nogvs2, nspaces, nnotes,
+      sref, sbays, sreason, scars, slgvs, smcls, sogvs, staxis, sbikes, sbuses, sogvs2, sminib, snotes,
+      dcars, dlgvs, dmcls, dogvs, dtaxis, dbikes, dbuses, dogvs2, dminib, "Demand", "Stress"
+	  FROM demand."Demand_Merged" de, mhtc_operations."Supply" s
+	  WHERE de."GeometryID" = s."GeometryID"
+	  AND de."Done" IS TRUE) As d
 WHERE s."SurveyID" = d."SurveyID"
-ORDER BY  "GeometryID", d."SurveyID"
 
+UNION
 
--- Update capacity
+SELECT
+d."SurveyID", s."SurveyDay" As "Survey Day", s."BeatStartTime" || '-' || s."BeatEndTime" As "Survey Time", "GeometryID", "Done",
 
-UPDATE "demand"."Demand_Merged" AS d
-SET "Capacity" = s."Capacity"
-FROM mhtc_operations."Supply" s
-WHERE s."GeometryID" = d."GeometryID";
+       0 As "Nr Cars", 0 As "Nr LGVs",
+       0 AS "Nr MCLs", 0 AS "Nr OGVs", 0 AS "Nr Buses",
+       0 AS "Nr OGV2s",
+       0 AS "Nr PCLs",
+       0 AS "Nr Spaces",
+       0 AS "Bays Suspended", d."snotes" AS "Suspension Notes", 0 As "Demand",
+
+             '' AS "Surveyor Notes"
+
+FROM --"SYL_AllowableTimePeriods" syls,
+      demand."Surveys" s,
+      (SELECT s."GeometryID",
+      "SurveyID", "DemandSurveyDateTime", "Done", ncars, nlgvs, nmcls, nogvs, ntaxis, nminib, nbuses, nbikes, nogvs2, nspaces, nnotes,
+      sref, sbays, sreason, scars, slgvs, smcls, sogvs, staxis, sbikes, sbuses, sogvs2, sminib, snotes,
+      dcars, dlgvs, dmcls, dogvs, dtaxis, dbikes, dbuses, dogvs2, dminib, "Demand", "Stress"
+	  FROM demand."Demand_Merged" de, mhtc_operations."Supply" s
+	  WHERE de."GeometryID" = s."GeometryID"
+	  AND (de."Done" IS FALSE OR de."Done" IS NULL)) As d
+WHERE s."SurveyID" = d."SurveyID"
+
+ORDER BY  "GeometryID", "SurveyID"
