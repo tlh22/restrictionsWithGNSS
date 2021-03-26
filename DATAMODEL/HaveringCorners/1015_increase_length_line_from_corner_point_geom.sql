@@ -13,3 +13,8 @@ SET corner_point_geom = corner_point_geom
 
 ALTER TABLE havering_operations."HaveringCorners" ENABLE TRIGGER "update_corner_protection_line_4_from_apex_point";
 
+-- reset corner protection distance. TODO: may need to think of another parameter
+
+UPDATE mhtc_operations.project_parameters
+SET "Value" = 10.0
+WHERE "Field" = 'CornerProtectionDistance';
