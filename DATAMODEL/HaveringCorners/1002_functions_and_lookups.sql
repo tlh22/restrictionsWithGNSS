@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION havering_operations."get_road_casement_section"(corne
     plan = plpy.prepare("SELECT ST_Length($1::geometry) as l", ['geometry'])
     restrictionLength = plpy.execute(plan, [road_casement_geom])[0]["l"]
 
-    if restrictionLength < 20.0:
+    if restrictionLength < (distance_from_corner_point * 2.0):
         return None  # can't deal with junction in this way ...
 
     #restrictionLength = plpy.execute("SELECT ST_Length({})".format(road_casement_geom))

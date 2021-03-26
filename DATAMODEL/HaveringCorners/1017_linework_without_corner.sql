@@ -8,6 +8,20 @@ Needs to be associated with a junction ?? (or a map frame??)
 ALTER TABLE ONLY havering_operations."HaveringCorners_Output"
     ALTER COLUMN "GeometryID" SET DEFAULT ('CO_'::"text" || "to_char"("nextval"('havering_operations."HaveringCorners_id_seq"'::"regclass"), 'FM00000'::"text"));
 
+ALTER TABLE ONLY havering_operations."HaveringCorners_Output"
+    DROP CONSTRAINT IF EXISTS "HaveringCorners_Output_GeometryID_fkey";
+
+-- added in ISL details ... (but missed here...)
+
+ALTER TABLE toms."Bays"
+    ADD COLUMN "FieldCheckCompleted" BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE toms."Lines"
+    ADD COLUMN "FieldCheckCompleted" BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE toms."Signs"
+    ADD COLUMN "FieldCheckCompleted" BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE toms."RestrictionPolygons"
+    ADD COLUMN "FieldCheckCompleted" BOOLEAN NOT NULL DEFAULT FALSE;
+
 ---
 
 CREATE OR REPLACE FUNCTION havering_operations."set_new_corner_dimension_lines_geom"()
