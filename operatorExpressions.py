@@ -31,7 +31,8 @@ from qgis.core import (
     Qgis,
     QgsMessageLog,
     QgsExpression, QgsGeometry, QgsPointXY,
-    QgsFeature, QgsProject, QgsFeatureRequest
+    QgsFeature, QgsProject, QgsFeatureRequest,
+    QgsSpatialIndex
 )
 import math
 import random
@@ -148,7 +149,7 @@ class operatorExpressions(TOMsExpressions):
         concat_fields = []
         mapFrameID = feature.attribute("GeometryID")
         TOMsMessageLog.logMessage('lookupJunctionDetails: mapFrameID {}'.format(mapFrameID),
-                                  level=Qgis.Warning)
+                                  level=Qgis.Info)
         junctionsInMapFramesLayer = QgsProject.instance().mapLayersByName("JunctionsWithinMapFrames")[0]
         junctionsLayer = QgsProject.instance().mapLayersByName("HaveringJunctions")[0]
         # get junctions for map frame
@@ -159,7 +160,7 @@ class operatorExpressions(TOMsExpressions):
             #TOMsMessageLog.logMessage("In getLookupLabelText: found row " + str(row.attribute("LabelText")), level=Qgis.Info)
             junctionID = row1.attribute("JunctionID") # make assumption that only one row
             TOMsMessageLog.logMessage('lookupJunctionDetails: considering junctionID {}'.format(junctionID),
-                                      level=Qgis.Warning)
+                                      level=Qgis.Info)
             query2 = "\"GeometryID\" = '{}'".format(junctionID)
             request2 = QgsFeatureRequest().setFilterExpression(query2)
             for row2 in junctionsLayer.getFeatures(request2):
@@ -171,8 +172,35 @@ class operatorExpressions(TOMsExpressions):
             result = ''
 
         TOMsMessageLog.logMessage('lookupJunctionDetails: concat_fields .{}.'.format(result),
-                                  level=Qgis.Warning)
+                                  level=Qgis.Info)
         return result.strip()
+
+    # https://gis.stackexchange.com/questions/152257/how-to-refer-to-another-layer-in-the-field-calculator  - see for inspiration
+    @qgsfunction(args="auto", group='JunctionProtection', usesgeometry=True, register=True)
+    def pointInPoly(layerName, refColumn, defaultValue, geom, feature, parent):
+        # attempt to make a generic point in poly function ...
+        
+        TOMsMessageLog.logMessage("In pointInPoly", level=Qgis.Warning)
+
+        # Get the reference layer
+        try:
+            refLayer = QgsProject.instance().mapLayersByName(layerName)[0]
+        except Exception as e:
+            refLayer = None
+
+        if refLayer:
+
+            TOMsMessageLog.logMessage("In pointInPoly. ref layer found ... ", level=Qgis.Warning)
+            # TODO: ensure refLayer is polygon
+            # TODO: deal with different geom types for the incoming geom. For the moment assume a point
+
+            for poly in refLayer.getFeatures():
+                if poly.geometry().contains(geom):
+                    #TOMsMessageLog.logMessage("In getPolygonForRestriction. feature found", level=Qgis.Info)
+                    return poly.attribute(refColumn)
+
+        return defaultValue
+
 
     def registerFunctions(self):
 
