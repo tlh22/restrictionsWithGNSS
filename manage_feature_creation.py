@@ -298,6 +298,8 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
 
         self.searchBar.disableSearchBar()
 
+        # setup signal for refresh of "second" geometries
+        self.disconnectSecondGeometrySignals()
         """if self.gpsConnection:
             self.actionAddGPSLocation.setEnabled(False)"""
 

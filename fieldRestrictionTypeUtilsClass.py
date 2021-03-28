@@ -833,13 +833,27 @@ class FieldRestrictionTypeUtilsMixin():
         try:
             mapFramesLayer = QgsProject.instance().mapLayersByName("HaveringMapFrames")[0]
             mapFramesLayer.attributeValueChanged.connect(functools.partial(self.checkGeomChange, mapFramesLayer))
-            mapFramesLayer.dataProvider().dataChanged.connect(functools.partial(self.checkGeomChange2, mapFramesLayer))
+            mapFramesLayer.editingStopped.connect(functools.partial(self.checkGeomChange2, mapFramesLayer))
             TOMsMessageLog.logMessage("connectSecondGeometrySignals: signal connected ...",
                                      level=Qgis.Warning)
         except Exception as e:
             TOMsMessageLog.logMessage("connectSecondGeometrySignals: error{}".format(e),
                                      level=Qgis.Warning)
 
+    def disconnectSecondGeometrySignals(self):
+
+        # setup signals so that changes to secondary geometries are shown immediately
+        TOMsMessageLog.logMessage("disconnectSecondGeometrySignals ...",
+                                  level=Qgis.Warning)
+        try:
+            mapFramesLayer = QgsProject.instance().mapLayersByName("HaveringMapFrames")[0]
+            mapFramesLayer.attributeValueChanged.disconnect()
+            mapFramesLayer.editingStopped.disconnect()
+            TOMsMessageLog.logMessage("connectSecondGeometrySignals: signal connected ...",
+                                     level=Qgis.Warning)
+        except Exception as e:
+            TOMsMessageLog.logMessage("disconnectSecondGeometrySignals: error{}".format(e),
+                                     level=Qgis.Warning)
 
     def checkGeomChange(self, layer, fid, idx, value):
 
@@ -851,16 +865,23 @@ class FieldRestrictionTypeUtilsMixin():
                                  level=Qgis.Warning)
 
         if idx == idx_geomField:
-            self.iface.mapcanvas.refresh()
+            #layer.dataProvider().forceReload()
+            #layer.triggerRepaint()
+            self.iface.mapCanvas().refresh()
 
         return
 
     def checkGeomChange2(self, layer):
 
         #self.TOMsUtils.onAttributeChangedClass2(currFeature, layer, fieldName, value)
-        TOMsMessageLog.logMessage("checkGeomChange: Attributes changed for layer {}".format(layer.name()),
+        TOMsMessageLog.logMessage("checkGeomChange2: Attributes changed for layer {}".format(layer.name()),
                                  level=Qgis.Warning)
 
-        self.iface.mapcanvas.refresh()
-
+        try:
+            layer.dataProvider().reloadData()
+            layer.triggerRepaint()
+            self.iface.mapCanvas().refresh()
+        except Exception as e:
+            TOMsMessageLog.logMessage("checkGeomChange2: error{}".format(e),
+                                     level=Qgis.Warning)
         return
