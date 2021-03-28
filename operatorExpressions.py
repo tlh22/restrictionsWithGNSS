@@ -179,7 +179,7 @@ class operatorExpressions(TOMsExpressions):
     @qgsfunction(args="auto", group='JunctionProtection', usesgeometry=True, register=True)
     def pointInPoly(layerName, refColumn, defaultValue, geom, feature, parent):
         # attempt to make a generic point in poly function ...
-        
+
         TOMsMessageLog.logMessage("In pointInPoly", level=Qgis.Warning)
 
         # Get the reference layer

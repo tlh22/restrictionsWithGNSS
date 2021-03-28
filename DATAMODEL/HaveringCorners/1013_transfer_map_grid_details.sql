@@ -50,7 +50,9 @@ BEGIN
 
         RAISE NOTICE '***** IN set_map_frame_geom: map_frame_scale(%); map_frame_geom_change (%)', map_frame_scale, map_frame_geom_not_changed;
 
-        IF (NEW."HaveringMapFramesScaleID" != OLD."HaveringMapFramesScaleID") OR NOT map_frame_geom_not_changed THEN
+        IF TG_OP = 'INSERT' OR
+           (TG_OP = 'UPDATE' AND
+           ((NEW."HaveringMapFramesScaleID" != OLD."HaveringMapFramesScaleID") OR NOT map_frame_geom_not_changed)) THEN
 
             RAISE NOTICE '***** IN set_map_frame_geom: map_frame_scale(%); dX (%); x (%)', map_frame_scale, dX, ST_X(NEW.map_frame_centre_point_geom);
 
@@ -69,7 +71,7 @@ BEGIN
 
 END;
 $BODY$;
-
+/*
 CREATE OR REPLACE FUNCTION havering_operations."set_junctions_within_map_frame"()
 RETURNS trigger
 LANGUAGE 'plpgsql'
@@ -90,7 +92,8 @@ BEGIN
     AND j."GeometryID" NOT IN (
         SELECT "JunctionID"
         FROM havering_operations."JunctionsWithinMapFrames"
-        WHERE "MapFrameID" = map_frame_id);
+        --WHERE "MapFrameID" = map_frame_id
+        );
     --NEW."line_from_apex_point_geom" := cornerProtectionLineString;
 
     RETURN NEW;
@@ -99,9 +102,11 @@ END;
 $BODY$;
 
 DROP TRIGGER IF EXISTS "set_junctions_within_map_frame" ON havering_operations."HaveringMapFrames";
-
+*/
+/*
 CREATE TRIGGER "set_junctions_within_map_frame"
     AFTER INSERT OR UPDATE ON havering_operations."HaveringMapFrames" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_junctions_within_map_frame"();
+*/
 
 -- Now transfer grids
 INSERT INTO havering_operations."HaveringMapFrames"(
@@ -125,3 +130,114 @@ CREATE TRIGGER set_last_update_details_havering_map_frames
     FOR EACH ROW
     EXECUTE PROCEDURE public.set_last_update_details();
 
+
+CREATE OR REPLACE FUNCTION havering_operations."resolve_junctions_in_map_frame"()
+RETURNS trigger
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+   map_frame_id text;
+   junction_id text;
+BEGIN
+
+    IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+        map_frame_id = NEW."GeometryID";
+    ELSE
+        map_frame_id = OLD."GeometryID";
+    END IF;
+
+    RAISE NOTICE '***** IN resolve_junctions_in_map_frame: map_frame_id(%)', map_frame_id;
+
+    -- transfer junction(s) to another map frame
+
+    FOR junction_id IN SELECT "JunctionID" FROM havering_operations."JunctionsWithinMapFrames"
+                       WHERE "MapFrameID" = map_frame_id
+    LOOP
+
+        RAISE NOTICE '***** IN resolve_junctions_in_map_frame: removing (%) from (%)', junction_id, map_frame_id;
+
+        -- Delete current record
+        DELETE FROM havering_operations."JunctionsWithinMapFrames"
+        WHERE "MapFrameID" = map_frame_id
+        AND "JunctionID" = junction_id;
+
+        -- now check location and see if there is another map frame that could take on
+
+        INSERT INTO havering_operations."JunctionsWithinMapFrames" ("JunctionID", "MapFrameID")
+        SELECT j."GeometryID" As "JunctionID", m."GeometryID" AS "MapFrameID"
+        FROM havering_operations."HaveringJunctions" j, havering_operations."HaveringMapFrames" m
+        WHERE ST_Within(j.junction_point_geom, m.map_frame_geom)
+        AND j."GeometryID" = junction_id
+        AND j."GeometryID" NOT IN (
+            SELECT "JunctionID"
+            FROM havering_operations."JunctionsWithinMapFrames"
+            )
+        ORDER BY ST_Distance(j.junction_point_geom, m.map_frame_centre_point_geom) ASC
+        LIMIT 1;
+
+    END LOOP;
+
+    -- now add any other junctions that are not allocated ...
+    INSERT INTO havering_operations."JunctionsWithinMapFrames" ("JunctionID", "MapFrameID")
+    SELECT j."GeometryID" As "JunctionID", m."GeometryID" AS "MapFrameID"
+    FROM havering_operations."HaveringJunctions" j, havering_operations."HaveringMapFrames" m
+    WHERE ST_Within(j.junction_point_geom, m.map_frame_geom)
+    AND j."GeometryID" NOT IN (
+        SELECT "JunctionID"
+        FROM havering_operations."JunctionsWithinMapFrames"
+        )
+    ORDER BY ST_Distance(j.junction_point_geom, m.map_frame_centre_point_geom) ASC
+    LIMIT 1;
+
+    RETURN NEW;
+
+END;
+$BODY$;
+
+DROP TRIGGER IF EXISTS "resolve_junctions_in_map_frame" ON havering_operations."HaveringMapFrames";
+
+CREATE TRIGGER "resolve_junctions_in_map_frame"
+    AFTER INSERT OR UPDATE OR DELETE ON havering_operations."HaveringMapFrames" FOR EACH ROW EXECUTE FUNCTION havering_operations."resolve_junctions_in_map_frame"();
+
+-- repopulate "JunctionsWithinMapFrames"
+
+DROP TABLE IF EXISTS havering_operations."JunctionsWithinMapFrames";
+
+CREATE TABLE havering_operations."JunctionsWithinMapFrames"
+(
+    "MapFrameID" character varying(12) NOT NULL,
+    "JunctionID" character varying(12) NOT NULL,
+    CONSTRAINT "JunctionsWithinMapFrames_pk" PRIMARY KEY ("MapFrameID", "JunctionID"),
+    CONSTRAINT "JunctionsWithinMapFrames_JunctionID_fkey" FOREIGN KEY ("JunctionID")
+        REFERENCES havering_operations."HaveringJunctions" ("GeometryID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        ,
+    CONSTRAINT "JunctionsWithinMapFrames_GeometryID_key" UNIQUE ("JunctionID"),
+    CONSTRAINT "JunctionsWithinMapFrames_MapFrameID_fkey" FOREIGN KEY ("MapFrameID")
+        REFERENCES havering_operations."HaveringMapFrames" ("GeometryID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+);
+
+-- populate
+
+DO
+$do$
+DECLARE
+   row RECORD;
+BEGIN
+    FOR row IN SELECT "GeometryID", junction_point_geom
+               FROM havering_operations."HaveringJunctions"
+    LOOP
+
+        INSERT INTO havering_operations."JunctionsWithinMapFrames" ("JunctionID", "MapFrameID")
+        SELECT row."GeometryID" AS "JunctionID", m."GeometryID" AS "MapFrameID"
+        FROM havering_operations."HaveringMapFrames" m
+        WHERE ST_Within(row.junction_point_geom, m.map_frame_geom)
+        ORDER BY ST_Distance(row.junction_point_geom, m.map_frame_centre_point_geom) ASC
+        LIMIT 1;
+
+    END LOOP;
+END
+$do$;

@@ -79,11 +79,13 @@ CREATE TABLE havering_operations."JunctionsWithinMapFrames"
     CONSTRAINT "JunctionsWithinMapFrames_JunctionID_fkey" FOREIGN KEY ("JunctionID")
         REFERENCES havering_operations."HaveringJunctions" ("GeometryID") MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE CASCADE,
+        --ON DELETE CASCADE
+        ,
+    CONSTRAINT "JunctionsWithinMapFrames_GeometryID_key" UNIQUE ("JunctionID"),
     CONSTRAINT "JunctionsWithinMapFrames_MapFrameID_fkey" FOREIGN KEY ("MapFrameID")
         REFERENCES havering_operations."HaveringMapFrames" ("GeometryID") MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE CASCADE
+        --ON DELETE CASCADE
 );
 
 
@@ -117,4 +119,31 @@ $BODY$;
 ALTER FUNCTION havering_operations.create_geometryid_havering()
     OWNER TO postgres;
 
+-- set up triggers
+DROP TRIGGER IF EXISTS "create_geometryid_havering_map_frames" ON havering_operations."HaveringMapFrames";
+DROP TRIGGER IF EXISTS "set_create_details_havering_map_frames" ON havering_operations."HaveringMapFrames";
+CREATE TRIGGER "create_geometryid_havering_map_frames" BEFORE INSERT ON havering_operations."HaveringMapFrames" FOR EACH ROW EXECUTE FUNCTION havering_operations."create_geometryid_havering"();
+CREATE TRIGGER "set_create_details_havering_map_frames" BEFORE INSERT ON havering_operations."HaveringMapFrames" FOR EACH ROW EXECUTE FUNCTION "public"."set_create_details"();
 
+
+-- changes
+/*
+ALTER TABLE ONLY havering_operations."JunctionsWithinMapFrames"
+    DROP CONSTRAINT "JunctionsWithinMapFrames_JunctionID_fkey";
+
+ALTER TABLE ONLY havering_operations."JunctionsWithinMapFrames"
+     ADD CONSTRAINT "JunctionsWithinMapFrames_JunctionID_fkey" FOREIGN KEY ("JunctionID")
+        REFERENCES havering_operations."HaveringJunctions" ("GeometryID") MATCH SIMPLE
+        ON UPDATE NO ACTION;
+
+ALTER TABLE ONLY havering_operations."JunctionsWithinMapFrames"
+    DROP CONSTRAINT "JunctionsWithinMapFrames_MapFrameID_fkey";
+
+ALTER TABLE ONLY havering_operations."JunctionsWithinMapFrames"
+    ADD CONSTRAINT "JunctionsWithinMapFrames_MapFrameID_fkey" FOREIGN KEY ("MapFrameID")
+        REFERENCES havering_operations."HaveringMapFrames" ("GeometryID") MATCH SIMPLE
+        ON UPDATE NO ACTION;
+
+ALTER TABLE ONLY havering_operations."JunctionsWithinMapFrames"
+    ADD CONSTRAINT "JunctionsWithinMapFrames_GeometryID_key" UNIQUE ("JunctionID");
+*/

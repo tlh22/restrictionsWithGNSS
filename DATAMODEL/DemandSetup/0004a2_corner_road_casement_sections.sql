@@ -82,11 +82,11 @@ $$ LANGUAGE plpython3u;
 
 
 /***
-WITH cornerDetails AS (
-SELECT c.id, c.geom As corner_geom, r.geom as road_casement_geom
-FROM mhtc_operations."Corners_Test" c, topography."road_casement" r
-WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.geom, 0.1))
- )
+    WITH cornerDetails AS (
+    SELECT c.id, c.geom As corner_geom, r.geom as road_casement_geom
+    FROM mhtc_operations."Corners_Test" c, topography."road_casement" r
+    WHERE ST_INTERSECTS(r.geom, ST_Buffer(c.geom, 0.1))
+     )
  SELECT d.id, ST_Length(mhtc_operations."get_road_casement_section_3"(d.road_casement_geom, d.corner_geom, 10.0)),
                 ST_AsText(mhtc_operations."get_road_casement_section_3"(d.road_casement_geom, d.corner_geom, 10.0))
  FROM cornerDetails d;
