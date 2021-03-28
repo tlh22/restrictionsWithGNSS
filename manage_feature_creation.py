@@ -271,6 +271,9 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         self.canvas.mapToolSet.connect(self.changeMapTool2)
         self.canvas.extentsChanged.connect(self.changeExtents)
 
+        # setup signal for refresh of "second" geometries
+        self.connectSecondGeometrySignals()
+
         # transaction for move ...
         self.localTransaction = MoveLayerTransaction(self.iface)
 
