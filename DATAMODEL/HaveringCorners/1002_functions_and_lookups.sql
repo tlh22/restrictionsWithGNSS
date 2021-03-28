@@ -542,7 +542,7 @@ BEGIN
     (SELECT c."GeometryID" as "GeometryID", r.geom as geom
     FROM havering_operations."HaveringCorners" c, "toms"."Lines" r
     WHERE ST_Intersects(r.geom, ST_Buffer(ST_SetSRID(c.line_from_apex_point_geom, 27700), 0.1))
-    AND r."RestrictionTypeID" NOT IN (201, 221, 224, 216, 220)
+    AND r."RestrictionTypeID" NOT IN (201, 221, 224, 216, 220, 224, 225)
     AND c."GeometryID" = cnr_id
     UNION
     SELECT c."GeometryID" as id, ST_Multi(r.geom)

@@ -195,7 +195,7 @@ class operatorExpressions(TOMsExpressions):
             # TODO: deal with different geom types for the incoming geom. For the moment assume a point
 
             for poly in refLayer.getFeatures():
-                if poly.geometry().contains(geom):
+                if poly.geometry().intersects(geom):   # take the first intersecting poly
                     #TOMsMessageLog.logMessage("In getPolygonForRestriction. feature found", level=Qgis.Info)
                     return poly.attribute(refColumn)
 
