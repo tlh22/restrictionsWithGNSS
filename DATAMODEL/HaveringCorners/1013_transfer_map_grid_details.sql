@@ -36,9 +36,10 @@ BEGIN
 
     IF NEW."HaveringMapFramesCategoryTypeID" = 1 THEN
 
-        UPDATE havering_operations."HaveringMapFrames"
+        /*UPDATE havering_operations."HaveringMapFrames"
         SET map_frame_geom = NULL
-        WHERE "GeometryID" = map_frame_id;
+        WHERE "GeometryID" = map_frame_id;*/
+        NEW."map_frame_geom" := NULL;
 
     ELSE
 
@@ -52,7 +53,9 @@ BEGIN
 
         IF TG_OP = 'INSERT' OR
            (TG_OP = 'UPDATE' AND
-           ((NEW."HaveringMapFramesScaleID" != OLD."HaveringMapFramesScaleID") OR NOT map_frame_geom_not_changed)) THEN
+           ((NEW."HaveringMapFramesScaleID" != OLD."HaveringMapFramesScaleID") OR
+             NOT map_frame_geom_not_changed OR
+            (NEW."HaveringMapFramesCategoryTypeID" != OLD."HaveringMapFramesCategoryTypeID"))) THEN
 
             RAISE NOTICE '***** IN set_map_frame_geom: map_frame_scale(%); dX (%); x (%)', map_frame_scale, dX, ST_X(NEW.map_frame_centre_point_geom);
 
