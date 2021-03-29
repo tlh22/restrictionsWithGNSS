@@ -10,7 +10,7 @@ WHERE "TimePeriodID" = 1
 AND "MatchDayTimePeriodID" IS NOT NULL;
 
 UPDATE toms."Lines"
-SET "NoWaitingTimeID" = NULL
+SET "MatchDayTimePeriodID" = NULL
 WHERE "NoWaitingTimeID" = 1
 AND "MatchDayTimePeriodID" IS NOT NULL;
 
