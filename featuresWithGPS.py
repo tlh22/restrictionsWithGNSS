@@ -86,38 +86,12 @@ class featuresWithGPS:
 
         self.closeGPSToolsFlag = False
 
-        """
-        # Set up log file and collect any relevant messages
-
-        loggingUtils = TOMsMessageLog()
-        loggingUtils.setLogFile()
-
-        logFilePath = os.environ.get('QGIS_LOGFILE_PATH')
-
-        if logFilePath:
-
-            QgsMessageLog.logMessage("LogFilePath: " + str(logFilePath), tag="TOMs panel")
-
-            logfile = 'qgis_' + datetime.date.today().strftime("%Y%m%d") + '.log'
-            self.filename = os.path.join(logFilePath, logfile)
-            QgsMessageLog.logMessage("Sorting out log file" + self.filename, tag="TOMs panel")
-
-            QgsApplication.instance().messageLog().messageReceived.connect(self.write_log_message)
-        """
-
         # Set up local logging
         loggingUtils = TOMsMessageLog()
         loggingUtils.setLogFile()
 
-        QgsMessageLog.logMessage("Finished init", tag="TOMs panel")
-        #self.toolbar = self.iface.addToolBar(u'Test5Class')
-        #self.toolbar.setObjectName(u'Test5Class')
+        QgsMessageLog.logMessage("In featuresWithGPS. Finished init", tag="TOMs panel")
 
-
-        """def write_log_message(self, message, tag, level):
-        #filename = os.path.join('C:\Users\Tim\Documents\MHTC', 'qgis.log')
-        with open(self.filename, 'a') as logfile:
-            logfile.write('{dateDetails}:: {message}\n'.format(dateDetails= time.strftime("%Y%m%d:%H%M%S"), message=message))"""
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
