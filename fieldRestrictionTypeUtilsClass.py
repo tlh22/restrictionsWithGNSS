@@ -699,6 +699,9 @@ class FieldRestrictionTypeUtilsMixin():
         TOMsConfigFileObject.initialiseTOMsConfigFile()
         frameWidth = TOMsConfigFileObject.getTOMsConfigElement('Camera', 'Width')
         frameHeight = TOMsConfigFileObject.getTOMsConfigElement('Camera', 'Height')
+        if frameWidth is None or frameHeight is None:
+            res = QMessageBox.information(None, "Information", "Please set value for camera resolution.", QMessageBox.Ok)
+            return 0, 0
         return int(frameWidth), int(frameHeight)
 
 
