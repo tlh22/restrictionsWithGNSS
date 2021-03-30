@@ -114,10 +114,10 @@ class featuresWithGPS:
         #self.toolbar.setObjectName(u'Test5Class')
 
 
-    def write_log_message(self, message, tag, level):
+        """def write_log_message(self, message, tag, level):
         #filename = os.path.join('C:\Users\Tim\Documents\MHTC', 'qgis.log')
         with open(self.filename, 'a') as logfile:
-            logfile.write('{dateDetails}:: {message}\n'.format(dateDetails= time.strftime("%Y%m%d:%H%M%S"), message=message))
+            logfile.write('{dateDetails}:: {message}\n'.format(dateDetails= time.strftime("%Y%m%d:%H%M%S"), message=message))"""
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
