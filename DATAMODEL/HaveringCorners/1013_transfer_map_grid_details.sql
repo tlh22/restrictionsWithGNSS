@@ -55,7 +55,8 @@ BEGIN
            (TG_OP = 'UPDATE' AND
            ((NEW."HaveringMapFramesScaleID" != OLD."HaveringMapFramesScaleID") OR
              NOT map_frame_geom_not_changed OR
-            (NEW."HaveringMapFramesCategoryTypeID" != OLD."HaveringMapFramesCategoryTypeID"))) THEN
+            (NEW."HaveringMapFramesCategoryTypeID" != OLD."HaveringMapFramesCategoryTypeID")) OR
+            OLD."map_frame_geom" IS NULL) THEN
 
             RAISE NOTICE '***** IN set_map_frame_geom: map_frame_scale(%); dX (%); x (%)', map_frame_scale, dX, ST_X(NEW.map_frame_centre_point_geom);
 
