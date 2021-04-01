@@ -148,8 +148,8 @@ class operatorExpressions(TOMsExpressions):
         # function to lookup junction details give a map frame
         concat_fields = []
         mapFrameID = feature.attribute("GeometryID")
-        TOMsMessageLog.logMessage('lookupJunctionDetails: mapFrameID {}'.format(mapFrameID),
-                                  level=Qgis.Info)
+        TOMsMessageLog.logMessage('lookupJunctionDetails: mapFrameID {}; field {}'.format(mapFrameID, field),
+                                  level=Qgis.Warning)
         junctionsInMapFramesLayer = QgsProject.instance().mapLayersByName("JunctionsWithinMapFrames")[0]
         junctionsLayer = QgsProject.instance().mapLayersByName("HaveringJunctions")[0]
         # get junctions for map frame
@@ -160,19 +160,21 @@ class operatorExpressions(TOMsExpressions):
             #TOMsMessageLog.logMessage("In getLookupLabelText: found row " + str(row.attribute("LabelText")), level=Qgis.Info)
             junctionID = row1.attribute("JunctionID") # make assumption that only one row
             TOMsMessageLog.logMessage('lookupJunctionDetails: considering junctionID {}'.format(junctionID),
-                                      level=Qgis.Info)
+                                      level=Qgis.Warning)
             query2 = "\"GeometryID\" = '{}'".format(junctionID)
             request2 = QgsFeatureRequest().setFilterExpression(query2)
             for row2 in junctionsLayer.getFeatures(request2):
                 concat_fields.append(row2.attribute(field))
+                TOMsMessageLog.logMessage('lookupJunctionDetails: details: {}'.format(junctionID),
+                                          level=Qgis.Warning)
 
         try:
-            result = joinChars.join(concat_fields)
+            result = joinChars.join(filter(None,concat_fields))  # https://stackoverflow.com/questions/8626694/joining-multiple-strings-if-they-are-not-empty-in-python
         except:
             result = ''
 
         TOMsMessageLog.logMessage('lookupJunctionDetails: concat_fields .{}.'.format(result),
-                                  level=Qgis.Info)
+                                  level=Qgis.Warning)
         return result.strip()
 
     # https://gis.stackexchange.com/questions/152257/how-to-refer-to-another-layer-in-the-field-calculator  - see for inspiration
