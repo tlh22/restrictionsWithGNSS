@@ -48,3 +48,13 @@ UPDATE "mhtc_operations"."RC_Sections_merged" AS c
 SET "USRN" = r."localid"
 FROM "highways_network"."roadlink" r
 WHERE r."id" = mhtc_operations."get_nearest_roadlink_to_section"(c.gid);
+
+--
+
+-- set road name for all layers
+
+-- Use normal process for creating RC_Sections_merged from corners and sectionbreaks
+
+GRANT SELECT ON TABLE mhtc_operations."RC_Sections_merged" TO toms_public;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."RC_Sections_merged" TO toms_operator, toms_admin;
+GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA mhtc_operations TO toms_public, toms_operator, toms_admin;
