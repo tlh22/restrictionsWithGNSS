@@ -1,6 +1,9 @@
 -- Bus Shelters
+
+ALTER TABLE highway_assets."BusShelters" DISABLE TRIGGER all;
+
 UPDATE highway_assets."BusShelters"
-SET "GeomShapeID" = 23;  # Polygon (on pavement)
+SET "GeomShapeID" = 23;  -- Polygon (on pavement)
 
 UPDATE highway_assets."BusShelters"
 SET "BayWidth" = 1.0;
@@ -13,6 +16,8 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id,
       FROM "highways_network"."roadlink" cl, highway_assets."BusShelters" s
       ORDER BY s."GeometryID", length) AS closest
 WHERE c."GeometryID" = closest.id;
+
+ALTER TABLE highway_assets."BusShelters" ENABLE TRIGGER all;
 
 /*
 Actually it is better to use the TOMs functions:
