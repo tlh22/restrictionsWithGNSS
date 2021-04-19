@@ -155,7 +155,7 @@ BEGIN
 
 	CASE TG_TABLE_NAME
 	WHEN 'ISL_Electrical_Items' THEN
-			SELECT concat('EI_', to_char(nextval('local_authority."ISL_Electrical_Items_id_seq"'::regclass), '00000000'::text)) INTO nextSeqVal;
+			SELECT concat('EI_', to_char(nextval('local_authority."ISL_Electrical_Items_id_seq"'::regclass), 'FM0000000'::text)) INTO nextSeqVal;
 
 	ELSE
 	    nextSeqVal = 'U';

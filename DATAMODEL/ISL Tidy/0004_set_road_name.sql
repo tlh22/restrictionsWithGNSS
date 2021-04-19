@@ -4,14 +4,20 @@ GRANT SELECT ON TABLE mhtc_operations."RC_Sections_merged" TO toms_public;
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."RC_Sections_merged" TO toms_operator, toms_admin;
 GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA mhtc_operations TO toms_public, toms_operator, toms_admin;
 
+-- Add sectionID
+
+ALTER TABLE toms."Bays"
+    ADD COLUMN "SectionID" integer;
+
+ALTER TABLE toms."Lines"
+    ADD COLUMN "SectionID" integer;
+
 -- disable triggers
 
 ALTER TABLE toms."Bays" DISABLE TRIGGER all;
 ALTER TABLE toms."Lines" DISABLE TRIGGER all;
 ALTER TABLE toms."Signs" DISABLE TRIGGER all;
 
-ALTER TABLE toms."Bays"
-    ADD COLUMN "SectionID" integer;
 
 UPDATE toms."Bays" AS c
 SET "SectionID" = closest."SectionID", "RoadName" = closest."RoadName", "USRN" = closest."USRN"
@@ -21,10 +27,8 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
       FROM toms."Bays" s, mhtc_operations."RC_Sections_merged" c1
       WHERE ST_DWithin(c1.geom, s.geom, 2.0)
       ORDER BY s."GeometryID", length) AS closest
-WHERE c."GeometryID" = closest.id;
-
-ALTER TABLE toms."Lines"
-    ADD COLUMN "SectionID" integer;
+WHERE c."GeometryID" = closest.id
+AND c."RoadName" IS NULL;
 
 UPDATE toms."Lines" AS c
 SET "SectionID" = closest."SectionID", "RoadName" = closest."RoadName", "USRN" = closest."USRN"
@@ -34,7 +38,8 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
       FROM toms."Lines" s, mhtc_operations."RC_Sections_merged" c1
       WHERE ST_DWithin(c1.geom, s.geom, 2.0)
       ORDER BY s."GeometryID", length) AS closest
-WHERE c."GeometryID" = closest.id;
+WHERE c."GeometryID" = closest.id
+AND c."RoadName" IS NULL;
 
 UPDATE toms."Signs" AS c
 SET "RoadName" = closest."RoadName", "USRN" = closest."USRN"
@@ -44,12 +49,13 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
       FROM toms."Signs" s, mhtc_operations."RC_Sections_merged" c1
       WHERE ST_DWithin(c1.geom, s.geom, 10.0)
       ORDER BY s."GeometryID", length) AS closest
-WHERE c."GeometryID" = closest.id;
-
+WHERE c."GeometryID" = closest.id
+AND c."RoadName" IS NULL;
 ALTER TABLE toms."Bays" ENABLE TRIGGER all;
 ALTER TABLE toms."Lines" ENABLE TRIGGER all;
 ALTER TABLE toms."Signs" ENABLE TRIGGER all;
 
+-- Deal with other tables
 
 CREATE OR REPLACE FUNCTION mhtc_operations.setRoadNameForTable(tablename regclass, geom_field text)
   RETURNS BOOLEAN AS
@@ -83,7 +89,7 @@ BEGIN
                     ST_ClosestPoint(c1.geom, s.%2$s) AS geom,
                     ST_Distance(c1.geom, s.%2$s) AS length, c1."RoadName", c1."USRN"
             FROM %1$s s, mhtc_operations."RC_Sections_merged" c1
-            WHERE ST_DWithin(c1.geom, s.%2$s, 10.0)
+            WHERE ST_DWithin(c1.geom, s.%2$s, 25.0)
             ORDER BY s."GeometryID", length) AS closest
         WHERE c."GeometryID" = closest.id
         AND c."RoadName" IS NULL
