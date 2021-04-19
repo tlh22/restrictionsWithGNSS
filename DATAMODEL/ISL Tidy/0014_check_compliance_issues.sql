@@ -83,19 +83,20 @@ ALTER TABLE toms."Signs" ENABLE TRIGGER all;
 -- Bays
 
 SELECT "GeometryID", "BayLineTypes"."Description" AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
-	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
+	   "RoadName", "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
 	   '' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   "ComplianceNotes", "Notes"
 FROM
-     (((toms."Bays" AS a
+     ((((SELECT "GeometryID", "RestrictionTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         FROM toms."Bays"
+         WHERE "ComplianceRoadMarkingsFaded" IN (2,3,5,6)
+         OR "ComplianceRestrictionSignIssue" IN (2,3,4,5) ) AS a
      LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
 
-WHERE "ComplianceRoadMarkingsFaded" <> 1
-OR "ComplianceRestrictionSignIssue" <> 1
 --AND "Photos_01" IS NULL
 
 --  Lines
@@ -103,42 +104,44 @@ OR "ComplianceRestrictionSignIssue" <> 1
 UNION
 
 SELECT "GeometryID", "BayLineTypes"."Description" AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
-	   "RestrictionRoadMarkingsFadedTypes1"."Description" AS "RoadMarkingsFaded_Description",
+	   "RoadName", "RestrictionRoadMarkingsFadedTypes1"."Description" AS "RoadMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "RestrictionRoadMarkingsFadedTypes2"."Description" AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   "ComplianceNotes", "Notes"
 FROM
-     ((((toms."Lines" AS a
+     (((((SELECT "GeometryID", "RestrictionTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceLoadingMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         FROM toms."Lines"
+         WHERE "ComplianceRoadMarkingsFaded" IN (2,3,5,6)
+         OR "ComplianceRestrictionSignIssue" IN (2,3,4,5)
+         OR "ComplianceLoadingMarkingsFaded" IN (2,3,5,6) ) AS a
      LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes1" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes1"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes2" ON a."ComplianceLoadingMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes2"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
 
-WHERE "ComplianceRoadMarkingsFaded" <> 1
-OR "ComplianceLoadingMarkingsFaded" <> 1
-OR "ComplianceRestrictionSignIssue" <> 1
 --AND "Photos_01" IS NULL
 
 -- RestrictionPolygons
 
 UNION
 
-SELECT "GeometryID", "BayLineTypes"."Description" AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
-	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
+SELECT "GeometryID", "RestrictionPolygonTypes"."Description" AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
+	   "RoadName", "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
 	   '' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   "ComplianceNotes", "Notes"
 FROM
      (((toms."RestrictionPolygons" AS a
-     LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
+     LEFT JOIN "toms_lookups"."RestrictionPolygonTypes" AS "RestrictionPolygonTypes" ON a."RestrictionTypeID" is not distinct from "RestrictionPolygonTypes"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
 
 WHERE "ComplianceRoadMarkingsFaded" <> 1
 OR "ComplianceRestrictionSignIssue" <> 1
+OR NOT (a."ComplianceRoadMarkingsFaded" = 4 AND a."ComplianceRestrictionSignIssue" = 1)
 --AND "Photos_01" IS NULL
 
 ORDER BY "GeometryID"
@@ -148,18 +151,22 @@ ORDER BY "GeometryID"
 
 SELECT "GeometryID", "SignTypes"."Description" AS "SignTypeDescription",
 	   --a."ComplianceRestrictionSignIssue",
-	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
+	   "RoadName", "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   	--a."SignConditionTypeID",
 	   "SignConditionTypes"."Description" AS "SignConditionTypes_Description",
 	   "ComplianceNotes", "Notes"
 FROM
-     (((toms."Signs" AS a
+     ((((SELECT "GeometryID", "SignType_1", "RoadName", "SignConditionTypeID", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         FROM toms."Signs"
+         WHERE "SignConditionTypeID" IN (2,3,5,6, 10)
+         OR "ComplianceRestrictionSignIssue" IN (3,4,5) ) AS a
      LEFT JOIN "toms_lookups"."SignTypes" AS "SignTypes" ON a."SignType_1" is not distinct from "SignTypes"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
      LEFT JOIN "compliance_lookups"."SignConditionTypes" AS "SignConditionTypes" ON a."SignConditionTypeID" is not distinct from "SignConditionTypes"."Code")
 
 WHERE "ComplianceRestrictionSignIssue" <> 1
 OR "SignConditionTypeID" <> 1
+ORDER BY "GeometryID"
 ;
 
 -- ** Moving Restrictions
