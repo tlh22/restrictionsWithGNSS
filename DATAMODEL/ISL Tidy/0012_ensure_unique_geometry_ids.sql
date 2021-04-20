@@ -58,7 +58,7 @@ UPDATE "moving_traffic"."AccessRestrictions" AS r
 SET "GeometryID" = DEFAULT
 WHERE "GeometryID" = 'U';
 
-ALTER TABLE "moving_traffic"."AccessRestrictions" DISABLE TRIGGER all;
+ALTER TABLE "moving_traffic"."AccessRestrictions" ENABLE TRIGGER all;
 
 
 ALTER TABLE "moving_traffic"."HighwayDedications" DISABLE TRIGGER all;
@@ -67,7 +67,7 @@ UPDATE "moving_traffic"."HighwayDedications" AS r
 SET "GeometryID" = DEFAULT
 WHERE "GeometryID" = 'U';
 
-ALTER TABLE "moving_traffic"."HighwayDedications" DISABLE TRIGGER all;
+ALTER TABLE "moving_traffic"."HighwayDedications" ENABLE TRIGGER all;
 
 
 ALTER TABLE "moving_traffic"."RestrictionsForVehicles" DISABLE TRIGGER all;
@@ -76,16 +76,16 @@ UPDATE "moving_traffic"."RestrictionsForVehicles" AS r
 SET "GeometryID" = DEFAULT
 WHERE "GeometryID" = 'U';
 
-ALTER TABLE "moving_traffic"."RestrictionsForVehicles" DISABLE TRIGGER all;
+ALTER TABLE "moving_traffic"."RestrictionsForVehicles" ENABLE TRIGGER all;
 
 
-ALTER TABLE "moving_traffic"."SpecialDesignations" DISABLE TRIGGER all;
+ALTER TABLE "moving_traffic"."SpecialDesignations" ENABLE TRIGGER all;
 
 UPDATE "moving_traffic"."SpecialDesignations" AS r
 SET "GeometryID" = DEFAULT
 WHERE "GeometryID" = 'U';
 
-ALTER TABLE "moving_traffic"."SpecialDesignations" DISABLE TRIGGER all;
+ALTER TABLE "moving_traffic"."SpecialDesignations" ENABLE TRIGGER all;
 
 
 ALTER TABLE "moving_traffic"."TurnRestrictions" DISABLE TRIGGER all;
@@ -94,7 +94,7 @@ UPDATE "moving_traffic"."TurnRestrictions" AS r
 SET "GeometryID" = DEFAULT
 WHERE "GeometryID" = 'U';
 
-ALTER TABLE "moving_traffic"."TurnRestrictions" DISABLE TRIGGER all;
+ALTER TABLE "moving_traffic"."TurnRestrictions" ENABLE TRIGGER all;
 
 
 ALTER TABLE "highways_network"."MHTC_RoadLinks" DISABLE TRIGGER all;
@@ -103,7 +103,7 @@ UPDATE "highways_network"."MHTC_RoadLinks" AS r
 SET "GeometryID" = DEFAULT
 WHERE "GeometryID" = 'U';
 
-ALTER TABLE "highways_network"."MHTC_RoadLinks" DISABLE TRIGGER all;
+ALTER TABLE "highways_network"."MHTC_RoadLinks" ENABLE TRIGGER all;
 
 
 
