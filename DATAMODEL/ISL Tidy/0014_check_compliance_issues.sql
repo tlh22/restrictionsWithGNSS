@@ -292,3 +292,50 @@ ORDER BY "GeometryID"
 
 
 -- ** HighwayAssets
+
+DO
+$$DECLARE
+    relevant_table record;
+    squery TEXT = '';
+    len_squery INTEGER;
+BEGIN
+
+    FOR relevant_table IN (
+          select table_schema, table_name::text, concat(table_schema, '.', quote_ident(table_name))::regclass AS full_table_name
+          from information_schema.columns
+          where column_name = 'GeometryID'
+          AND table_schema IN ('highway_assets')
+          AND table_name != 'HighwayAssets'
+        ) LOOP
+
+			--RAISE NOTICE 'table: % ', relevant_table.full_table_name;
+
+            IF LENGTH(squery) > 0 THEN
+                squery = squery || ' UNION ';
+            END IF;
+
+			--squery = squery || format('%s', relevant_table.full_table_name);
+
+			--RAISE NOTICE 'squery: % ', squery;
+
+            squery = squery || format('
+            SELECT "GeometryID", ''%1$s'' AS "HighwayAssetType", "RoadName",
+                "AssetConditionTypes"."Description" AS "AssetCondition_Description",
+                "Notes"
+            FROM
+            ((
+                SELECT "GeometryID", "RoadName", "AssetConditionTypeID", "Notes"
+                FROM %2$s
+                WHERE "AssetConditionTypeID" IN (3)
+                ) AS a
+                LEFT JOIN "highway_asset_lookups"."AssetConditionTypes" AS "AssetConditionTypes" ON a."AssetConditionTypeID" is not distinct from "AssetConditionTypes"."Code")
+           ', relevant_table.table_name, relevant_table.full_table_name);
+
+	END LOOP;
+
+	RAISE NOTICE 'squery: % ', squery;
+
+    EXECUTE FORMAT ('COPY %1$s TO STDOUT WITH CSV HEADER', squery);
+    --EXECUTE squery;
+
+END$$;
