@@ -64,3 +64,9 @@ INSERT INTO demand."Surveys"("SurveyID", "SurveyDay", "BeatStartTime", "BeatEndT
 
 UPDATE demand."Surveys"
 SET "BeatTitle" = LPAD("SurveyID"::text, 2, '0') || '_' || "SurveyDay" || '_' || "BeatStartTime" || '_' || "BeatEndTime";
+
+
+-- Deal with SiteArea
+
+UPDATE demand."Surveys"
+SET "SiteArea" = SUBSTRING("SurveyDay" FROM '\(([^\(]+)\)')
