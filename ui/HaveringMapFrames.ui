@@ -128,12 +128,12 @@
        <item row="0" column="0">
         <widget class="QLabel" name="Type1_4">
          <property name="text">
-          <string>Corner Status:</string>
+          <string>Map Frame Status:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="CornerProtectionCategoryTypeID">
+        <widget class="QComboBox" name="HaveringMapFramesCategoryTypeID">
          <property name="maxVisibleItems">
           <number>5</number>
          </property>
@@ -142,32 +142,25 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="4" column="0">
         <widget class="QLabel" name="lbl_Notes">
          <property name="text">
           <string>Notes:</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="4" column="1">
         <widget class="QTextEdit" name="Notes"/>
        </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="label_10">
+        <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Road Markings Condition:</string>
+          <string>Map Frame scale: 1:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="ComplianceRoadMarkingsFadedTypeID"/>
-       </item>
-       <item row="2" column="1">
-        <widget class="QCheckBox" name="ShowDimensions">
-         <property name="text">
-          <string>Show Dimensions</string>
-         </property>
-        </widget>
+        <widget class="QComboBox" name="HaveringMapFramesScaleID"/>
        </item>
       </layout>
      </widget>
@@ -180,25 +173,14 @@
         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
        </property>
        <item row="0" column="0">
-        <widget class="QLabel" name="lbl_RoadName">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>16</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
+        <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Length of conforming details within corner area:</string>
+          <string>Roads leading to junction(s):</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="length_conforming_within_line_from_corner_point"/>
+        <widget class="QLineEdit" name="RoadsAtJunction"/>
        </item>
        <item row="2" column="1">
         <spacer name="verticalSpacer">
