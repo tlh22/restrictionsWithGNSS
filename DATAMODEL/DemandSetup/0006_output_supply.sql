@@ -54,10 +54,10 @@ a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideO
             ELSE
                 "Capacity"
             END AS "ParkingAvailableDuringSurveyHours"
-	, "CPZ"
+	, "CPZ", "Notes"
 
 FROM
-     ((((((mhtc_operations."Supply_MASTER_210318" AS a
+     ((((((mhtc_operations."Supply" AS a
      LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
      LEFT JOIN "toms_lookups"."RestrictionGeomShapeTypes" AS "RestrictionGeomShapeTypes" ON a."GeomShapeID" is not distinct from "RestrictionGeomShapeTypes"."Code")
      LEFT JOIN "toms_lookups"."TimePeriods" AS "TimePeriods1" ON a."TimePeriodID" is not distinct from "TimePeriods1"."Code")
