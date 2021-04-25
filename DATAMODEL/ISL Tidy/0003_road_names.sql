@@ -30,13 +30,14 @@ BEGIN
 
     -- find nearest junction
 
-    SELECT cl."id"
+    SELECT cl."ogc_fid"
 	INTO roadlink_id
     FROM "highways_network"."roadlink" cl, "mhtc_operations"."RC_Sections_merged" s
     WHERE s.gid = section_id
-    AND ST_DWithin(ST_LineInterpolatePoint(s.geom, 0.5), cl.geom, 30.0)
+    AND ST_DWithin(ST_LineInterpolatePoint(s.geom, 0.5), cl.wkb_geometry, 30.0)
+    AND cl.roadname IS NOT NULL
     ORDER BY
-      ST_Distance(ST_LineInterpolatePoint(s.geom, 0.5), ST_ClosestPoint(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)))
+      ST_Distance(ST_LineInterpolatePoint(s.geom, 0.5), ST_ClosestPoint(cl.wkb_geometry, ST_LineInterpolatePoint(s.geom, 0.5)))
     LIMIT 1;
 
     RETURN roadlink_id;
@@ -45,6 +46,17 @@ END;
 $BODY$;
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS c
-SET "USRN" = r."localid"
+SET "USRN" = r."localid", "RoadName" = r."roadname"
 FROM "highways_network"."roadlink" r
-WHERE r."id" = mhtc_operations."get_nearest_roadlink_to_section"(c.gid);
+WHERE r."ogc_fid" = mhtc_operations."get_nearest_roadlink_to_section"(c.gid)
+AND c."RoadName" IS NULL;
+
+--
+
+-- set road name for all layers
+
+-- Use normal process for creating RC_Sections_merged from corners and sectionbreaks
+
+GRANT SELECT ON TABLE mhtc_operations."RC_Sections_merged" TO toms_public;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."RC_Sections_merged" TO toms_operator, toms_admin;
+GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA mhtc_operations TO toms_public, toms_operator, toms_admin;
