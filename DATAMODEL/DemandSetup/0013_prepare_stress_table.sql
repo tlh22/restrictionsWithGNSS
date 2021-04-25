@@ -28,7 +28,7 @@ CREATE TABLE demand.demand_results
     id SERIAL,
     "GeometryID" character varying(12) COLLATE pg_catalog."default" NOT NULL,
     "SurveyID" integer NOT NULL,
-    "Value" integer,
+    "Value" float,
     CONSTRAINT "demand_results_unique_key" UNIQUE ("GeometryID", "SurveyID")
 )
 TABLESPACE pg_default;
@@ -63,7 +63,7 @@ INSERT INTO demand.demand_results ("GeometryID", "SurveyID", "Value")
 SELECT "GeometryID", "SurveyID"::integer, "Value"::integer
 FROM demand.demand_results_tmp
 WHERE "SurveyID" ~ E'^\\d+$'
-AND "Value" ~ E'^\\d+$';
+;
 
 -- https://stackoverflow.com/questions/2082686/how-do-i-cast-a-string-to-integer-and-have-0-in-case-of-error-in-the-cast-with-p
 
