@@ -18,3 +18,7 @@ ALTER TABLE "demand"."Surveys" OWNER TO "postgres";
 ALTER TABLE "demand"."Surveys"
     ADD PRIMARY KEY ("SurveyID");
 
+-- Used for Haringey
+
+ALTER TABLE demand."Surveys"
+    ADD COLUMN "SiteArea" character varying(50);

@@ -59,12 +59,3 @@ DROP TRIGGER IF EXISTS "update_road_details_for_junctions" ON havering_operation
 
 CREATE TRIGGER "update_road_details_for_junctions"
     AFTER INSERT OR UPDATE OF "junction_point_geom" ON havering_operations."HaveringJunctions" FOR EACH ROW EXECUTE FUNCTION havering_operations."set_roads_for_junctions"();
-
-
--- Set permissions
-
-REVOKE ALL ON ALL TABLES IN SCHEMA havering_operations FROM toms_public, toms_operator, toms_admin;
-GRANT SELECT ON ALL TABLES IN SCHEMA havering_operations TO toms_public;
-GRANT SELECT, UPDATE, INSERT, DELETE ON ALL TABLES IN SCHEMA havering_operations TO toms_operator, toms_admin;
-GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA havering_operations TO toms_public, toms_operator, toms_admin;
-GRANT USAGE ON SCHEMA havering_operations TO toms_public, toms_operator, toms_admin;

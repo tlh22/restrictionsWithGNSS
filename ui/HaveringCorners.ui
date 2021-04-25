@@ -162,6 +162,13 @@
        <item row="1" column="1">
         <widget class="QComboBox" name="ComplianceRoadMarkingsFadedTypeID"/>
        </item>
+       <item row="2" column="1">
+        <widget class="QCheckBox" name="ShowDimensions">
+         <property name="text">
+          <string>Show Dimensions</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="Geometry">

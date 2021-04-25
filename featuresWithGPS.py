@@ -56,6 +56,7 @@ from qgis.core import (
 
 from TOMs.core.TOMsMessageLog import TOMsMessageLog
 from .manage_feature_creation import captureGPSFeatures
+from .operatorExpressions import operatorExpressions
 
 
 import os.path
@@ -85,41 +86,21 @@ class featuresWithGPS:
         self.actions = []   # ?? check - assume it initialises array of actions
 
         self.closeGPSToolsFlag = False
-        # Set up log file and collect any relevant messages
 
+        # Set up local logging
         loggingUtils = TOMsMessageLog()
         loggingUtils.setLogFile()
 
-        """logFilePath = os.environ.get('QGIS_LOGFILE_PATH')
+        QgsMessageLog.logMessage("In featuresWithGPS. Finished init", tag="TOMs panel")
 
-        if logFilePath:
-
-            QgsMessageLog.logMessage("LogFilePath: " + str(logFilePath), tag="TOMs panel")
-
-            logfile = 'qgis_' + datetime.date.today().strftime("%Y%m%d") + '.log'
-            self.filename = os.path.join(logFilePath, logfile)
-            QgsMessageLog.logMessage("Sorting out log file" + self.filename, tag="TOMs panel")
-            QgsApplication.instance().messageLog().messageReceived.connect(self.write_log_message)"""
-
-        # Set up local logging
-        #loggingUtils = TOMsMessageLog()
-        #loggingUtils.setLogFile()
-
-        QgsMessageLog.logMessage("Finished init", tag="TOMs panel")
-        #self.toolbar = self.iface.addToolBar(u'Test5Class')
-        #self.toolbar.setObjectName(u'Test5Class')
-
-
-    def write_log_message(self, message, tag, level):
-        #filename = os.path.join('C:\Users\Tim\Documents\MHTC', 'qgis.log')
-        with open(self.filename, 'a') as logfile:
-            logfile.write('{dateDetails}:: {message}\n'.format(dateDetails= time.strftime("%Y%m%d:%H%M%S"), message=message))
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         QgsMessageLog.logMessage("Registering expression functions ... ", tag="TOMs panel")
 
         #self.hideMenusToolbars()
+        self.expressionsObject = operatorExpressions()
+        self.expressionsObject.registerFunctions()   # Register the Expression functions that we need
 
         # set up menu. Is there a generic way to do this? from an xml file?
 
@@ -191,6 +172,8 @@ class featuresWithGPS:
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
+
+        self.expressionsObject.unregisterFunctions()  # unregister all the Expression functions used
 
         # remove the toolbar
         QgsMessageLog.logMessage("Clearing toolbar ... ", tag="TOMs panel")
