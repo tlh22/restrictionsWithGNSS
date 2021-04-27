@@ -60,7 +60,7 @@ CSV HEADER;
 -- Move to main table
 
 INSERT INTO demand.demand_results ("GeometryID", "SurveyID", "Value")
-SELECT "GeometryID", "SurveyID"::integer, "Value"::integer
+SELECT "GeometryID", "SurveyID"::integer, "Value"::float
 FROM demand.demand_results_tmp
 WHERE "SurveyID" ~ E'^\\d+$'
 ;
