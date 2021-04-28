@@ -42,26 +42,51 @@ SELECT "GeometryID", geom, "RestrictionLength", "RestrictionTypeID",
          , "AzimuthToRoadCentreLine", "BayOrientation", "Capacity", "Capacity"
 	FROM mhtc_operations."Supply";
 
--- create view with join to demand table
+-- create view with to show stress
 
-DROP MATERIALIZED VIEW IF EXISTS demand."Supply_view_to_show_demand";
+DROP MATERIALIZED VIEW IF EXISTS demand."Supply_view_to_show_stress";
 
-CREATE MATERIALIZED VIEW demand."Supply_view_to_show_demand"
+CREATE MATERIALIZED VIEW demand."Supply_view_to_show_stress"
 TABLESPACE pg_default
 AS
     SELECT row_number() OVER (PARTITION BY true::boolean) AS id,
     s."GeometryID", s.geom, s."RestrictionTypeID", s."GeomShapeID", s."AzimuthToRoadCentreLine", s."BayOrientation", s."NrBays", s."Capacity",
-    d."SurveyID", d."Demand"
-	FROM demand."Supply_for_viewing_demand" s, demand."Demand_Merged_Marie" d
+    d."SurveyID", d."sbays" AS "BaysSuspended", d."Demand" AS "Demand",
+
+    /* What to do about suspensions */
+    CASE
+        WHEN s."Capacity" = 0 THEN
+            CASE
+                WHEN d."Demand" > 0.0 THEN 1.0
+                ELSE 0.0
+                END
+        ELSE
+            CASE
+                WHEN d."Done" IS TRUE THEN
+                    CASE
+                        WHEN s."Capacity"::float - COALESCE(NULLIF(d."sbays",'')::float, 0.0) > 0.0 THEN
+                            d."Demand" / (s."Capacity"::float - COALESCE(NULLIF(d."sbays",'')::float, 0.0)) * 1.0
+                        ELSE
+                            CASE
+                                WHEN d."Demand" > 0.0 THEN 1.0
+                                ELSE  0.0
+                                END
+                        END
+                ELSE
+                    0.0
+                END
+        END AS "Stress"
+
+	FROM mhtc_operations."Supply" s, demand."Demand_Merged" d
 	WHERE d."GeometryID" = s."GeometryID"
 WITH DATA;
 
-ALTER TABLE demand."Supply_view_to_show_demand"
+ALTER TABLE demand."Supply_view_to_show_stress"
     OWNER TO postgres;
 
 CREATE UNIQUE INDEX "idx_supply_view_to_show_demand_id"
-    ON demand."Supply_view_to_show_demand" USING btree
+    ON demand."Supply_view_to_show_stress" USING btree
     (id)
     TABLESPACE pg_default;
 
-REFRESH MATERIALIZED VIEW demand."Supply_view_to_show_demand";
+REFRESH MATERIALIZED VIEW demand."Supply_view_to_show_stress";
