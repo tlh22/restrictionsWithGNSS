@@ -28,7 +28,7 @@ FROM toms."MatchDayEventDayZones";
 ALTER TABLE highway_assets."CrossingPoints"
     ALTER COLUMN "AssetConditionTypeID" DROP NOT NULL;
 
-... also for lines/bays ??
+--... also for lines/bays ??
 
 ALTER TABLE highway_assets."CrossingPoints"
     ALTER COLUMN id DROP NOT NULL;
