@@ -81,6 +81,8 @@ CREATE TABLE mhtc_operations."Supply"
     "StartStreet" character varying(254),
     "EndStreet" character varying(254),
     "SideOfStreet" character varying(100),
+    "Capacity" integer,
+    "BayWidth" double precision,
     --CONSTRAINT "Supply_pkey" PRIMARY KEY ("RestrictionID"),
     --CONSTRAINT "Supply_GeometryID_key" UNIQUE ("GeometryID")
     CONSTRAINT "Supply_pkey" UNIQUE ("GeometryID")

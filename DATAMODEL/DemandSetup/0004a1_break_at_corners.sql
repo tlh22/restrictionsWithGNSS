@@ -1,5 +1,6 @@
 -- Table: mhtc_operations.Supply
 
+/**
 ALTER TABLE mhtc_operations."Supply"
   ADD COLUMN "SectionID" integer;
 ALTER TABLE mhtc_operations."Supply"
@@ -8,6 +9,9 @@ ALTER TABLE mhtc_operations."Supply"
   ADD COLUMN "EndStreet" character varying(254);
 ALTER TABLE mhtc_operations."Supply"
   ADD COLUMN "SideOfStreet" character varying(100);
+**/
+
+SET search_path TO toms, mhtc_operations, highways_assets, moving_traffic, public;
 
 DROP TABLE IF EXISTS mhtc_operations."Supply_orig" CASCADE;
 
