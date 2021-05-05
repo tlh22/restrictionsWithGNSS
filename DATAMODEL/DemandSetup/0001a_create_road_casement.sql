@@ -21,7 +21,7 @@ ALTER TABLE topography.road_casement
 
 INSERT INTO "topography"."road_casement" (geom)
 SELECT (ST_Dump(ST_Multi(ST_Boundary(ST_Union (c.geom))))).geom AS geom
-FROM (SELECT geom FROM "topography"."os_mastermap_topography_polygons" WHERE "featureCode" = 10172) AS c;
+FROM (SELECT geom FROM "topography"."os_mastermap_topography_polygons" WHERE "FeatureCode" = 10172) AS c;
 
 /***
 DROP TABLE IF EXISTS "topography"."RC_Polygons" CASCADE;
