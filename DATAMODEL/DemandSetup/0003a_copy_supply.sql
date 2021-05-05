@@ -1,4 +1,5 @@
 --
+--DROP TABLE IF EXISTS mhtc_operations."Supply_Copy";
 
 CREATE TABLE mhtc_operations."Supply_Copy"
 (
@@ -52,6 +53,12 @@ CREATE TABLE mhtc_operations."Supply_Copy"
     "PermitCode" character varying(255) COLLATE pg_catalog."default",
     "MatchDayTimePeriodID" integer,
     "MatchDayEventDayZone" character varying(40),
+    "SectionID" integer,
+    "StartStreet" character varying(254),
+    "EndStreet" character varying(254),
+    "SideOfStreet" character varying(100),
+    "Capacity" integer,
+    "BayWidth" double precision,
     --CONSTRAINT "Supply_Copy_pkey" PRIMARY KEY ("RestrictionID"),
     --CONSTRAINT "Supply_Copy_GeometryID_key" UNIQUE ("GeometryID")
     CONSTRAINT "Supply_Copy_pkey" UNIQUE ("GeometryID")

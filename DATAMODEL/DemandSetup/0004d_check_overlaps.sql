@@ -16,7 +16,7 @@ TABLESPACE pg_default;
 ALTER TABLE mhtc_operations."Supply_Overlaps"
     OWNER to postgres;
 
-CREATE TABLE mhtc_operations."Supply_Overlaps" AS
+INSERT INTO mhtc_operations."Supply_Overlaps" ("GeometryID", "RoadName", geom)
 SELECT s1."GeometryID", s1."RoadName", ST_Intersection(s1.geom, s2.geom) AS geom
 FROM mhtc_operations."Supply" s1, mhtc_operations."Supply" s2
 WHERE ST_Overlaps(s1.geom, s2.geom)
