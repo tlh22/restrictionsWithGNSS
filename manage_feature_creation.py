@@ -190,7 +190,7 @@ class captureGPSFeatures(FieldRestrictionTypeUtilsMixin):
         #self.tableNames.gpsLayersNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
         self.params.TOMsParamsNotFound.connect(self.setCloseCaptureGPSFeaturesFlag)
 
-        self.TOMsConfigFileObject = TOMsConfigFile(self.iface)
+        self.TOMsConfigFileObject = TOMsConfigFile()
         self.TOMsConfigFileObject.TOMsConfigFileNotFound.connect(self.setCloseTOMsFlag)
         self.TOMsConfigFileObject.initialiseTOMsConfigFile()
 

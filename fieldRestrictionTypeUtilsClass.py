@@ -695,7 +695,7 @@ class FieldRestrictionTypeUtilsMixin():
         pass
 
     def getCameraResolution(self):
-        TOMsConfigFileObject = TOMsConfigFile(self.iface)
+        TOMsConfigFileObject = TOMsConfigFile()
         TOMsConfigFileObject.initialiseTOMsConfigFile()
         frameWidth = TOMsConfigFileObject.getTOMsConfigElement('Camera', 'Width')
         frameHeight = TOMsConfigFileObject.getTOMsConfigElement('Camera', 'Height')

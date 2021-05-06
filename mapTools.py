@@ -273,7 +273,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         self.layer = layer
 
         self.tableNames = TOMsLayers(self.iface)
-        self.TOMsConfigFileObject = TOMsConfigFile(self.iface)
+        self.TOMsConfigFileObject = TOMsConfigFile()
         self.TOMsConfigFileObject.initialiseTOMsConfigFile()
 
         self.tableNames.getLayers(self.TOMsConfigFileObject)
@@ -539,7 +539,7 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         self.setAutoSnapEnabled(True)
 
         self.tableNames = TOMsLayers(self.iface)
-        self.TOMsConfigFileObject = TOMsConfigFile(self.iface)
+        self.TOMsConfigFileObject = TOMsConfigFile()
         self.TOMsConfigFileObject.initialiseTOMsConfigFile()
 
         self.tableNames.getLayers(self.TOMsConfigFileObject)
