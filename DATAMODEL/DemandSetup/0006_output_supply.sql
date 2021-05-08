@@ -107,3 +107,28 @@ FROM
 	WHERE a."CPZ" IN ('FP')
 
 ORDER BY "RestrictionTypeID", "GeometryID"
+
+
+/*
+For car parks
+*/
+
+SELECT
+"GeometryID", "RestrictionTypeID", "RestrictionPolygonTypes"."Description" AS "RestrictionDescription",
+"GeomShapeID", COALESCE("RestrictionGeomShapeTypes"."Description", '') AS "Restriction Shape Description",
+a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideOfStreet", "RC_Sections_merged"."SectionName", --COALESCE("SurveyArea", ''),
+
+       COALESCE("TimePeriods1"."Description", '') AS "DetailsOfControl",
+       "NrBays" AS "MarkedBays", "Capacity" AS "TheoreticalBays"
+
+
+FROM
+     ((((mhtc_operations."Supply" AS a
+     LEFT JOIN "toms_lookups"."RestrictionPolygonTypes" AS "RestrictionPolygonTypes" ON a."RestrictionTypeID" is not distinct from "RestrictionPolygonTypes"."Code")
+     LEFT JOIN "toms_lookups"."RestrictionGeomShapeTypes" AS "RestrictionGeomShapeTypes" ON a."GeomShapeID" is not distinct from "RestrictionGeomShapeTypes"."Code")
+     LEFT JOIN "toms_lookups"."TimePeriods" AS "TimePeriods1" ON a."TimePeriodID" is not distinct from "TimePeriods1"."Code")
+	 LEFT JOIN "mhtc_operations"."RC_Sections_merged" AS "RC_Sections_merged" ON a."SectionID" is not distinct from "RC_Sections_merged"."gid")
+
+WHERE "RestrictionTypeID" = 25 -- car park
+
+ORDER BY "RestrictionTypeID", "GeometryID"
