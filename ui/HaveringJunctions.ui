@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>739</width>
-    <height>550</height>
+    <height>474</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -125,14 +125,14 @@
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
        </property>
-       <item row="0" column="0">
+       <item row="1" column="0">
         <widget class="QLabel" name="Type1_4">
          <property name="text">
           <string>Junction Status:</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="1" column="1">
         <widget class="QComboBox" name="JunctionProtectionCategoryTypeID">
          <property name="maxVisibleItems">
           <number>5</number>
@@ -141,6 +141,36 @@
           <number>5</number>
          </property>
         </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Junction Type:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="JunctionTypeID"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Existing corner protection condition:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="ExistingCornerProtectionRoadMarkingsConditionTypeID"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>Existing other road markings condition:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="ExistingOtherRestrictionRoadMarkingsConditionTypeID"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="lbl_Notes">
