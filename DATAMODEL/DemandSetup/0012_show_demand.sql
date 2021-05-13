@@ -39,7 +39,7 @@ SELECT "GeometryID", geom, "RestrictionLength", "RestrictionTypeID",
              WHEN "GeomShapeID" >= 10 AND "GeomShapeID" < 20 THEN 21
              ELSE "GeomShapeID"
          END
-         , "AzimuthToRoadCentreLine", "BayOrientation", "Capacity", "Capacity"
+         , "AzimuthToRoadCentreLine", "BayOrientation", "Capacity"+1, "Capacity"  -- increase the NrBays value to deal with over parked areas
 	FROM mhtc_operations."Supply";
 
 -- create view with to show stress
