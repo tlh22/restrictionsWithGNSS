@@ -163,6 +163,8 @@ CREATE INDEX "sidx_CycleHangarCrossoverNodes_geom"
   USING gist
   (geom);
 
+DROP TABLE IF EXISTS  mhtc_operations."CycleHangarsAsDualRestrictions" CASCADE;
+
 CREATE TABLE mhtc_operations."CycleHangarsAsDualRestrictions" ("GeometryID", geom) AS
 SELECT b1."GeometryID", b1.geom
 FROM (SELECT "GeometryID", geom
@@ -172,6 +174,11 @@ FROM (SELECT "GeometryID", geom
       FROM toms."Bays"
       WHERE "RestrictionTypeID" != 147) b2
 WHERE ST_Within (b1.geom, ST_Buffer(b2.geom, 0.5));
+
+GRANT DELETE, INSERT, SELECT, UPDATE ON TABLE mhtc_operations."CycleHangarsAsDualRestrictions" TO toms_admin;
+GRANT SELECT ON TABLE mhtc_operations."CycleHangarsAsDualRestrictions" TO toms_public;
+GRANT DELETE, INSERT, SELECT, UPDATE ON TABLE mhtc_operations."CycleHangarsAsDualRestrictions" TO toms_operator;
+GRANT ALL ON TABLE mhtc_operations."CycleHangarsAsDualRestrictions" TO postgres;
 
 INSERT INTO mhtc_operations."CycleHangarCrossoverNodes" (geom)
 SELECT ST_StartPoint(geom) As geom
@@ -201,7 +208,7 @@ FROM toms."Bays" s1, (SELECT ST_Union(ST_Snap(h.geom, s.geom, 0.00000001)) AS ge
 									  (SELECT geom
 									  FROM "mhtc_operations"."CycleHangarCrossoverNodes"
 									  ) h) c
-WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25)
+WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
 
 /*
 
