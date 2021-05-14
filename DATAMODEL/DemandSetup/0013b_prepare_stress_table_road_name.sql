@@ -28,7 +28,7 @@ CREATE TABLE demand.demand_results
     id SERIAL,
     "GeometryID" character varying(100) COLLATE pg_catalog."default" NOT NULL,
     "SurveyID" integer NOT NULL,
-    "Value" float,
+    "Value" character varying(250),
     CONSTRAINT "demand_results_unique_key" UNIQUE ("GeometryID", "SurveyID")
 )
 TABLESPACE pg_default;
@@ -60,7 +60,7 @@ CSV HEADER;
 -- Move to main table
 
 INSERT INTO demand.demand_results ("GeometryID", "SurveyID", "Value")
-SELECT "GeometryID", "SurveyID"::integer, "Value"::float
+SELECT "GeometryID", "SurveyID"::integer, "Value"--::float
 FROM demand.demand_results_tmp
 WHERE "SurveyID" ~ E'^\\d+$'
 ;
