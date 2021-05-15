@@ -500,6 +500,13 @@ class FieldRestrictionTypeUtilsMixin():
             None
 
         currFeatureLayer.rollBack()
+
+        """
+            save form location for reuse
+        """
+        self.storeLastUsedDetails(currFeatureLayer.name(), 'geometry_x', restrictionDialog.geometry().x())
+        self.storeLastUsedDetails(currFeatureLayer.name(), 'geometry_y', restrictionDialog.geometry().y())
+
         restrictionDialog.reject()
 
         #del self.mapTool
