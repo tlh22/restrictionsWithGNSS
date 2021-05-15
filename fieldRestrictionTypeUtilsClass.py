@@ -380,6 +380,15 @@ class FieldRestrictionTypeUtilsMixin():
 
         self.addScrollBars(restrictionDialog)
 
+        """
+            set form location (based on last position)
+        """
+        dw = restrictionDialog.width()
+        dh = restrictionDialog.height()
+        restrictionDialog.setGeometry(self.readLastUsedDetails(currRestrictionLayer.name(), 'geometry_x', 200),
+                                      self.readLastUsedDetails(currRestrictionLayer.name(), 'geometry_y', 200),
+                                      dw, dh)
+
         """def onSaveRestrictionDetailsFromForm(self):
         TOMsMessageLog.logMessage("In onSaveRestrictionDetailsFromForm", level=Qgis.Info)
         self.onSaveRestrictionDetails(self.currRestriction,
@@ -454,6 +463,12 @@ class FieldRestrictionTypeUtilsMixin():
         else:
             status = currFeatureLayer.addFeature(currFeature)
             TOMsMessageLog.logMessage("In onSaveDemandDetails: added Feature: " + str(status), level=Qgis.Info)"""
+
+        """
+            save form location for reuse
+        """
+        self.storeLastUsedDetails(currFeatureLayer.name(), 'geometry_x', dialog.geometry().x())
+        self.storeLastUsedDetails(currFeatureLayer.name(), 'geometry_y', dialog.geometry().y())
 
         status = dialog.attributeForm().close()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: dialog saved: " + str(currFeatureID),
