@@ -59,6 +59,7 @@ FROM toms."Signs" su
 WHERE su."SignType_1" = 9999
 AND su."Photos_01" IS NOT NULL
 
+/**
 UNION
 
 SELECT su."GeometryID", su."RoadName", su."Photos_02" AS "Photo"
@@ -72,7 +73,7 @@ SELECT su."GeometryID", su."RoadName", su."Photos_03" AS "Photo"
 FROM toms."Signs" su
 WHERE su."SignType_3" = 9999
 AND su."Photos_03" IS NOT NULL
-
+**/
 ORDER BY "Photo"
 ) b
 	) g
@@ -93,6 +94,7 @@ FROM toms."Signs" su
 WHERE su."SignType_1" = 9999
 AND su."Photos_01" IS NOT NULL
 
+/**
 UNION
 
 SELECT su."RoadName", su."Photos_02" AS "Photo"
@@ -106,7 +108,7 @@ SELECT su."RoadName", su."Photos_03" AS "Photo"
 FROM toms."Signs" su
 WHERE su."SignType_3" = 9999
 AND su."Photos_03" IS NOT NULL
-
+**/
 ORDER BY "Photo"
 
 ) b

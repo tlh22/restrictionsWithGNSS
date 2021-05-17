@@ -385,8 +385,8 @@ class FieldRestrictionTypeUtilsMixin():
         """
         dw = restrictionDialog.width()
         dh = restrictionDialog.height()
-        restrictionDialog.setGeometry(self.readLastUsedDetails(currRestrictionLayer.name(), 'geometry_x', 200),
-                                      self.readLastUsedDetails(currRestrictionLayer.name(), 'geometry_y', 200),
+        restrictionDialog.setGeometry(int(self.readLastUsedDetails(currRestrictionLayer.name(), 'geometry_x', 200)),
+                                      int(self.readLastUsedDetails(currRestrictionLayer.name(), 'geometry_y', 200)),
                                       dw, dh)
 
         """def onSaveRestrictionDetailsFromForm(self):
