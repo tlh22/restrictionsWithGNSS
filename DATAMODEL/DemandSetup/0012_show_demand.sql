@@ -40,6 +40,7 @@ SELECT "GeometryID", geom, "RestrictionLength", "RestrictionTypeID",
              ELSE "GeomShapeID"
          END
          , "AzimuthToRoadCentreLine", "BayOrientation", "Capacity"+1, "Capacity"  -- increase the NrBays value to deal with over parked areas
+
 	FROM mhtc_operations."Supply";
 
 -- create view with to show stress
@@ -52,33 +53,29 @@ AS
 /** -- Using demand_Merged
     SELECT row_number() OVER (PARTITION BY true::boolean) AS id,
     s."GeometryID", s.geom, s."RestrictionTypeID", s."GeomShapeID", s."AzimuthToRoadCentreLine", s."BayOrientation", s."NrBays", s."Capacity",
-    d."SurveyID", d."sbays" AS "BaysSuspended", d."Demand" AS "Demand",
+    d."SurveyID", --d."sbays" AS "BaysSuspended",
+    d."Demand" AS "Demand",
 
     /* What to do about suspensions */
     CASE
-        WHEN s."Capacity" = 0 THEN
+        WHEN s."Capacity"::float = 0 THEN
             CASE
-                WHEN d."Demand" > 0.0 THEN 1.0
+                WHEN d."Demand"::float > 0.0 THEN 1.0
                 ELSE 0.0
                 END
         ELSE
             CASE
-                WHEN d."Done" IS TRUE THEN
-                    CASE
-                        WHEN s."Capacity"::float - COALESCE(NULLIF(d."sbays",'')::float, 0.0) > 0.0 THEN
-                            d."Demand" / (s."Capacity"::float - COALESCE(NULLIF(d."sbays",'')::float, 0.0)) * 1.0
-                        ELSE
-                            CASE
-                                WHEN d."Demand" > 0.0 THEN 1.0
-                                ELSE  0.0
-                                END
-                        END
+                WHEN s."Capacity"::float > 0.0 THEN
+                    d."Demand"::float / (s."Capacity"::float) * 1.0
                 ELSE
-                    0.0
+                    CASE
+                        WHEN d."Demand"::float > 0.0 THEN 1.0
+                        ELSE  0.0
+                        END
                 END
         END AS "Stress"
 
-	FROM demand."Supply_for_viewing_demand" s, demand."Demand_Merged" d
+	FROM demand."Supply_for_viewing_demand" s, demand."Demand_Merged_Final" d
 	WHERE d."GeometryID" = s."GeometryID"
 
 	**/
