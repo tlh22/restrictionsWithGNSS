@@ -39,6 +39,7 @@ import random
 
 from TOMs.core.TOMsGeometryElement import ElementGeometryFactory
 from TOMs.expressions import TOMsExpressions
+from .junction_protection.junction_protection_utils import junctionProtectionUtils
 
 from TOMs.constants import (
     ProposalStatus,
@@ -203,7 +204,23 @@ class operatorExpressions(TOMsExpressions):
 
         return defaultValue
 
+    @qgsfunction(args='auto', group='JunctionProtection', usesgeometry=False, register=True)
+    def getHaveringMapScale(feature, parent):
 
+        try:
+            mapScale = junctionProtectionUtils.getHaveringMapscaleLookup(feature.attribute('HaveringMapFramesScaleID'))
+        except Exception as e:
+            QgsMessageLog.logMessage('getHaveringMapScale {}'.format(e), tag="TOMs Panel")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            QgsMessageLog.logMessage(
+                'getHaveringMapScale: error in expression function: ' + str(
+                    repr(traceback.extract_tb(exc_traceback))),
+                tag="TOMs Panel")
+
+        return mapScale
+
+
+    """
     def registerFunctions(self):
 
         toms_list = QgsExpression.Functions()
@@ -226,3 +243,4 @@ class operatorExpressions(TOMsExpressions):
             TOMsMessageLog.logMessage("Unregistered expression function {}".format(func.name()), level=Qgis.Info)
 
         #QgsExpression.cleanRegisteredFunctions()  # this seems to crash the reload ...
+        """
