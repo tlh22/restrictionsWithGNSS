@@ -100,7 +100,7 @@ class featuresWithGPS:
 
         #self.hideMenusToolbars()
         self.expressionsObject = operatorExpressions()
-        self.expressionsObject.registerFunctions()   # Register the Expression functions that we need
+        #self.expressionsObject.registerFunctions()   # Register the Expression functions that we need
 
         # set up menu. Is there a generic way to do this? from an xml file?
 
@@ -173,7 +173,7 @@ class featuresWithGPS:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
 
-        self.expressionsObject.unregisterFunctions()  # unregister all the Expression functions used
+        #self.expressionsObject.unregisterFunctions()  # unregister all the Expression functions used
 
         # remove the toolbar
         QgsMessageLog.logMessage("Clearing toolbar ... ", tag="TOMs panel")
