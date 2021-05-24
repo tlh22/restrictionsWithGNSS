@@ -175,7 +175,7 @@ ORDER BY "GeometryID"
 
 SELECT "GeometryID", 'AccessRestrictions' AS "MovingTrafficType", a.restriction::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
 	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
-	   '' AS "LoadingMarkingsFaded_Description",
+	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   "ComplianceNotes", "Notes"
@@ -199,7 +199,7 @@ UNION
 
 SELECT "GeometryID", 'HighwayDedications' AS "MovingTrafficType", a.dedication::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
 	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
-	   '' AS "LoadingMarkingsFaded_Description",
+	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   "ComplianceNotes", "Notes"
@@ -223,7 +223,7 @@ UNION
 
 SELECT "GeometryID", 'RestrictionsForVehicles' AS "MovingTrafficType", a."restrictionType"::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
 	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
-	   '' AS "LoadingMarkingsFaded_Description",
+	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   "ComplianceNotes", "Notes"
@@ -247,7 +247,7 @@ UNION
 
 SELECT "GeometryID", 'SpecialDesignations' AS "MovingTrafficType", a."designation"::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
 	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
-	   '' AS "LoadingMarkingsFaded_Description",
+	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   "ComplianceNotes", "Notes"
@@ -271,7 +271,7 @@ UNION
 
 SELECT "GeometryID", 'TurnRestrictions' AS "MovingTrafficType", a."restrictionType"::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
 	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
-	   '' AS "LoadingMarkingsFaded_Description",
+	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
 	   "ComplianceNotes", "Notes"

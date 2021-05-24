@@ -52,7 +52,7 @@ AND "GeometryID" NOT IN (
 
     UNION
 
-    SELECT e."GeometryID",
+    SELECT e."GeometryID"
     FROM local_authority."ISL_Electrical_Items" e, local_authority."ISL_Electrical_Items_orig" o
     WHERE e."Unit_Reference" = o."Unit_Reference"
     AND NOT ST_Within(e.geom, ST_Buffer(o.geom, 1.0))
