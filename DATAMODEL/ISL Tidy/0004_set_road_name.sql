@@ -168,7 +168,7 @@ WITH relevant_tables AS (
         FROM information_schema.columns i, relevant_tables
         WHERE i.table_name = relevant_tables.table_name
         AND i.table_schema = relevant_tables.table_schema
-        AND column_name = 'geom'
+        AND column_name = 'geom_point'
     )
         SELECT mhtc_operations.setRoadNameForTable(full_table_name, 'geom')
         FROM geom_tables;
