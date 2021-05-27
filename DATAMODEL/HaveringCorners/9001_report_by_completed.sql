@@ -90,6 +90,16 @@ AND "MHTC_CheckIssueTypeID" = 1
 GROUP BY w."NAME"
 
 
+SELECT w."NAME"--, j."GeometryID" --
+		, j."JunctionProtectionCategoryTypeID"
+		, COUNT(*)
+FROM havering_operations."HaveringJunctions" j INNER JOIN local_authority."Wards" w ON ST_Within(j.junction_point_geom, w.geom)
+WHERE "MHTC_CheckIssueTypeID" = 1
+--AND "JunctionProtectionCategoryTypeID" IN (2, 3)
+--AND w."NAME" IN ('Havering Park Ward', 'Mawneys Ward')
+GROUP BY w."NAME", j."JunctionProtectionCategoryTypeID"
+ORDER BY w."NAME"
+
 
 --
 
