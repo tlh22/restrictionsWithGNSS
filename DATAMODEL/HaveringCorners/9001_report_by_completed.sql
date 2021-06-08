@@ -21,14 +21,14 @@ ORDER BY "Ward", "Category"
 --
 SELECT w."NAME" AS "Ward", jn."Category", jn."Status", Count(*) AS Total
 FROM
-(SELECT l."Description" AS "Category", "MHTC_CheckIssueTypeID" As "Status", j.junction_point_geom AS geom
-FROM havering_operations."HaveringJunctions" j, havering_operations."JunctionProtectionCategoryTypes" l
-WHERE j."JunctionProtectionCategoryTypeID" = l."Code"
-) jn, local_authority."Wards" w
+(SELECT "JunctionProtectionCategoryTypes"."Description" AS "Category", "MHTC_CheckIssueTypes"."Description" As "Status", j.junction_point_geom AS geom
+FROM ((havering_operations."HaveringJunctions" j
+LEFT JOIN havering_operations."JunctionProtectionCategoryTypes" AS "JunctionProtectionCategoryTypes" ON j."JunctionProtectionCategoryTypeID" is not distinct from "JunctionProtectionCategoryTypes"."Code")
+LEFT JOIN compliance_lookups."MHTC_CheckIssueTypes" AS "MHTC_CheckIssueTypes" ON j."MHTC_CheckIssueTypeID" is not distinct from "MHTC_CheckIssueTypes"."Code")
+) AS jn, local_authority."Wards" w
 WHERE ST_Within(jn.geom, w.geom)
 GROUP BY "Ward", "Category", "Status"
 ORDER BY "Ward", "Category", "Status"
-
 
 
 
