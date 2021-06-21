@@ -205,7 +205,7 @@ SELECT
 FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
 									  FROM "mhtc_operations"."Supply_orig3" s1,
 									  (SELECT geom
-									  FROM "mhtc_operations"."CrossoverNodes"
+									  FROM "mhtc_operations"."CrossoverNodes_Single"
 									  ) cnr) c
 WHERE ST_DWithin(s1.geom, c.geom, 0.25)
 union
@@ -216,7 +216,7 @@ SELECT
 FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
 									  FROM "mhtc_operations"."Supply_orig3" s1,
 									  (SELECT geom
-									  FROM "mhtc_operations"."CrossoverNodes"
+									  FROM "mhtc_operations"."CrossoverNodes_Single"
 									  ) cnr) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
 
