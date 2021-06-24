@@ -10,14 +10,27 @@ CREATE TRIGGER "update_capacity_supply" BEFORE INSERT OR UPDATE OF geom, "Restri
 UPDATE "mhtc_operations"."Supply"
 SET "RestrictionLength" = ROUND(ST_Length (geom)::numeric,2);
 
+-- set road details
+
+UPDATE mhtc_operations."Supply" AS c
+SET "SectionID" = closest."SectionID", "RoadName" = closest."RoadName", "SideOfStreet" = closest."SideOfStreet", "StartStreet" =  closest."StartStreet", "EndStreet" = closest."EndStreet"
+FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "SectionID",
+        ST_ClosestPoint(c1.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS geom,
+        ST_Distance(c1.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, c1."RoadName", c1."SideOfStreet", c1."StartStreet", c1."EndStreet"
+      FROM mhtc_operations."Supply" s, mhtc_operations."RC_Sections_merged" c1
+      WHERE ST_DWithin(c1.geom, s.geom, 2.0)
+      ORDER BY s."GeometryID", length) AS closest
+WHERE c."GeometryID" = closest.id;
+
 -- Reset all road names, etc
 
+/*
 UPDATE mhtc_operations."Supply" su
 SET "RoadName" = s."RoadName",
 "StartStreet" = s."StartStreet",
 "EndStreet" = s."EndStreet",
 "SideOfStreet" = s."SideOfStreet"
 FROM mhtc_operations."RC_Sections_merged" s
-WHERE su."SectionID" = s.gid
-
+WHERE su."SectionID" = s.gid;
+*/
 

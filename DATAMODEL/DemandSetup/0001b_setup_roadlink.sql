@@ -1,9 +1,3 @@
-/**
-before dealing with roadlink, need to drop StreetGazetteerView
-**/
-
-DROP MATERIALIZED VIEW local_authority."StreetGazetteerView";
-
 -- set up road names
 ALTER TABLE "highways_network"."roadlink"
   ADD COLUMN "RoadFrom" character varying(100);
