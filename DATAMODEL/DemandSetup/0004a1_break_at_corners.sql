@@ -180,10 +180,8 @@ SELECT
 FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s2.geom, 0.001)) AS geom
 									  FROM "mhtc_operations"."Supply_orig" s2,
 									  (SELECT geom
-									  FROM "mhtc_operations"."Corners"
-									  union
-									  SELECT geom
-									  FROM "mhtc_operations"."SectionBreakPoints") cnr) c
+									  FROM "mhtc_operations"."Corners_Single"
+									  ) cnr) c
 WHERE ST_DWithin(s1.geom, c.geom, 0.25)
 union
 SELECT
@@ -193,10 +191,8 @@ SELECT
 FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.001)) AS geom
 									  FROM "mhtc_operations"."Supply_orig" s1,
 									  (SELECT geom
-									  FROM "mhtc_operations"."Corners"
-									  union
-									  SELECT geom
-									  FROM "mhtc_operations"."SectionBreakPoints") cnr) c
+									  FROM "mhtc_operations"."Corners_Single"
+									  ) cnr) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
 
 DELETE FROM "mhtc_operations"."Supply"

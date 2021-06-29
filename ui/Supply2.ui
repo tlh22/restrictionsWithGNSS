@@ -50,6 +50,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -62,6 +63,7 @@
     <widget class="QLineEdit" name="GeometryID">
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -86,6 +88,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -119,6 +122,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -128,7 +132,7 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="RestType">
+        <widget class="QComboBox" name="RestrictionTypeID">
          <property name="currentIndex">
           <number>-1</number>
          </property>
@@ -144,6 +148,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -165,6 +170,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -186,6 +192,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -207,6 +214,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -232,6 +240,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -257,6 +266,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -285,6 +295,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -307,7 +318,7 @@
         </widget>
        </item>
        <item row="8" column="1">
-        <widget class="QComboBox" name="Unacceptable"/>
+        <widget class="QComboBox" name="UnacceptableTypeID"/>
        </item>
       </layout>
      </widget>
@@ -320,6 +331,7 @@
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -359,6 +371,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -371,9 +384,10 @@
         <widget class="QLineEdit" name="RoadName"/>
        </item>
        <item row="0" column="1" colspan="3">
-        <widget class="QLineEdit" name="Shape_Leng">
+        <widget class="QLineEdit" name="RestrictionLength">
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -392,6 +406,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -420,6 +435,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -455,6 +471,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -476,6 +493,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -550,6 +568,7 @@
        <property name="font">
         <font>
          <family>Sans Serif</family>
+         <pointsize>10</pointsize>
         </font>
        </property>
        <property name="autoFillBackground">
