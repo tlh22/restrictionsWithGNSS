@@ -1,7 +1,20 @@
 --
 
 SELECT
-"GeometryID", "RestrictionTypeID", "BayLineTypes"."Description" AS "RestrictionDescription",
+"GeometryID",
+        CASE WHEN "RestrictionTypeID" = 225 THEN
+                 CASE
+                    WHEN "UnacceptableTypeID" IS NOT NULL THEN 220
+                    ELSE 216
+                 END
+                 WHEN "RestrictionTypeID" = 224 THEN
+                 CASE
+                    WHEN "UnacceptableTypeID" IS NOT NULL THEN 221
+                    ELSE 201
+                 END
+             ELSE "RestrictionTypeID"
+        END AS "RestrictionTypeID",
+"BayLineTypes"."Description" AS "RestrictionDescription",
 "GeomShapeID", COALESCE("RestrictionGeomShapeTypes"."Description", '') AS "Restriction Shape Description",
 a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideOfStreet", "RC_Sections_merged"."SectionName", --COALESCE("SurveyArea", ''),
 
@@ -22,8 +35,21 @@ a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideO
             END AS "ParkingAvailableDuringSurveyHours"
 
 FROM
-     ((((((mhtc_operations."Supply" AS a
-     LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
+     ((((((
+     (SELECT CASE WHEN "RestrictionTypeID" = 225 THEN
+                 CASE
+                    WHEN "UnacceptableTypeID" IS NOT NULL THEN 220
+                    ELSE 216
+                 END
+                 WHEN "RestrictionTypeID" = 224 THEN
+                 CASE
+                    WHEN "UnacceptableTypeID" IS NOT NULL THEN 221
+                    ELSE 201
+                 END
+             ELSE "RestrictionTypeID"
+        END AS "RestrictionTypeID_Amended", *
+        FROM mhtc_operations."Supply") AS a
+     LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID_Amended" is not distinct from "BayLineTypes"."Code")
      LEFT JOIN "toms_lookups"."RestrictionGeomShapeTypes" AS "RestrictionGeomShapeTypes" ON a."GeomShapeID" is not distinct from "RestrictionGeomShapeTypes"."Code")
      LEFT JOIN "toms_lookups"."TimePeriods" AS "TimePeriods1" ON a."TimePeriodID" is not distinct from "TimePeriods1"."Code")
      LEFT JOIN "toms_lookups"."TimePeriods" AS "TimePeriods2" ON a."NoWaitingTimeID" is not distinct from "TimePeriods2"."Code")
