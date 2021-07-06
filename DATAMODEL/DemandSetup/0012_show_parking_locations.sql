@@ -43,7 +43,10 @@ SELECT "GeometryID", geom, "RestrictionLength", "RestrictionTypeID",
              WHEN "GeomShapeID" >= 10 AND "GeomShapeID" < 20 THEN 21
              ELSE "GeomShapeID"
          END
-         , "AzimuthToRoadCentreLine", "BayOrientation", "Capacity"+1, "Capacity"  -- increase the NrBays value to deal with over parked areas
+         , "AzimuthToRoadCentreLine", "BayOrientation",
+         CASE WHEN "NrBays" = -1 THEN "Capacity"
+              ELSE "NrBays"
+         END AS "NrBays", "Capacity"  -- increase the NrBays value to deal with over parked areas
 
 	FROM mhtc_operations."Supply";
 
@@ -80,10 +83,14 @@ AS
 
 	**/
     SELECT row_number() OVER (PARTITION BY true::boolean) AS id,
-    s."GeometryID", s.geom, s."RestrictionTypeID", s."GeomShapeID", s."AzimuthToRoadCentreLine", s."BayOrientation", s."NrBays", d."Capacity",
+    s."GeometryID", s.geom, s."RestrictionTypeID", s."GeomShapeID", s."AzimuthToRoadCentreLine", s."BayOrientation",
+    CASE WHEN d."Demand" > s."NrBays" THEN d."Demand"
+         ELSE s."NrBays"
+    END AS "NrBays",
+    d."Capacity",
     d."SurveyID", d."Demand" AS "Demand"
 
-    FROM demand."Supply_for_viewing_parking_locations" s, demand."Demand_Merged_Final" d
+    FROM demand."Supply_for_viewing_parking_locations" s, demand."Demand_Merged" d
 	WHERE d."GeometryID" = s."GeometryID"
 
 WITH DATA;

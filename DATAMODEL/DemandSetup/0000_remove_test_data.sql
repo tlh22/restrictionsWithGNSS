@@ -1,4 +1,15 @@
 /**
+Before starting the scripts need to:
+  - Create database, restore latest version of TOMs_Test and create relevant pg service
+  - Get project folder structure and rename appropriate files
+  - Change service name in project file
+  - Run this script
+  - Within QGISm, add relevant layers into project and transfer to database:
+      - os_mastermap_topography_text
+      - os_mastermap_topography_polygons
+      - SiteArea
+      - RoadCentreLine (remember to only include selected items)
+
 remove any test data
 **/
 

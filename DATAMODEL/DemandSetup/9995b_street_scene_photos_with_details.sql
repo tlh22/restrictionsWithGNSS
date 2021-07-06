@@ -114,6 +114,3 @@ ORDER BY "Photo"
 ) b
 ) g
 
-
-SELECT txt, substring(b."Photo", \.(.*))
-FROM   x
