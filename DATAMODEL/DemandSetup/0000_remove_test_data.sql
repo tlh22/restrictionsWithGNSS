@@ -4,7 +4,7 @@ Before starting the scripts need to:
   - Get project folder structure and rename appropriate files
   - Change service name in project file
   - Run this script
-  - Within QGISm, add relevant layers into project and transfer to database:
+  - Within QGIS, add relevant layers into project and transfer to database:
       - os_mastermap_topography_text
       - os_mastermap_topography_polygons
       - SiteArea
@@ -49,3 +49,7 @@ before dealing with roadlink, need to drop StreetGazetteerView
 **/
 
 DROP MATERIALIZED VIEW local_authority."StreetGazetteerView";
+
+
+ALTER TABLE highway_assets."CrossingPoints"
+    ALTER COLUMN id DROP NOT NULL;
