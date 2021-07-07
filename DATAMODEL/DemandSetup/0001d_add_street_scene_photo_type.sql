@@ -18,6 +18,10 @@ REFRESH MATERIALIZED VIEW "toms_lookups"."SignTypesInUse_View";
 Ensure appropriate bay/line types
 **/
 
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (126, 'Polygon');  -- Limited Waiting
+
 INSERT INTO toms_lookups."LineTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (225, 'LineString');  -- Unmarked kerbline
@@ -31,3 +35,4 @@ INSERT INTO toms_lookups."LineTypesInUse"(
 	VALUES (226, 'LineString');  -- SRL
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."LineTypesInUse_View";
+REFRESH MATERIALIZED VIEW "toms_lookups"."BayTypesInUse_View";

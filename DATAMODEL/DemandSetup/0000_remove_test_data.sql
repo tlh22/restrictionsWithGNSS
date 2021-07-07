@@ -34,6 +34,12 @@ FROM toms."ParkingTariffAreas";
 DELETE
 FROM toms."MatchDayEventDayZones";
 
+DELETE
+FROM toms."TilesInAcceptedProposals";
+
+DELETE
+FROM toms."MapGrid";
+
 -- Tidy up other things ...
 
 ALTER TABLE highway_assets."HighwayAssets"

@@ -19,3 +19,9 @@ REVOKE ALL ON ALL TABLES IN SCHEMA topography FROM toms_public, toms_operator, t
 GRANT SELECT ON ALL TABLES IN SCHEMA topography TO toms_public, toms_operator, toms_admin;
 GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA topography TO toms_public, toms_operator, toms_admin;
 GRANT USAGE ON SCHEMA topography TO toms_public, toms_operator, toms_admin;
+
+
+/**
+The database can now be transferred to the field system ...
+Currently there is an issue with CrossingPoints in that the column id reverts to being NOT NULL on transfer
+**/
