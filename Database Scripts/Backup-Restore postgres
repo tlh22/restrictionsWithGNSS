@@ -1,0 +1,15 @@
+-- *** Backup
+
+-- this creates a text based file (with COPY statements)
+"C:\Program Files\PostgreSQL\12\bin\pg_dump" -N <schemas to exclude> -U postgres -h <host address> -p <port nr> -F p -b -v -f %BACKUP_FILE% <db_name>
+
+-- this creates a text based file (with INSERT statements)
+"C:\Program Files\PostgreSQL\12\bin\pg_dump" -U postgres -h <host address> -p <port nr> -n <schemas to include> -F p --column-inserts --quote-all-identifiers -v -f %BACKUP_FILE% <db_name>
+
+-- *** Restore
+
+-- uses text based
+"C:\Program Files\PostgreSQL\12\bin\psql" -U postgres -d <db_name> -h <host address> -p <port nr> -v ON_ERROR_STOP=1 -f "C:\Users\marie_000\Documents\MHTC\<file>.sql"      # will also need password
+
+-- uses bin file
+"C:\Program Files\PostgreSQL\12\bin\pg_restore" -U postgres -d <db_name> -h <host address> -p <port nr> -v "C:\Users\marie_000\Documents\MHTC\<file>.backup"
