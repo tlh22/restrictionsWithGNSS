@@ -203,7 +203,9 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
     (ST_Dump(ST_Split(s1.geom, ST_Buffer(c.geom, 0.00001)))).geom
 FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
-									  FROM "mhtc_operations"."Supply_orig3" s1,
+									  FROM "mhtc_operations"."Supply_orig3" s1
+									  WHERE "RestrictionTypeID" IN (201, 216, 217, 224, 225)
+									  OR "RestrictionTypeID" < 200,
 									  (SELECT geom
 									  FROM "mhtc_operations"."CrossoverNodes_Single"
 									  ) cnr) c
@@ -214,11 +216,24 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
     s1.geom
 FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.00000001)) AS geom
-									  FROM "mhtc_operations"."Supply_orig3" s1,
+									  FROM "mhtc_operations"."Supply_orig3" s1
+									  WHERE "RestrictionTypeID" IN (201, 216, 217, 224, 225)
+									  OR "RestrictionTypeID" < 200,
 									  (SELECT geom
 									  FROM "mhtc_operations"."CrossoverNodes_Single"
 									  ) cnr) c
-WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
+WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25)
+union
+SELECT
+    "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    s1.geom
+FROM "mhtc_operations"."Supply_orig3" s1
+WHERE "RestrictionTypeID" NOT IN (
+SELECT "RestrictionTypeID" FROM "mhtc_operations"."Supply_orig3"
+WHERE "RestrictionTypeID" IN (201, 216, 217, 224, 225)
+OR "RestrictionTypeID" < 200)
+;
 
 DELETE FROM "mhtc_operations"."Supply"
 WHERE ST_Length(geom) < 0.0001;
