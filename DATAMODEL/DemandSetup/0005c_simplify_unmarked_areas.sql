@@ -21,3 +21,4 @@ UPDATE mhtc_operations."Supply"
 SET "RestrictionTypeID" = 216
 WHERE "RestrictionTypeID" = 225
 AND "UnacceptableTypeID" IS NULL;
+
