@@ -50,6 +50,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -62,6 +63,7 @@
     <widget class="QLineEdit" name="GeometryID">
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -76,6 +78,16 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="1">
+    <widget class="QDialogButtonBox" name="button_box">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0" colspan="2">
     <widget class="QTabWidget" name="tabWidget">
      <property name="minimumSize">
@@ -86,6 +98,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -122,6 +135,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -147,6 +161,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -168,6 +183,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -189,6 +205,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -210,6 +227,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -245,6 +263,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -260,10 +279,10 @@
          </property>
         </widget>
        </item>
-       <item row="17" column="1">
+       <item row="19" column="1">
         <widget class="QTextEdit" name="Notes"/>
        </item>
-       <item row="17" column="0">
+       <item row="19" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Notes:</string>
@@ -280,24 +299,24 @@
        <item row="1" column="1">
         <widget class="QComboBox" name="CPZ"/>
        </item>
-       <item row="12" column="0">
+       <item row="14" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>Match Day Control Times:</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
+       <item row="14" column="1">
         <widget class="QComboBox" name="MatchDayTimePeriodID"/>
        </item>
-       <item row="15" column="0">
+       <item row="17" column="0">
         <widget class="QLabel" name="label_13">
          <property name="text">
           <string>Pay By Phone Location Code:</string>
          </property>
         </widget>
        </item>
-       <item row="15" column="1">
+       <item row="17" column="1">
         <widget class="QComboBox" name="PayParkingAreaID"/>
        </item>
        <item row="10" column="1">
@@ -326,6 +345,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -347,6 +367,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -358,13 +379,30 @@
          </property>
         </widget>
        </item>
-       <item row="13" column="1">
-        <widget class="QComboBox" name="UnacceptableTypeID"/>
-       </item>
-       <item row="13" column="0">
+       <item row="12" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
           <string>UnAcc Reason:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1">
+        <widget class="QComboBox" name="UnacceptableTypeID"/>
+       </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Match/Event day Zone:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="1">
+        <widget class="QLineEdit" name="MatchDayEventDayZone"/>
+       </item>
+       <item row="20" column="0">
+        <widget class="QCheckBox" name="DisplayLabel_2">
+         <property name="text">
+          <string>Display label</string>
          </property>
         </widget>
        </item>
@@ -375,61 +413,21 @@
        <string>Geometry</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="1" colspan="3">
-        <widget class="QLineEdit" name="RestrictionLength">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Last Update Date:</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
-        <widget class="QLabel" name="lbl_AzToRoadCL">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>16</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Direction to Road Centreline:</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="4">
-        <widget class="QLineEdit" name="AzimuthToRoadCentreLine">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Last Changed By:</string>
-         </property>
-        </widget>
+       <item row="11" column="1" colspan="2">
+        <widget class="QLineEdit" name="RestrictionID"/>
        </item>
        <item row="1" column="1" colspan="4">
         <widget class="QLineEdit" name="RoadName"/>
        </item>
-       <item row="2" column="1" colspan="2">
-        <widget class="QLineEdit" name="USRN"/>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="lbl_GeometryType">
+       <item row="4" column="0">
+        <widget class="QLabel" name="lbl_Orientation">
          <property name="minimumSize">
           <size>
            <width>90</width>
@@ -438,11 +436,31 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
-          <string>Geometry Type</string>
+          <string>Orientation (echelon only):</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="lbl_RoadName_2">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>16</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>RestrictionID</string>
          </property>
         </widget>
        </item>
@@ -459,6 +477,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -467,17 +486,25 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>USRN:</string>
+       <item row="4" column="3">
+        <widget class="QLabel" name="lbl_AzToRoadCL">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>16</height>
+          </size>
          </property>
-        </widget>
-       </item>
-       <item row="4" column="5">
-        <widget class="QToolButton" name="toolButton_2">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
          <property name="text">
-          <string>...</string>
+          <string>Direction to Road Centreline:</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -491,10 +518,36 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="2">
-        <widget class="QToolButton" name="toolButton">
+       <item row="3" column="0">
+        <widget class="QLabel" name="lbl_GeometryType">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>16</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Geometry Type</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="5">
+        <widget class="QToolButton" name="toolButton_2">
          <property name="text">
           <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLineEdit" name="NrBays">
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
@@ -502,11 +555,53 @@
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
           <string>Length (m):</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1" colspan="3">
+        <widget class="QDateTimeEdit" name="LastUpdateDateTime">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>USRN:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Last Changed By:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1" colspan="3">
+        <widget class="QLineEdit" name="LastUpdatePerson">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="3">
+        <widget class="QLineEdit" name="RestrictionLength">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -520,6 +615,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -528,72 +624,32 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
-        <widget class="QLineEdit" name="NrBays">
+       <item row="2" column="1" colspan="2">
+        <widget class="QLineEdit" name="USRN"/>
+       </item>
+       <item row="4" column="4">
+        <widget class="QLineEdit" name="AzimuthToRoadCentreLine">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_4">
+       <item row="4" column="2">
+        <widget class="QToolButton" name="toolButton">
          <property name="text">
-          <string>Last Update Date:</string>
+          <string>...</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="1" colspan="3">
-        <widget class="QDateTimeEdit" name="LastUpdateDateTime">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="lbl_Orientation">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>16</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
+       <item row="5" column="3">
+        <widget class="QLabel" name="label_16">
          <property name="text">
-          <string>Orientation (echelon only):</string>
+          <string>Bay Width:</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
-        <widget class="QLabel" name="lbl_RoadName_2">
-         <property name="minimumSize">
-          <size>
-           <width>90</width>
-           <height>16</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>RestrictionID</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1" colspan="3">
-        <widget class="QLineEdit" name="LastUpdatePerson">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="1" colspan="2">
-        <widget class="QLineEdit" name="RestrictionID"/>
+       <item row="5" column="4">
+        <widget class="QLineEdit" name="BayWidth"/>
        </item>
       </layout>
      </widget>
@@ -676,6 +732,7 @@
          <property name="font">
           <font>
            <family>Sans Serif</family>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="autoFillBackground">
@@ -710,6 +767,7 @@
          <property name="font">
           <font>
            <family>Sans Serif</family>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="autoFillBackground">
@@ -853,16 +911,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QDialogButtonBox" name="button_box">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
     </widget>
    </item>
   </layout>
