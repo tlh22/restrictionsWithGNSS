@@ -32,3 +32,33 @@ WHERE "GeometryID" IN ('S_002716', 'S_002865', 'S_002925');
 UPDATE mhtc_operations."Supply"
 SET label_ldr = ST_Multi(ST_MakeLine(ST_LineInterpolatePoint(geom, 0.5), ST_LineInterpolatePoint(geom, 0.5)))
 WHERE "GeometryID" IN ('S_002716', 'S_002865', 'S_002925');
+
+
+SELECT ST_Collect(ST_MakeLine(p1, p2)) as p
+        FROM (
+            SELECT toms.midpoint_or_centroid(geom) as p1, mg.id
+            FROM mhtc_operations."Supply"
+        ) as sub1
+        JOIN (
+            SELECT mg.id, lblpos.geom as p2
+            FROM ST_Dump($2::geometry) lblpos
+            JOIN toms."MapGrid" mg
+            ON ST_Intersects(mg.geom, lblpos.geom)
+        ) as sub2 ON sub2.id = sub1.id
+
+
+-- deal with leader bug?
+UPDATE mhtc_operations."Supply"
+SET label_pos = ST_Multi(ST_LineInterpolatePoint(geom, 0.5))
+WHERE "GeometryID" IN ('S_003033');
+
+UPDATE mhtc_operations."Supply"
+--SET label_ldr = NULL;
+SET label_ldr = ST_Multi(ST_MakeLine(ST_LineInterpolatePoint(geom, 0.5), label_pos))
+--WHERE "GeometryID" IN ('S_003033');
+
+
+UPDATE mhtc_operations."Supply"
+--SET label_ldr = NULL;
+SET label_ldr = ST_Multi(ST_MakeLine(ST_LineInterpolatePoint(geom, 0.5), label_pos))
+--WHERE "GeometryID" IN ('S_003033');
