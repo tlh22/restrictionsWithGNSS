@@ -40,6 +40,18 @@ FROM toms."TilesInAcceptedProposals";
 DELETE
 FROM toms."MapGrid";
 
+DELETE
+FROM toms."RestrictionsInProposals";
+
+DELETE
+FROM toms."Proposals";
+
+DELETE
+FROM highways_network."roadlink";
+
+DELETE
+FROM local_authority."SiteArea";
+
 -- Tidy up other things ...
 
 ALTER TABLE highway_assets."HighwayAssets"
