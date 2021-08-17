@@ -26,6 +26,6 @@ REFRESH MATERIALIZED VIEW "toms_lookups"."LineTypesInUse_View";
 
 INSERT INTO toms_lookups."LineTypesInUse"(
 	"Code", "GeomShapeGroupType")
-	VALUES (147, 'LineString');  -- Unmarked parking area
+	VALUES (152, 'LineString');  -- Unmarked parking area
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."BayTypesInUse_View";
