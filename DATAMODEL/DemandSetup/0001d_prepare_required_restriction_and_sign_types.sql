@@ -8,7 +8,7 @@ INSERT INTO toms_lookups."SignTypesInUse"("Code")
     SELECT "Code"
 	FROM toms_lookups."SignTypes"
 	WHERE "Description" LIKE ('Parking%')
-	OR "Description" LIKE ('Parking%')
+	OR "Description" LIKE ('Zone%')
 	OR "Code" IN (0, 37, 9999)
 	ORDER BY "Description";
 
