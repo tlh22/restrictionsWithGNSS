@@ -18,7 +18,7 @@ SELECT
 "GeomShapeID", COALESCE("RestrictionGeomShapeTypes"."Description", '') AS "Restriction Shape Description",
 a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideOfStreet", "RC_Sections_merged"."SectionName", --COALESCE("SurveyArea", '')  AS "SurveyArea",
 
-       CASE WHEN "RestrictionTypeID" < 200 THEN COALESCE("TimePeriods1"."Description", '')
+       CASE WHEN ("RestrictionTypeID" < 200 OR "RestrictionTypeID" IN (227, 228, 229, 231)) THEN COALESCE("TimePeriods1"."Description", '')
             ELSE COALESCE("TimePeriods2"."Description", '')
             END  AS "DetailsOfControl",
        COALESCE("UnacceptableTypes"."Description", '') AS "UnacceptabilityReason",
