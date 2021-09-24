@@ -32,7 +32,7 @@ a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideO
                      --END
             ELSE
                 "Capacity"
-            END AS "ParkingAvailableDuringSurveyHours"
+            END AS "ParkingAvailableDuringSurveyHours", "CPZ"
 
 FROM
      ((((((

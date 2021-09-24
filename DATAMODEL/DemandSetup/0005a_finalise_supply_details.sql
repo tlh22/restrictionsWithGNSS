@@ -49,3 +49,15 @@ WHERE "RestrictionTypeID" IN (107, 110, 111, 112, 116, 117, 118, 119, 120, 122, 
 AND "TimePeriodID" IS NULL;
 
 
+/**
+Assign CPZ??
+
+UPDATE mhtc_operations."Supply" s
+SET "CPZ" = r."AreaPermitCode"
+FROM toms."RestrictionPolygons" r
+WHERE ST_Within(s.geom, r.geom)
+AND r."AreaPermitCode" = 'NA'
+
+**/
+
+

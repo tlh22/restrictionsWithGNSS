@@ -16,7 +16,7 @@ To create stress maps, steps are:
 NB: There maybe an issue reading the file, in which case, put it into the user/public folder
 -- https://www.neilwithdata.com/copy-permission-denied#:~:text=The%20most%20common%20reason%20permission,the%20server%2C%20not%20the%20client.&text=It%20therefore%20can't%20read,your%20own%20personal%20home%20directory.
 
-3.
+3. 
 
 
 */
