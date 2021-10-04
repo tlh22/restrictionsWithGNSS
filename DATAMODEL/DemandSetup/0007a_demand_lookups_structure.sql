@@ -4,12 +4,14 @@ ALTER SCHEMA "demand_lookups" OWNER TO "postgres";
 
 -- RestrictionTypes In Use
 
+DROP MATERIALIZED VIEW "demand_lookups"."SupplyRestrictionTypesInUse_View" IF EXISTS;
 CREATE MATERIALIZED VIEW "demand_lookups"."SupplyRestrictionTypesInUse_View" AS
- SELECT DISTINCT "BayLineTypesInUse_View"."Code",
-    "BayLineTypesInUse_View"."Description"
-   FROM "toms_lookups"."BayLineTypesInUse_View",
+ SELECT DISTINCT "BayLineTypes"."Code",
+    "BayLineTypes"."Description"
+   FROM "toms_lookups"."BayLineTypes",
     "mhtc_operations"."Supply"
-  WHERE ("BayLineTypesInUse_View"."Code" = "Supply"."RestrictionTypeID")
+  WHERE ("BayLineTypes"."Code" = "Supply"."RestrictionTypeID")
+  ORDER BY "BayLineTypes"."Code"
   WITH DATA;
 
 ALTER TABLE "demand_lookups"."SupplyRestrictionTypesInUse_View" OWNER TO "postgres";
