@@ -21,3 +21,6 @@ GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA topography TO toms_public, toms_op
 GRANT USAGE ON SCHEMA topography TO toms_public, toms_operator, toms_admin;
 
 GRANT SELECT ON TABLE "mhtc_operations"."RC_Sections_merged" TO toms_admin, toms_operator;
+
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."Corners" TO toms_operator, toms_admin;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."SectionBreakPoints" TO toms_operator, toms_admin;
