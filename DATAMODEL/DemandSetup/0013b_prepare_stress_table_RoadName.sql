@@ -53,7 +53,7 @@ ALTER TABLE demand.demand_results
 -- Now copy details into the tmp table
 
 COPY demand.demand_results_tmp("RoadName", "SurveyID", "Value")
-FROM 'C:\Users\Public\Documents\HS_DemandResults.csv'
+FROM 'C:\Users\Public\Documents\PC2108_StressResults.csv'
 DELIMITER ','
 CSV HEADER;
 
