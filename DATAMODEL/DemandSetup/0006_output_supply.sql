@@ -157,4 +157,24 @@ FROM
 
 WHERE "RestrictionTypeID" = 25 -- car park
 
-ORDER BY "RestrictionTypeID", "GeometryID"
+ORDER BY "RestrictionTypeID", "GeometryID";
+
+
+/**
+For sections
+**/
+
+SELECT
+s."GeometryID", s."RestrictionTypeID", 'Subsection' AS "RestrictionDescription",
+10 AS "GeomShapeID", 'Parallel Line' AS "Restriction Shape Description",
+a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideOfStreet", a."SectionName",
+       NULL AS "DetailsOfControl",
+       NULL AS "UnacceptabilityReason",
+       "SectionLength" AS "KerblineLength",
+       -1 AS "MarkedBays", NULL AS "TheoreticalBays",
+       NULL AS "ParkingAvailableDuringSurveyHours",
+       NULL AS "CPZ"
+
+FROM "mhtc_operations"."RC_Sections_merged" a, "demand"."SupplyForDemand" s
+WHERE ST_Equals(a.geom, s.geom)
+ORDER BY s."GeometryID";
