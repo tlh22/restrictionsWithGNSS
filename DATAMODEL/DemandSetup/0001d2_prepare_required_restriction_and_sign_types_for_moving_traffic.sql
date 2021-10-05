@@ -35,4 +35,11 @@ INSERT INTO toms_lookups."RestrictionPolygonTypesInUse"("Code", "GeomShapeGroupT
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."RestrictionPolygonTypesInUse_View";
 
+-- Add field to roadlink to allow viewing of completed areas
+
+ALTER TABLE highways_network.roadlink
+    ADD COLUMN "Completed" boolean DEFAULT false NOT NULL;
+
+GRANT SELECT, UPDATE ON TABLE highways_network.roadlink TO toms_operator, toms_admin;
+
 
