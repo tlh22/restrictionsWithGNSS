@@ -40,6 +40,18 @@ REFRESH MATERIALIZED VIEW "toms_lookups"."RestrictionPolygonTypesInUse_View";
 ALTER TABLE highways_network.roadlink
     ADD COLUMN "Completed" boolean DEFAULT false NOT NULL;
 
+ALTER TABLE highways_network.roadlink
+    ADD COLUMN "LastUpdateDateTime" timestamp without time zone;
+
+ALTER TABLE highways_network.roadlink
+    ADD COLUMN "LastUpdatePerson" character varying(255);
+
 GRANT SELECT, UPDATE ON TABLE highways_network.roadlink TO toms_operator, toms_admin;
+
+-- Trigger trigger ... to populate update details
+UPDATE highways_network.roadlink
+SET "Completed" = true
+WHERE "Completed" = true;
+
 
 
