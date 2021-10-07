@@ -58,6 +58,11 @@ FROM toms."RestrictionPolygons" r
 WHERE ST_Within(s.geom, r.geom)
 AND r."AreaPermitCode" = 'NA'
 
+UPDATE mhtc_operations."Supply" s
+SET "CPZ" = c."CPZ"
+FROM toms."ControlledParkingZones" c
+WHERE ST_Within(s.geom, c.geom);
+
 **/
 
 
