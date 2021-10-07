@@ -53,5 +53,12 @@ UPDATE highways_network.roadlink
 SET "Completed" = true
 WHERE "Completed" = true;
 
+--
+REVOKE ALL ON TABLE highways_network."MHTC_RoadLinks" FROM toms_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE highways_network."MHTC_RoadLinks" TO toms_admin;
+
+REVOKE ALL ON TABLE highways_network."MHTC_RoadLinks" FROM toms_operator;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE highways_network."MHTC_RoadLinks" TO toms_operator;
+
 
 
