@@ -36,3 +36,16 @@ INSERT INTO toms_lookups."LineTypesInUse"(
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."LineTypesInUse_View";
 REFRESH MATERIALIZED VIEW "toms_lookups"."BayTypesInUse_View";
+
+/**
+add any time periods required
+**/
+
+/*
+INSERT INTO toms_lookups."TimePeriodsInUse"("Code")
+SELECT "Code"
+FROM toms_lookups."TimePeriods"
+WHERE "Code" IN (253, 370, 496, 617, 618);
+
+REFRESH MATERIALIZED VIEW "toms_lookups"."TimePeriodsInUse_View";
+*/
