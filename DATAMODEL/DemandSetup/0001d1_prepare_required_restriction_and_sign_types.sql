@@ -28,4 +28,12 @@ INSERT INTO toms_lookups."LineTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (152, 'LineString');  -- Unmarked parking area
 
+	INSERT INTO toms_lookups."LineTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (122, 'LineString');  -- Unmarked parking area
+
+	INSERT INTO toms_lookups."LineTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (162, 'LineString');  -- Unmarked parking area
+
 REFRESH MATERIALIZED VIEW "toms_lookups"."BayTypesInUse_View";

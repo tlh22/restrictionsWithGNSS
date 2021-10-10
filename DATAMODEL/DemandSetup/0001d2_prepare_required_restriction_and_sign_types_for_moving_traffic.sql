@@ -20,6 +20,7 @@ INSERT INTO toms_lookups."SignTypesInUse"("Code")
 	OR "Code" IN (52, 53, 6183, 61842, 27, 61841, 6294, 618, 55, 56, 664, 102)  -- Zones
 	OR "Code" IN (94, 9541, 57211, 9544, 620, 6202)  -- supplementary plates
 	OR "Code" IN (0, 25, 37, 953, 9601, 9602, 642, 670, 64021)  -- Misc
+	OR "Code" IN (5301, 779, 510, 521, 522, 5311)  -- Warning signs
 	ORDER BY "Description";
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."SignTypesInUse_View";
@@ -61,5 +62,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE highways_network."MHTC_RoadLinks" 
 REVOKE ALL ON TABLE highways_network."MHTC_RoadLinks" FROM toms_operator;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE highways_network."MHTC_RoadLinks" TO toms_operator;
 
+REVOKE ALL ON TABLE mhtc_operations."SurveyAreas" FROM toms_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE mhtc_operations."SurveyAreas" TO toms_admin;
+
+REVOKE ALL ON TABLE mhtc_operations."SurveyAreas" FROM toms_operator;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE mhtc_operations."SurveyAreas" TO toms_operator;
 
 
