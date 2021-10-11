@@ -17,6 +17,7 @@ INSERT INTO toms_lookups."SignTypesInUse"("Code")
 	OR "Description" LIKE ('Physical restriction%')
 	OR "Description" LIKE ('Special Lane%')
 	OR "Description" LIKE ('Speed%')
+    OR "Description" LIKE ('Route%')
 	OR "Code" IN (52, 53, 6183, 61842, 27, 61841, 6294, 618, 55, 56, 664, 102)  -- Zones
 	OR "Code" IN (94, 9541, 57211, 9544, 620, 6202)  -- supplementary plates
 	OR "Code" IN (0, 25, 37, 953, 9601, 9602, 642, 670, 64021)  -- Misc
