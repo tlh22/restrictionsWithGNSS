@@ -69,4 +69,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE mhtc_operations."SurveyAreas" TO t
 REVOKE ALL ON TABLE mhtc_operations."SurveyAreas" FROM toms_operator;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE mhtc_operations."SurveyAreas" TO toms_operator;
 
+/**
+Need to run scripts to add MHTC Check fields - within TOMS - 0014b_MHTC_Use_Only_add_check_fields_to_main_tables.sql and 0014c1_MHTC_Use_Only_update_last_update_function.sql
+**/
+
+
 
