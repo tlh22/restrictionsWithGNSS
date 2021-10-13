@@ -77,3 +77,11 @@ WITH relevant_tables AS (
 
     SELECT mhtc_operations.countPhotosInTableForDay(full_table_name)
     FROM relevant_tables;
+
+/**
+Measure completed road centreline distance - for moving traffic surveys
+**/
+
+SELECT SUM( length)
+FROM highways_network.roadlink
+WHERE "Completed" = true;
