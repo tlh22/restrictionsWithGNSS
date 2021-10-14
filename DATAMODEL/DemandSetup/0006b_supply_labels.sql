@@ -31,16 +31,17 @@ CREATE TRIGGER insert_mngmt BEFORE INSERT OR UPDATE ON mhtc_operations."Supply" 
 -- Run the trigger once to populate leaders
 --UPDATE mhtc_operations."Supply" SET label_pos = label_pos;
 
-
 -- include RestrictionPolygons
 UPDATE "toms"."RestrictionPolygons"
 SET label_pos = ST_Multi(ST_PointOnSurface(geom))
--- WHERE "RestrictionTypeID" IN (3, 25);
+-- WHERE "RestrictionTypeID" IN (3, 25)
+;
 
 -- Enable trigger
 ALTER TABLE toms."RestrictionPolygons" ENABLE TRIGGER insert_mngmt;
 
 -- deal with leader bug?
+/**
 UPDATE mhtc_operations."Supply"
 SET label_pos = ST_Multi(ST_LineInterpolatePoint(geom, 0.5))
 WHERE "GeometryID" IN ('S_002716', 'S_002865', 'S_002925');
@@ -48,11 +49,12 @@ WHERE "GeometryID" IN ('S_002716', 'S_002865', 'S_002925');
 UPDATE mhtc_operations."Supply"
 SET label_ldr = ST_Multi(ST_MakeLine(ST_LineInterpolatePoint(geom, 0.5), ST_LineInterpolatePoint(geom, 0.5)))
 WHERE "GeometryID" IN ('S_002716', 'S_002865', 'S_002925');
+**/
 
-
+/**
 SELECT ST_Collect(ST_MakeLine(p1, p2)) as p
         FROM (
-            SELECT toms.midpoint_or_centroid(geom) as p1, mg.id
+            SELECT toms.midpoint_or_centroid(geom) as p1
             FROM mhtc_operations."Supply"
         ) as sub1
         JOIN (
@@ -61,9 +63,11 @@ SELECT ST_Collect(ST_MakeLine(p1, p2)) as p
             JOIN toms."MapGrid" mg
             ON ST_Intersects(mg.geom, lblpos.geom)
         ) as sub2 ON sub2.id = sub1.id
-
+;
+**/
 
 -- deal with leader bug?
+/**
 UPDATE mhtc_operations."Supply"
 SET label_pos = ST_Multi(ST_LineInterpolatePoint(geom, 0.5))
 WHERE "GeometryID" IN ('S_003033');
@@ -71,10 +75,14 @@ WHERE "GeometryID" IN ('S_003033');
 UPDATE mhtc_operations."Supply"
 --SET label_ldr = NULL;
 SET label_ldr = ST_Multi(ST_MakeLine(ST_LineInterpolatePoint(geom, 0.5), label_pos))
---WHERE "GeometryID" IN ('S_003033');
+--WHERE "GeometryID" IN ('S_003033')
+;
+**/
 
-
+/**
 UPDATE mhtc_operations."Supply"
 --SET label_ldr = NULL;
 SET label_ldr = ST_Multi(ST_MakeLine(ST_LineInterpolatePoint(geom, 0.5), label_pos))
---WHERE "GeometryID" IN ('S_003033');
+--WHERE "GeometryID" IN ('S_003033')
+;
+**/
