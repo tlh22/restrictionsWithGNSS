@@ -19,7 +19,7 @@ INSERT INTO toms_lookups."SignTypesInUse"("Code")
 	OR "Description" LIKE ('Speed%')
     OR "Description" LIKE ('Route%')
 	OR "Code" IN (52, 53, 6183, 61842, 27, 61841, 6294, 618, 55, 56, 664, 102)  -- Zones
-	OR "Code" IN (94, 9541, 57211, 9544, 620, 6202)  -- supplementary plates
+	OR "Code" IN (94, 9541, 57211, 9544, 620, 6202, 572)  -- supplementary plates
 	OR "Code" IN (0, 25, 37, 953, 9601, 9602, 642, 670, 64021)  -- Misc
 	OR "Code" IN (5301, 779, 510, 521, 522, 5311)  -- Warning signs
 	ORDER BY "Description";
