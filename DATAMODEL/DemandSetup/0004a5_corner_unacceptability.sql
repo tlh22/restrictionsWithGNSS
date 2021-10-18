@@ -99,7 +99,7 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
     (ST_Dump(ST_Split(lg1.geom, mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25)))).geom
     FROM "mhtc_operations"."Supply_orig2" lg1 LEFT JOIN LATERAL mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25) pt ON TRUE
-	WHERE lg1."RestrictionTypeID" in (201, 216, 217, 224, 225, 226)
+	WHERE lg1."RestrictionTypeID" in (201, 216, 217, 224, 225, 226, 227, 229)
 
 UNION
 
@@ -110,7 +110,7 @@ UNION
     geom
 	FROM "mhtc_operations"."Supply_orig2" lg1
     WHERE mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25) IS NULL
-    AND lg1."RestrictionTypeID" in (201, 216, 217, 224, 225, 226)
+    AND lg1."RestrictionTypeID" in (201, 216, 217, 224, 225, 226, 227, 229)
 
 UNION
 
@@ -120,7 +120,7 @@ UNION
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
     geom
 	FROM "mhtc_operations"."Supply_orig2" lg1
-    WHERE lg1."RestrictionTypeID" NOT IN (201, 216, 217, 224, 225, 226);
+    WHERE lg1."RestrictionTypeID" NOT IN (201, 216, 217, 224, 225, 226, 227, 229);
 
 -- deal with acceptablity around corners
 
@@ -144,3 +144,10 @@ SET "RestrictionTypeID" = 222, "UnacceptableTypeID" = 6
 FROM mhtc_operations."CornerProtectionSections_Single" c
 WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=round')))
 AND s."RestrictionTypeID" IN (217, 226);
+
+-- Unmarked within PPZ
+UPDATE mhtc_operations."Supply" AS s
+SET "RestrictionTypeID" = 228, "UnacceptableTypeID" = 6
+FROM mhtc_operations."CornerProtectionSections_Single" c
+WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=round')))
+AND s."RestrictionTypeID" IN (227, 229);
