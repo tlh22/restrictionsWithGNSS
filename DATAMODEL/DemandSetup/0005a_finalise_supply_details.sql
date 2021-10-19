@@ -34,3 +34,35 @@ FROM mhtc_operations."RC_Sections_merged" s
 WHERE su."SectionID" = s.gid;
 */
 
+/**
+Deal with default values for time periods
+**/
+
+UPDATE "mhtc_operations"."Supply"
+SET "NoWaitingTimeID" = 1  -- At any time
+WHERE "RestrictionTypeID" >=202 AND "RestrictionTypeID" <=215  -- Lines
+AND "NoWaitingTimeID" IS NULL;
+
+UPDATE "mhtc_operations"."Supply"
+SET "TimePeriodID" = 1  -- At any time
+WHERE "RestrictionTypeID" IN (107, 110, 111, 112, 116, 117, 118, 119, 120, 122, 127, 130, 144, 145, 146, 147, 149, 150, 152, 161, 162, 165, 166, 167)  -- Bays
+AND "TimePeriodID" IS NULL;
+
+
+/**
+Assign CPZ??
+
+UPDATE mhtc_operations."Supply" s
+SET "CPZ" = r."AreaPermitCode"
+FROM toms."RestrictionPolygons" r
+WHERE ST_Within(s.geom, r.geom)
+AND r."AreaPermitCode" = 'NA'
+
+UPDATE mhtc_operations."Supply" s
+SET "CPZ" = c."CPZ"
+FROM toms."ControlledParkingZones" c
+WHERE ST_Within(s.geom, c.geom);
+
+**/
+
+

@@ -4,8 +4,14 @@ ALTER TABLE "highways_network"."roadlink"
 ALTER TABLE "highways_network"."roadlink"
   ADD COLUMN "RoadTo" character varying(100);
 
+/***
+-- for import from gml
+ALTER TABLE highways_network.roadlink
+    RENAME ogc_fid TO id;
+***/
+
 ALTER TABLE "highways_network"."roadlink"
-ALTER COLUMN geom TYPE geometry(linestring, 27700) USING ST_GeometryN(geom, 1);
+ALTER COLUMN geom TYPE geometry(linestring, 27700) USING ST_Force2D(ST_GeometryN(geom, 1));
 
 ALTER TABLE "highways_network"."roadlink"
    ALTER COLUMN id SET DEFAULT nextval('"highways_network"."roadlink_id_seq"'::regclass);

@@ -16,29 +16,29 @@ To create stress maps, steps are:
 NB: There maybe an issue reading the file, in which case, put it into the user/public folder
 -- https://www.neilwithdata.com/copy-permission-denied#:~:text=The%20most%20common%20reason%20permission,the%20server%2C%20not%20the%20client.&text=It%20therefore%20can't%20read,your%20own%20personal%20home%20directory.
 
-3.
+3. 
 
 
 */
 
-DROP TABLE IF EXISTS demand.HS_demand_results CASCADE;
+DROP TABLE IF EXISTS demand.demand_results CASCADE;
 
-CREATE TABLE demand.HS_demand_results
+CREATE TABLE demand.demand_results
 (
     id SERIAL,
     "RoadName" character varying(100) COLLATE pg_catalog."default" NOT NULL,
     "SurveyID" integer NOT NULL,
     "Value" float,
-    CONSTRAINT "HS_demand_results_unique_key" UNIQUE ("RoadName", "SurveyID")
+    CONSTRAINT "demand_results_unique_key" UNIQUE ("RoadName", "SurveyID")
 )
 TABLESPACE pg_default;
 
-ALTER TABLE demand.HS_demand_results
+ALTER TABLE demand.demand_results
     OWNER to postgres;
 
-DROP TABLE IF EXISTS demand.HS_demand_results_tmp CASCADE;
+DROP TABLE IF EXISTS demand.demand_results_tmp CASCADE;
 
-CREATE TABLE demand.HS_demand_results_tmp
+CREATE TABLE demand.demand_results_tmp
 (
     id SERIAL,
     "RoadName" character varying(100) COLLATE pg_catalog."default" NOT NULL,
@@ -47,27 +47,41 @@ CREATE TABLE demand.HS_demand_results_tmp
 )
 TABLESPACE pg_default;
 
-ALTER TABLE demand.HS_demand_results
+ALTER TABLE demand.demand_results
     OWNER to postgres;
 
 -- Now copy details into the tmp table
 
-COPY demand.HS_demand_results_tmp("RoadName", "SurveyID", "Value")
-FROM 'C:\Users\Public\Documents\HS_DemandResults.csv'
+COPY demand.demand_results_tmp("RoadName", "SurveyID", "Value")
+FROM 'C:\Users\Public\Documents\PC2108_StressResults.csv'
 DELIMITER ','
 CSV HEADER;
 
+CREATE OR REPLACE FUNCTION convert_to_float(v_input text)
+RETURNS FLOAT AS $$
+DECLARE v_float_value FLOAT DEFAULT 0.0;
+BEGIN
+    BEGIN
+        v_float_value := v_input::FLOAT;
+    EXCEPTION WHEN OTHERS THEN
+        RAISE NOTICE 'Invalid integer value: "%".  Returning NULL.', v_input;
+        RETURN 0;
+    END;
+RETURN v_float_value;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Move to main table
 
-INSERT INTO demand.HS_demand_results ("RoadName", "SurveyID", "Value")
-SELECT "RoadName", "SurveyID"::integer, "Value"::float
-FROM demand.HS_demand_results_tmp
+INSERT INTO demand.demand_results ("RoadName", "SurveyID", "Value")
+SELECT "RoadName", "SurveyID"::integer, convert_to_float("Value")
+FROM demand.demand_results_tmp
 WHERE "SurveyID" ~ E'^\\d+$'
 ;
 
 -- https://stackoverflow.com/questions/2082686/how-do-i-cast-a-string-to-integer-and-have-0-in-case-of-error-in-the-cast-with-p
 
-DROP TABLE IF EXISTS demand.HS_demand_results_tmp CASCADE;
+DROP TABLE IF EXISTS demand.demand_results_tmp CASCADE;
 
 -- Create view
 
@@ -83,7 +97,7 @@ AS
     d.id,
     s."name1" AS "RoadName", s.geom,
     d."SurveyID", d."Value" AS "Stress"
-	FROM highways_network."roadlink" s, demand.HS_demand_results d
+	FROM highways_network."roadlink" s, demand.demand_results d
 	WHERE s."name1" = d."RoadName"
 WITH DATA;
 

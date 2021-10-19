@@ -24,10 +24,11 @@ WHERE ST_WITHIN (s.geom, a.geom);
 --
 -- Calculate length of section within area
 
-SELECT a.name, SUM(ST_Length(geom))
+SELECT a.name, ROUND(SUM(ST_Length(s.geom))::numeric, 2)
 FROM mhtc_operations."RC_Sections_merged" s, mhtc_operations."SurveyAreas" a
 WHERE ST_WITHIN (s.geom, a.geom)
-GROUP BY a.name;
+GROUP BY a.name
+ORDER BY a.name::int;
 
 SELECT a.name, SUM(s."SectionLength")
 FROM mhtc_operations."RC_Sections_merged" s, mhtc_operations."SurveyAreas" a

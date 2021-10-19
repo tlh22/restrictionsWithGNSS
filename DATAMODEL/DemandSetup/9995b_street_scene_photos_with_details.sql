@@ -82,7 +82,7 @@ WHERE c."GeometryID" = g."GeometryID";
 -- Set up copy script
 -- https://stackoverflow.com/questions/10768924/match-sequence-using-regex-after-a-specified-character
 
-SELECT CONCAT('copy ', g."Photo", ' "../Street_Scene_Photos/Photo_', to_char(g."sid", 'fm000'), '_', "RoadName", '.', ext, '"')
+SELECT CONCAT('copy ', g."Photo", ' "', '../Street_Scene_Photos/', "RoadName", '_Photo_', to_char(g."sid", 'fm000'), '.', ext, '"')
 FROM
 (
 SELECT row_number() OVER (PARTITION BY true::boolean) AS sid,

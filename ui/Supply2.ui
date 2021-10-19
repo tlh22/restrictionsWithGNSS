@@ -509,6 +509,13 @@
          </property>
         </widget>
        </item>
+       <item row="4" column="4">
+        <widget class="QCheckBox" name="DisplayLabel">
+         <property name="text">
+          <string>Display label</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="Photos_01">

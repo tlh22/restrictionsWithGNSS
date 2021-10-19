@@ -16,9 +16,9 @@ SELECT
         END AS "RestrictionTypeID",
 "BayLineTypes"."Description" AS "RestrictionDescription",
 "GeomShapeID", COALESCE("RestrictionGeomShapeTypes"."Description", '') AS "Restriction Shape Description",
-a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideOfStreet", "RC_Sections_merged"."SectionName", --COALESCE("SurveyArea", ''),
+a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideOfStreet", "RC_Sections_merged"."SectionName", --COALESCE("SurveyArea", '')  AS "SurveyArea",
 
-       CASE WHEN "RestrictionTypeID" < 200 THEN COALESCE("TimePeriods1"."Description", '')
+       CASE WHEN ("RestrictionTypeID" < 200 OR "RestrictionTypeID" IN (227, 228, 229, 231)) THEN COALESCE("TimePeriods1"."Description", '')
             ELSE COALESCE("TimePeriods2"."Description", '')
             END  AS "DetailsOfControl",
        COALESCE("UnacceptableTypes"."Description", '') AS "UnacceptabilityReason",
@@ -32,7 +32,7 @@ a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideO
                      --END
             ELSE
                 "Capacity"
-            END AS "ParkingAvailableDuringSurveyHours"
+            END AS "ParkingAvailableDuringSurveyHours", "CPZ"
 
 FROM
      ((((((
@@ -157,4 +157,24 @@ FROM
 
 WHERE "RestrictionTypeID" = 25 -- car park
 
-ORDER BY "RestrictionTypeID", "GeometryID"
+ORDER BY "RestrictionTypeID", "GeometryID";
+
+
+/**
+For sections
+**/
+
+SELECT
+s."GeometryID", s."RestrictionTypeID", 'Subsection' AS "RestrictionDescription",
+10 AS "GeomShapeID", 'Parallel Line' AS "Restriction Shape Description",
+a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideOfStreet", a."SectionName",
+       NULL AS "DetailsOfControl",
+       NULL AS "UnacceptabilityReason",
+       "SectionLength" AS "KerblineLength",
+       -1 AS "MarkedBays", NULL AS "TheoreticalBays",
+       NULL AS "ParkingAvailableDuringSurveyHours",
+       NULL AS "CPZ"
+
+FROM "mhtc_operations"."RC_Sections_merged" a, "demand"."SupplyForDemand" s
+WHERE ST_Equals(a.geom, s.geom)
+ORDER BY s."GeometryID";
