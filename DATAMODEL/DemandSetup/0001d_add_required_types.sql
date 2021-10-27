@@ -32,10 +32,6 @@ INSERT INTO toms_lookups."BayTypesInUse"(
 
 INSERT INTO toms_lookups."LineTypesInUse"(
 	"Code", "GeomShapeGroupType")
-	VALUES (225, 'LineString');  -- Unmarked kerbline
-
-INSERT INTO toms_lookups."LineTypesInUse"(
-	"Code", "GeomShapeGroupType")
 	VALUES (218, 'LineString');  -- DRL
 
 INSERT INTO toms_lookups."LineTypesInUse"(
