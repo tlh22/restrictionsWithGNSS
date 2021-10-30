@@ -312,6 +312,11 @@ class FieldRestrictionTypeUtilsMixin():
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("GeomShapeID", 35)  # 35 = Crossover
 
+        elif currRestrictionLayer.name() == "CarriagewayMarkings":
+            #generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
+            currRestriction.setAttribute("CarriagewayMarkingType_1",
+                                         self.readLastUsedDetails("CarriagewayMarkings", "CarriagewayMarkingType_1", 1))  # 1 = 20 mph
+
         # set compliance defaults
         try:
             currRestriction.setAttribute("ComplianceRoadMarkingsFaded", 1)  # No issue
