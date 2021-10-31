@@ -43,3 +43,5 @@ WHERE ST_DWithin(rc.geom, c.geom, 0.25);
 
 DELETE FROM "mhtc_operations"."RC_Sections"
 WHERE ST_Length(geom) < 0.0001;
+
+GRANT SELECT ON TABLE "mhtc_operations"."RC_Sections" TO toms_admin, toms_operator;

@@ -169,3 +169,4 @@ FROM section_details n
 WHERE n.gid = s.gid
 ;
 
+GRANT SELECT ON TABLE "mhtc_operations"."RC_Sections_merged" TO toms_admin, toms_operator;
