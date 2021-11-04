@@ -107,3 +107,8 @@ UPDATE mhtc_operations."Supply"
 SET label_pos = ST_Multi(ST_LineInterpolatePoint(geom, 0.5))
 WHERE "GeometryID" IN ('S_001033');
 ;
+
+/**
+Need to be able to recognise when a label is required or not - and set display label to true for those ...
+Also, if new feature (or split feature), should reset label position to default
+**/
