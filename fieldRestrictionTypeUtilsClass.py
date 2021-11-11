@@ -612,6 +612,7 @@ class FieldRestrictionTypeUtilsMixin():
             FIELD1.setParent(None)
             FIELD1 = photo_Widget1
             FIELD1.set_Pixmap(pixmap1)
+            FIELD1.deleteLater()
 
             TOMsMessageLog.logMessage("In photoDetails. FIELD 1 Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
             TOMsMessageLog.logMessage("In photoDetails.pixmap1 size: {}".format(pixmap1.size()),
@@ -656,6 +657,7 @@ class FieldRestrictionTypeUtilsMixin():
             FIELD2.setParent(None)
             FIELD2 = photo_Widget2
             FIELD2.set_Pixmap(pixmap2)
+            FIELD2.deleteLater()
 
             TOMsMessageLog.logMessage("In photoDetails. FIELD 2 Photo2: " + str(newPhotoFileName2), level=Qgis.Info)
             TOMsMessageLog.logMessage("In photoDetails.pixmap2 size: {}".format(pixmap2.size()),
@@ -701,6 +703,7 @@ class FieldRestrictionTypeUtilsMixin():
             FIELD3.setParent(None)
             FIELD3 = photo_Widget3
             FIELD3.set_Pixmap(pixmap3)
+            FIELD3.deleteLater()
 
             TOMsMessageLog.logMessage("In photoDetails. FIELD 3 Photo3: " + str(newPhotoFileName3), level=Qgis.Info)
             TOMsMessageLog.logMessage("In photoDetails.pixmap3 size: {}".format(pixmap3.size()),
