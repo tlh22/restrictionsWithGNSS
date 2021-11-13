@@ -608,6 +608,7 @@ class FieldRestrictionTypeUtilsMixin():
             #photo_Widget1 = imageLabel(tab)
             grid.addWidget(photo_Widget1, 0, 0, 1, 1)
 
+            test1 = FIELD1
             FIELD1.hide()
             FIELD1.setParent(None)
             FIELD1 = photo_Widget1
@@ -652,6 +653,7 @@ class FieldRestrictionTypeUtilsMixin():
             #photo_Widget2 = imageLabel(tab)
             grid.addWidget(photo_Widget2, 0, 0, 1, 1)
 
+            test2 = FIELD2
             FIELD2.hide()
             FIELD2.setParent(None)
             FIELD2 = photo_Widget2
@@ -697,6 +699,7 @@ class FieldRestrictionTypeUtilsMixin():
             #photo_Widget3 = imageLabel(tab)
             grid.addWidget(photo_Widget3, 0, 0, 1, 1)
 
+            test3 = FIELD3
             FIELD3.hide()
             FIELD3.setParent(None)
             FIELD3 = photo_Widget3
