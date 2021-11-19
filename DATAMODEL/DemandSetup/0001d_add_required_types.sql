@@ -30,6 +30,10 @@ INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (126, 'Polygon');  -- Limited Waiting
 
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (129, 'Polygon');  -- Red Route - Limited Waiting
+
 INSERT INTO toms_lookups."LineTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (218, 'LineString');  -- DRL
