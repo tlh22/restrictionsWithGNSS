@@ -311,6 +311,7 @@ class FieldRestrictionTypeUtilsMixin():
         elif currRestrictionLayer.name() == "CrossingPoints":
             generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
             currRestriction.setAttribute("GeomShapeID", 35)  # 35 = Crossover
+            currRestriction.setAttribute("CrossingPointTypeID", 3)  # 3 = Vehicle (Dropped Kerb)
 
         elif currRestrictionLayer.name() == "CarriagewayMarkings":
             #generateGeometryUtils.setAzimuthToRoadCentreLine(currRestriction)
