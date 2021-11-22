@@ -53,7 +53,7 @@ INSERT INTO toms_lookups."BayTypesInUse"(
 INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (164, 'LineString');  -- Red Route/Greenway - Taxi Rank
-	
+
 INSERT INTO toms_lookups."LineTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (218, 'LineString');  -- DRL
