@@ -23,13 +23,37 @@ INSERT INTO toms_lookups."SignTypesInUse"("Code")
 REFRESH MATERIALIZED VIEW "toms_lookups"."SignTypesInUse_View";
 
 /**
-Ensure appropriate bay/line types
+Ensure appropriate bay/line types for red routes
 **/
 
 INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
-	VALUES (126, 'Polygon');  -- Limited Waiting
+	VALUES (141, 'LineString');  -- Red Route/Greenway - Loading Bay/Disabled Bay/Parking Bay
 
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (142, 'LineString');  -- Red Route/Greenway - Parking Bay
+
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (143, 'LineString');  -- Red Route/Greenway - Loading Bay/Parking Bay
+
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (160, 'LineString');  -- Red Route/Greenway - Disabled Bay
+
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (161, 'LineString');  -- Red Route/Greenway - Bus Stop
+
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (162, 'LineString');  -- Red Route Bus Stand
+
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (164, 'LineString');  -- Red Route/Greenway - Taxi Rank
+	
 INSERT INTO toms_lookups."LineTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (218, 'LineString');  -- DRL
