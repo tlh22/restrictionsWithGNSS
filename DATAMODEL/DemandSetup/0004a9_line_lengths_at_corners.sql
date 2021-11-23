@@ -126,6 +126,7 @@ UPDATE mhtc_operations."LineLengthAtCorner"
 
 -- group by ward
 
+/*
 select w."NAME", p."CornerProtectionCategoryTypeID",  count(*) as Totals
    from
       (SELECT c.geom, l."CornerProtectionCategoryTypeID"
@@ -133,3 +134,4 @@ select w."NAME", p."CornerProtectionCategoryTypeID",  count(*) as Totals
 	   WHERE c.id = l.id) p, local_authority."Wards" w
    WHERE ST_Within (p.geom, w.geom)
    group by w."NAME", p."CornerProtectionCategoryTypeID"
+*/
