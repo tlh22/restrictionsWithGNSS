@@ -47,7 +47,7 @@ CREATE TABLE demand.demand_results_tmp
 )
 TABLESPACE pg_default;
 
-ALTER TABLE demand.demand_results
+ALTER TABLE demand.demand_results_tmp
     OWNER to postgres;
 
 -- Now copy details into the tmp table
