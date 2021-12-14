@@ -1,4 +1,4 @@
-DROP SEQUENCE IF EXISTS mhtc_operations."Supply_id_seq" CASCADE;
+--DROP SEQUENCE IF EXISTS mhtc_operations."Supply_id_seq" CASCADE;
 
 CREATE SEQUENCE "mhtc_operations"."Supply_id_seq"
     AS integer
@@ -23,7 +23,7 @@ BEGIN
 END;
 $$;
 
-DROP TABLE IF EXISTS mhtc_operations."Supply" CASCADE;
+--DROP TABLE IF EXISTS mhtc_operations."Supply" CASCADE;
 
 CREATE TABLE mhtc_operations."Supply"
 (
