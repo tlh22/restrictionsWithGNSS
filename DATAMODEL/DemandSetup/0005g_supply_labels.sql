@@ -103,7 +103,9 @@ ALTER TABLE mhtc_operations."Supply" ENABLE TRIGGER insert_mngmt;
 
 
 -- ** Reset label position
+/**
 UPDATE mhtc_operations."Supply"
 SET label_pos = ST_Multi(ST_LineInterpolatePoint(geom, 0.5))
 WHERE "GeometryID" IN ('S_001033');
 ;
+**/
