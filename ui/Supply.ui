@@ -400,7 +400,7 @@
         <widget class="QLineEdit" name="MatchDayEventDayZone"/>
        </item>
        <item row="20" column="0">
-        <widget class="QCheckBox" name="DisplayLabel_2">
+        <widget class="QCheckBox" name="DisplayLabel">
          <property name="text">
           <string>Display label</string>
          </property>
