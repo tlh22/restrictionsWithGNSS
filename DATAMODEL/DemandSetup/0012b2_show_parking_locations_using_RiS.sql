@@ -1,54 +1,6 @@
--- create supply table that shows bay divisions
-
 -- create view with to show stress
 
 drop materialized view IF EXISTS demand."Demand_view_to_show_parking_locations";
-
-drop table IF EXISTS demand."Supply_for_viewing_parking_locations" CASCADE;
-
-create TABLE demand."Supply_for_viewing_parking_locations"
-(
-    "GeometryID" character varying(12) COLLATE pg_catalog."default" NOT NULL,
-    geom geometry(LineString,27700) NOT NULL,
-    "RestrictionLength" double precision NOT NULL,
-    "RestrictionTypeID" integer NOT NULL,
-    "GeomShapeID" integer NOT NULL,
-    "AzimuthToRoadCentreLine" double precision,
-    "BayOrientation" double precision,
-    "NrBays" integer NOT NULL DEFAULT '-1'::integer,
-    "Capacity" integer,
-    CONSTRAINT "Supply_for_viewing_parking_locations_pkey" UNIQUE ("GeometryID")
-)
-
-TABLESPACE pg_default;
-
-alter table demand."Supply_for_viewing_parking_locations"
-    OWNER to postgres;
--- Index: sidx_Supply_geom
-
--- DROP INDEX mhtc_operations."sidx_Supply_geom";
-
-create INDEX "sidx_Supply_for_viewing_parking_locations_geom"
-    ON demand."Supply_for_viewing_parking_locations" USING gist
-    (geom)
-    TABLESPACE pg_default;
-
--- populate
-
-insert into demand."Supply_for_viewing_parking_locations"(
-	"GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "BayOrientation", "NrBays", "Capacity")
-select "GeometryID", geom, "RestrictionLength", "RestrictionTypeID",
-        case when "GeomShapeID" < 10 then "GeomShapeID" + 20
-             when "GeomShapeID" >= 10 and "GeomShapeID" < 20 then 21
-             else "GeomShapeID"
-         end
-         , "AzimuthToRoadCentreLine", "BayOrientation",
-         case when "NrBays" = -1 then "Capacity"
-              else "NrBays"
-         end as "NrBays", "Capacity"  -- increase the NrBays value to deal with over parked areas
-
-	from mhtc_operations."Supply";
-
 
 /***
 Reimport details into table "VRMs_revised" - if required
@@ -89,9 +41,9 @@ FROM 'C:\Users\Public\Documents\PC2108b_All_VRMs.csv'
 DELIMITER ','
 CSV HEADER;
 
-***/
 alter table demand."VRMs_revised" alter COLUMN "SurveyID"  TYPE integer USING ("SurveyID"::integer);
 alter table demand."VRMs_revised" alter COLUMN "VehicleTypeID"  TYPE integer USING ("VehicleTypeID"::integer);
+***/
 
 --
 
