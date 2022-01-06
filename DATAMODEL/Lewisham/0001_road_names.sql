@@ -60,6 +60,22 @@ WITH relevant_tables AS (
         SELECT mhtc_operations.setRoadNameForTable(full_table_name, 'mt_capture_geom')
         FROM geom_tables;
 
+WITH relevant_tables AS (
+      select table_schema, table_name, concat(table_schema, '.', quote_ident(table_name)) AS full_table_name
+      from information_schema.columns
+      where column_name = 'RoadName'
+      AND table_schema IN ('moving_traffic')
+      AND table_name NOT IN ('Bays', 'Lines', 'Signs')
+    ), geom_tables AS (
+        SELECT full_table_name
+        FROM information_schema.columns i, relevant_tables
+        WHERE i.table_name = relevant_tables.table_name
+        AND i.table_schema = relevant_tables.table_schema
+        AND column_name = 'geom_linestring'
+    )
+        SELECT mhtc_operations.setRoadNameForTable(full_table_name, 'geom_linestring')
+        FROM geom_tables;
+
 -- MHTC_RoadLinks
 WITH relevant_tables AS (
       select table_schema, table_name, concat(table_schema, '.', quote_ident(table_name)) AS full_table_name
