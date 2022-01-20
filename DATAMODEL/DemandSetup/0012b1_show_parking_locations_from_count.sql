@@ -40,7 +40,7 @@ AS
          ELSE s."NrBays"
     END AS "NrBays",
     d."Capacity",
-    d."SurveyID", d."Demand" AS "Demand"
+    d."SurveyID", d."NrVehicles" AS "Demand"
 
     FROM demand."Supply_for_viewing_parking_locations" s, demand."Demand_Merged" d
 	WHERE d."GeometryID" = s."GeometryID"

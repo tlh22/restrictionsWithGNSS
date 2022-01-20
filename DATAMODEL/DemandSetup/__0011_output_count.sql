@@ -5,6 +5,8 @@ alter table demand."Demand_Merged"
     add COLUMN "Demand" double precision;
 alter table demand."Demand_Merged"
     add COLUMN "Stress" double precision;
+alter table demand."Demand_Merged"
+    add COLUMN "NrVehicles" double precision;
 
 -- Step 2: calculate demand values using trigger
 
@@ -27,6 +29,14 @@ begin
         RETURN OLD;
     END IF;
     */
+
+    NEW."NrVehicles" = COALESCE(NULLIF(NEW."ncars",'')::float, 0.0) + COALESCE(NULLIF(NEW."nlgvs",'')::float, 0.0) + COALESCE(NULLIF(NEW."nminib",'')::float, 0.0)
+                    + COALESCE(NULLIF(NEW."nmcls",'')::float, 0.0)
+                    + COALESCE(NULLIF(NEW."nbikes", '')::float, 0.0)
+                    + COALESCE(NULLIF(NEW."nogvs",'')::float, 0)
+                    --+ COALESCE(NULLIF(NEW."nogvs2",'')::float, 0) * 2.3
+                    + COALESCE(NULLIF(NEW."nbuses",'')::float, 0)
+                    + COALESCE(NULLIF(NEW."ntaxis",'')::float, 0);
 
     NEW."Demand" = COALESCE(NULLIF(NEW."ncars",'')::float, 0.0) + COALESCE(NULLIF(NEW."nlgvs",'')::float, 0.0) + COALESCE(NULLIF(NEW."nminib",'')::float, 0.0)
                     + COALESCE(NULLIF(NEW."nmcls",'')::float, 0.0)*0.4
