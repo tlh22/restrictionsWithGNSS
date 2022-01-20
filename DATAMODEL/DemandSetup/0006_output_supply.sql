@@ -1,3 +1,9 @@
+
+-- Make sure capacities are updated
+
+UPDATE "mhtc_operations"."Supply"
+SET "RestrictionLength" = ROUND(ST_Length (geom)::numeric,2);
+
 --
 
 SELECT

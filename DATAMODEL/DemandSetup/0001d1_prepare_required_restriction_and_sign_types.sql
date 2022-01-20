@@ -24,16 +24,16 @@ INSERT INTO toms_lookups."LineTypesInUse"(
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."LineTypesInUse_View";
 
-INSERT INTO toms_lookups."LineTypesInUse"(
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (126, 'Polygon');  -- Limited Waiting
+
+INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (152, 'LineString');  -- Unmarked parking area
 
-	INSERT INTO toms_lookups."LineTypesInUse"(
+INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
-	VALUES (122, 'LineString');  -- Unmarked parking area
-
-	INSERT INTO toms_lookups."LineTypesInUse"(
-	"Code", "GeomShapeGroupType")
-	VALUES (162, 'LineString');  -- Unmarked parking area
+	VALUES (122, 'LineString');  -- Bus Stand
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."BayTypesInUse_View";

@@ -102,6 +102,12 @@ FROM highways_network."roadlink";
 DELETE
 FROM local_authority."SiteArea";
 
+DELETE
+FROM mhtc_operations."Corners";
+
+DELETE
+FROM mhtc_operations."SectionBreakPoints";
+
 -- Tidy up other things ...
 
 ALTER TABLE highway_assets."HighwayAssets"
