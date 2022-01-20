@@ -149,12 +149,12 @@ ORDER BY "GeometryID"
 
 --  Signs
 
-SELECT "GeometryID", "SignTypes"."Description" AS "SignTypeDescription",
+SELECT "GeometryID", "SignTypes"."Description" AS "Sign Type Description",
 	   --a."ComplianceRestrictionSignIssue",
-	   "RoadName", "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
+	   "RoadName", "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
 	   	--a."SignConditionTypeID",
-	   "SignConditionTypes"."Description" AS "SignConditionTypes_Description",
-	   "ComplianceNotes", "Notes"
+	   "SignConditionTypes"."Description" AS "Sign Condition Type Description",
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
 FROM
      ((((SELECT "GeometryID", "SignType_1", "RoadName", "SignConditionTypeID", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
          FROM toms."Signs"
@@ -171,21 +171,44 @@ ORDER BY "GeometryID"
 
 -- ** Moving Restrictions
 
+--  CarriagewayMarkings
+
+SELECT "GeometryID", 'CarriagewayMarkings' AS "Moving Traffic Type", "CarriagewayMarkingTypes"."Description" AS "Carriageway Type Description",
+
+	   --a."ComplianceRestrictionSignIssue",
+	   "RoadName" AS "Road Name", "Restriction_SignIssueTypes"."Description" AS "Restriction-Carriageway Marking Issue Description",
+	   	--a."SignConditionTypeID",
+	   	"RestrictionRoadMarkingsFadedTypes"."Description" AS "Road Markings Faded Description",
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
+FROM
+     ((((SELECT "GeometryID", "CarriagewayMarkingType_1", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         FROM moving_traffic."CarriagewayMarkings"
+         WHERE "MHTC_CheckIssueTypeID" = 1) AS a
+     LEFT JOIN "moving_traffic_lookups"."CarriagewayMarkingTypes" AS "CarriagewayMarkingTypes" ON a."CarriagewayMarkingType_1" is not distinct from "CarriagewayMarkingTypes"."Code")
+	 LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes"."Code")
+     LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
+
+WHERE "ComplianceRoadMarkingsFaded" <> 1
+OR "ComplianceRestrictionSignIssue" <> 1
+ORDER BY "GeometryID"
+;
+
 -- AccessRestrictions
 
-SELECT "GeometryID", 'AccessRestrictions' AS "MovingTrafficType", a.restriction::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
-	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
+SELECT "GeometryID", 'AccessRestrictions' AS "Moving Traffic Type", "AccessRestrictionValues"."Description" AS "Restriction Description", --a."ComplianceRoadMarkingsFaded",
+	   "RoadName" AS "Road Name",
+	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "Road Markings Faded Description",
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
-	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
-	   "ComplianceNotes", "Notes"
+	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
 FROM
-     (((
-         SELECT "GeometryID", "restriction", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+     ((((
+         SELECT "GeometryID", "AccessRestrictionTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
          FROM moving_traffic."AccessRestrictions"
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
-     --LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
+     LEFT JOIN moving_traffic_lookups."AccessRestrictionValues" AS "AccessRestrictionValues" ON a."AccessRestrictionTypeID" is not distinct from "AccessRestrictionValues"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
 
@@ -197,19 +220,20 @@ OR "ComplianceRestrictionSignIssue" <> 1
 
 UNION
 
-SELECT "GeometryID", 'HighwayDedications' AS "MovingTrafficType", a.dedication::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
-	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
+SELECT "GeometryID", 'HighwayDedications' AS "Moving Traffic Type", "DedicationValues"."Description" AS "Restriction Description", --a."ComplianceRoadMarkingsFaded",
+	   "RoadName" AS "Road Name",
+	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "Road Markings Faded Description",
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
-	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
-	   "ComplianceNotes", "Notes"
+	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
 FROM
-     (((
-         SELECT "GeometryID", "dedication", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+     ((((
+         SELECT "GeometryID", "HighwayDedicationTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
          FROM moving_traffic."HighwayDedications" AS a
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
-     --LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
+     LEFT JOIN moving_traffic_lookups."DedicationValues" AS "DedicationValues" ON a."HighwayDedicationTypeID" is not distinct from "DedicationValues"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
 
@@ -221,19 +245,20 @@ OR "ComplianceRestrictionSignIssue" <> 1
 
 UNION
 
-SELECT "GeometryID", 'RestrictionsForVehicles' AS "MovingTrafficType", a."restrictionType"::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
-	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
+SELECT "GeometryID", 'RestrictionsForVehicles' AS "Moving Traffic Type", "RestrictionTypeValues"."Description" AS "Restriction Description", --a."ComplianceRoadMarkingsFaded",
+	   "RoadName" AS "Road Name",
+	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "Road Markings Faded Description",
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
-	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
-	   "ComplianceNotes", "Notes"
+	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
 FROM
-     (((
-         SELECT "GeometryID", "restrictionType", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+     ((((
+         SELECT "GeometryID", "RestrictionsForVehiclesTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
          FROM moving_traffic."RestrictionsForVehicles" AS a
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
-     --LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
+     LEFT JOIN moving_traffic_lookups."RestrictionTypeValues" AS "RestrictionTypeValues" ON a."RestrictionsForVehiclesTypeID" is not distinct from "RestrictionTypeValues"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
 
@@ -245,19 +270,20 @@ OR "ComplianceRestrictionSignIssue" <> 1
 
 UNION
 
-SELECT "GeometryID", 'SpecialDesignations' AS "MovingTrafficType", a."designation"::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
-	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
+SELECT "GeometryID", 'SpecialDesignations' AS "Moving Traffic Type", "SpecialDesignationTypes"."Description" AS "Restriction Description", --a."ComplianceRoadMarkingsFaded",
+	   "RoadName" AS "Road Name",
+	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "Road Markings Faded Description",
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
-	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
-	   "ComplianceNotes", "Notes"
+	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
 FROM
-     (((
-         SELECT "GeometryID", "designation", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+     ((((
+         SELECT "GeometryID", "SpecialDesignationTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
          FROM moving_traffic."SpecialDesignations" AS a
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
-     --LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
+     LEFT JOIN moving_traffic_lookups."SpecialDesignationTypes" AS "SpecialDesignationTypes" ON a."SpecialDesignationTypeID" is not distinct from "SpecialDesignationTypes"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
 
@@ -269,18 +295,20 @@ OR "ComplianceRestrictionSignIssue" <> 1
 
 UNION
 
-SELECT "GeometryID", 'TurnRestrictions' AS "MovingTrafficType", a."restrictionType"::text AS "RestrictionDescription", --a."ComplianceRoadMarkingsFaded",
-	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "RoadMarkingsFaded_Description",
+SELECT "GeometryID", 'TurnRestrictions' AS "Moving Traffic Type", "TurnRestrictionValues"."Description" AS "Restriction Description", --a."ComplianceRoadMarkingsFaded",
+	   "RoadName" AS "Road Name",
+	   "RestrictionRoadMarkingsFadedTypes"."Description" AS "Road Markings Faded Description",
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
-	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
-	   "ComplianceNotes", "Notes"
+	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
 FROM
-     (((
-         SELECT "GeometryID", "restrictionType", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+     ((((
+         SELECT "GeometryID", "TurnRestrictionTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
          FROM moving_traffic."TurnRestrictions" AS a
          WHERE "MHTC_CheckIssueTypeID" = 1
-         ) AS a     --LEFT JOIN "toms_lookups"."BayLineTypes" AS "BayLineTypes" ON a."RestrictionTypeID" is not distinct from "BayLineTypes"."Code")
+         ) AS a
+     LEFT JOIN moving_traffic_lookups."TurnRestrictionValues" AS "TurnRestrictionValues" ON a."TurnRestrictionTypeID" is not distinct from "TurnRestrictionValues"."Code")
      LEFT JOIN "compliance_lookups"."RestrictionRoadMarkingsFadedTypes" AS "RestrictionRoadMarkingsFadedTypes" ON a."ComplianceRoadMarkingsFaded" is not distinct from "RestrictionRoadMarkingsFadedTypes"."Code")
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
 

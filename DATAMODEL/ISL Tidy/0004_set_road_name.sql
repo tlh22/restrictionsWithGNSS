@@ -156,7 +156,24 @@ BEGIN
 END;
 $func$ LANGUAGE plpgsql;
 
+-- deal with Carriageway Markings and RestrictionPolygons
+WITH relevant_tables AS (
+      select table_schema, table_name, concat(table_schema, '.', quote_ident(table_name)) AS full_table_name
+      from information_schema.columns
+      where column_name = 'RoadName'
+      AND table_schema IN ('toms', 'highway_assets', 'moving_traffic')
+      AND table_name NOT IN ('Bays', 'Lines', 'Signs')
+    ), geom_tables AS (
+        SELECT full_table_name
+        FROM information_schema.columns i, relevant_tables
+        WHERE i.table_name = relevant_tables.table_name
+        AND i.table_schema = relevant_tables.table_schema
+        AND column_name = 'geom'
+    )
+        SELECT mhtc_operations.setRoadNameForTable(full_table_name, 'geom')
+        FROM geom_tables;
 
+-- now the other MT items
 WITH relevant_tables AS (
       select table_schema, table_name, concat(table_schema, '.', quote_ident(table_name)) AS full_table_name
       from information_schema.columns
@@ -170,5 +187,5 @@ WITH relevant_tables AS (
         AND i.table_schema = relevant_tables.table_schema
         AND column_name = 'geom_point'
     )
-        SELECT mhtc_operations.setRoadNameForTable(full_table_name, 'geom')
+        SELECT mhtc_operations.setRoadNameForTable(full_table_name, 'mt_capture_geom')
         FROM geom_tables;
