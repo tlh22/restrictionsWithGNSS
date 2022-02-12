@@ -41,7 +41,7 @@ INSERT INTO "topography"."RC_Polygons" (geom)
 SELECT geom FROM "topography"."os_mastermap_topography_polygons"
 WHERE "FeatureCode" = 10172;
 
--- can add additional polys here
+-- now add additional polys here
 
 DROP TABLE IF EXISTS topography.road_casement CASCADE;
 

@@ -36,4 +36,7 @@ INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (122, 'LineString');  -- Bus Stand
 
+DELETE INTO toms_lookups."BayTypesInUse"
+WHERE "Code" = 154;  -- Unmarked parking area (within controlled area)
+
 REFRESH MATERIALIZED VIEW "toms_lookups"."BayTypesInUse_View";
