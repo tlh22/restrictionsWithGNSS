@@ -154,9 +154,9 @@ SELECT "GeometryID", "SignTypes"."Description" AS "Sign Type Description",
 	   "RoadName", "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
 	   	--a."SignConditionTypeID",
 	   "SignConditionTypes"."Description" AS "Sign Condition Type Description",
-	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes", ST_X(geom) As "Easting", ST_Y(geom) AS "Northing"
 FROM
-     ((((SELECT "GeometryID", "SignType_1", "RoadName", "SignConditionTypeID", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+     ((((SELECT "GeometryID", "SignType_1", "RoadName", "SignConditionTypeID", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes", geom
          FROM toms."Signs"
          WHERE "SignConditionTypeID" IN (2,3,5,6, 10)
          OR "ComplianceRestrictionSignIssue" IN (3,4,5) ) AS a
@@ -179,9 +179,9 @@ SELECT "GeometryID", 'CarriagewayMarkings' AS "Moving Traffic Type", "Carriagewa
 	   "RoadName" AS "Road Name", "Restriction_SignIssueTypes"."Description" AS "Restriction-Carriageway Marking Issue Description",
 	   	--a."SignConditionTypeID",
 	   	"RestrictionRoadMarkingsFadedTypes"."Description" AS "Road Markings Faded Description",
-	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes", ST_X(geom) As "Easting", ST_Y(geom) AS "Northing"
 FROM
-     ((((SELECT "GeometryID", "CarriagewayMarkingType_1", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+     ((((SELECT "GeometryID", "CarriagewayMarkingType_1", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes", geom
          FROM moving_traffic."CarriagewayMarkings"
          WHERE "MHTC_CheckIssueTypeID" = 1) AS a
      LEFT JOIN "moving_traffic_lookups"."CarriagewayMarkingTypes" AS "CarriagewayMarkingTypes" ON a."CarriagewayMarkingType_1" is not distinct from "CarriagewayMarkingTypes"."Code")
@@ -201,10 +201,10 @@ SELECT "GeometryID", 'AccessRestrictions' AS "Moving Traffic Type", "AccessRestr
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
-	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes", ST_X(geom) As "Easting", ST_Y(geom) AS "Northing"
 FROM
      ((((
-         SELECT "GeometryID", "AccessRestrictionTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         SELECT "GeometryID", "AccessRestrictionTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes", mt_capture_geom as geom
          FROM moving_traffic."AccessRestrictions"
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
@@ -226,10 +226,10 @@ SELECT "GeometryID", 'HighwayDedications' AS "Moving Traffic Type", "DedicationV
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
-	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes", ST_X(geom) As "Easting", ST_Y(geom) AS "Northing"
 FROM
      ((((
-         SELECT "GeometryID", "HighwayDedicationTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         SELECT "GeometryID", "HighwayDedicationTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes", ST_StartPoint(mt_capture_geom) as geom
          FROM moving_traffic."HighwayDedications" AS a
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
@@ -251,10 +251,10 @@ SELECT "GeometryID", 'RestrictionsForVehicles' AS "Moving Traffic Type", "Restri
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
-	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes", ST_X(geom) As "Easting", ST_Y(geom) AS "Northing"
 FROM
      ((((
-         SELECT "GeometryID", "RestrictionsForVehiclesTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         SELECT "GeometryID", "RestrictionsForVehiclesTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes", COALESCE(mt_capture_geom, ST_StartPoint(geom_linestring)) as geom
          FROM moving_traffic."RestrictionsForVehicles" AS a
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
@@ -276,10 +276,10 @@ SELECT "GeometryID", 'SpecialDesignations' AS "Moving Traffic Type", "SpecialDes
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
-	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes", ST_X(geom) As "Easting", ST_Y(geom) AS "Northing"
 FROM
      ((((
-         SELECT "GeometryID", "SpecialDesignationTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         SELECT "GeometryID", "SpecialDesignationTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes", ST_StartPoint(mt_capture_geom)  as geom
          FROM moving_traffic."SpecialDesignations" AS a
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
@@ -301,10 +301,10 @@ SELECT "GeometryID", 'TurnRestrictions' AS "Moving Traffic Type", "TurnRestricti
 	   --'' AS "LoadingMarkingsFaded_Description",
 	   --a."ComplianceRestrictionSignIssue",
 	   "Restriction_SignIssueTypes"."Description" AS "Restriction-Sign Issue Description",
-	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes"
+	   "ComplianceNotes" AS "Compliance Notes", "Notes" AS "Notes", ST_X(geom) As "Easting", ST_Y(geom) AS "Northing"
 FROM
      ((((
-         SELECT "GeometryID", "TurnRestrictionTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes"
+         SELECT "GeometryID", "TurnRestrictionTypeID", "RoadName", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "Notes", ST_StartPoint(mt_capture_geom) as geom
          FROM moving_traffic."TurnRestrictions" AS a
          WHERE "MHTC_CheckIssueTypeID" = 1
          ) AS a
@@ -349,7 +349,7 @@ BEGIN
             squery = squery || format('
             SELECT "GeometryID", ''%1$s'' AS "HighwayAssetType", "RoadName",
                 "AssetConditionTypes"."Description" AS "AssetCondition_Description",
-                "Notes"
+                "Notes", ST_X(geom) As "Easting", ST_Y(geom) AS "Northing"
             FROM
             ((
                 SELECT "GeometryID", "RoadName", "AssetConditionTypeID", "Notes"
