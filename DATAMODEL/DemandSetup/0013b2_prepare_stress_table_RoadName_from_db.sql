@@ -63,7 +63,7 @@ AS
             WHEN "Capacity" = 0 THEN
                 CASE
                     WHEN "Demand" > 0.0 THEN 1.0
-                    ELSE 0.0
+                    ELSE -1.0
                 END
             ELSE
                 CASE
@@ -72,7 +72,7 @@ AS
                     ELSE
                         CASE
                             WHEN "Demand" > 0.0 THEN 1.0
-                            ELSE 0.0
+                            ELSE -1.0
                         END
                 END
         END "Stress"
@@ -104,7 +104,7 @@ SELECT "SurveyID", "RoadName", "Capacity", "Demand",
             WHEN "Capacity" = 0 THEN
                 CASE
                     WHEN "Demand" > 0.0 THEN 1.0
-                    ELSE 0.0
+                    ELSE -1.0
                 END
             ELSE
                 CASE
@@ -113,7 +113,7 @@ SELECT "SurveyID", "RoadName", "Capacity", "Demand",
                     ELSE
                         CASE
                             WHEN "Demand" > 0.0 THEN 1.0
-                            ELSE 0.0
+                            ELSE -1.0
                         END
                 END
         END "Stress"
