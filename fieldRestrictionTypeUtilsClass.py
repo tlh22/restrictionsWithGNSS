@@ -721,7 +721,7 @@ class FieldRestrictionTypeUtilsMixin():
                 self.camera3 = formCamera(path_absolute, newPhotoFileName3, START_CAMERA_3, TAKE_PHOTO_3, cameraNr, frameWidth, frameHeight)
                 START_CAMERA_3.clicked.connect(self.camera3.useCamera)
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
-                self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))"""
+                self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))
 
         pass
 
