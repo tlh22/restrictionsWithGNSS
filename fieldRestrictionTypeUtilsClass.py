@@ -429,14 +429,7 @@ class FieldRestrictionTypeUtilsMixin():
     def onSaveFieldRestrictionDetails(self, currFeature, currFeatureLayer, dialog):
         TOMsMessageLog.logMessage("In onSaveFieldRestrictionDetails: ", level=Qgis.Info)
 
-        try:
-            self.camera1.endCamera()
-            self.camera2.endCamera()
-            self.camera3.endCamera()
-        except Exception as e:
-            TOMsMessageLog.logMessage('onSaveFieldRestrictionDetails: error closing cameras {}'.format(e),
-                                      level=Qgis.Warning)
-
+        self.closeCameras(dialog)
         # deal with issue whereby a null field provided by PayParkingAreaID is a 0 length string (rather than integer)
 
         if currFeatureLayer.name() == "Bays":
@@ -501,13 +494,7 @@ class FieldRestrictionTypeUtilsMixin():
     def onRejectFieldRestrictionDetailsFromForm(self, restrictionDialog, currFeatureLayer):
         TOMsMessageLog.logMessage("In onRejectFieldRestrictionDetailsFromForm", level=Qgis.Info)
 
-        try:
-            self.camera1.endCamera()
-            self.camera2.endCamera()
-            self.camera3.endCamera()
-        except Exception as e:
-            TOMsMessageLog.logMessage('onSaveFieldRestrictionDetails: error closing cameras {}'.format(e),
-                                      level=Qgis.Warning)
+        self.closeCameras(restrictionDialog)
 
         currFeatureLayer.rollBack()
 
@@ -520,6 +507,55 @@ class FieldRestrictionTypeUtilsMixin():
         restrictionDialog.reject()
 
         #del self.mapTool
+
+    def closeCameras(self, dialog):
+        """
+        Function to close cameras as cleanly as possible
+
+        """
+        try:
+            START_CAMERA_1 = dialog.findChild(QPushButton, "startCamera1")
+            START_CAMERA_1.clicked.disconnect()
+            self.camera1.notifyPhotoTaken.disconnect()
+            self.camera1.pixmapUpdated.disconnect()
+        except Exception as e:
+            TOMsMessageLog.logMessage('closeCameras: error disconnecting camera 1 {}'.format(e),
+                                      level=Qgis.Warning)
+
+        try:
+            START_CAMERA_2 = dialog.findChild(QPushButton, "startCamera2")
+            START_CAMERA_2.clicked.disconnect()
+            self.camera2.notifyPhotoTaken.disconnect()
+            self.camera2.pixmapUpdated.disconnect()
+        except Exception as e:
+            TOMsMessageLog.logMessage('closeCameras: error disconnecting camera 2 {}'.format(e),
+                                      level=Qgis.Warning)
+
+        try:
+            START_CAMERA_3 = dialog.findChild(QPushButton, "startCamera3")
+            START_CAMERA_3.clicked.disconnect()
+            self.camera3.notifyPhotoTaken.disconnect()
+            self.camera3.pixmapUpdated.disconnect()
+        except Exception as e:
+            TOMsMessageLog.logMessage('closeCameras: error disconnecting camera 3 {}'.format(e),
+                                      level=Qgis.Warning)
+        try:
+            self.camera1.closeEvent.disconnect()
+            self.camera2.closeEvent.disconnect()
+            self.camera3.closeEvent.disconnect()
+        except Exception as e:
+            TOMsMessageLog.logMessage('closeCameras: error disconnecting closeEvents {}'.format(e),
+                                      level=Qgis.Warning)
+
+        try:
+            self.camera1.endCamera()
+            self.camera2.endCamera()
+            self.camera3.endCamera()
+        except Exception as e:
+            TOMsMessageLog.logMessage('closeCameras: error closing cameras {}'.format(e),
+                                      level=Qgis.Warning)
+
+        return
 
     def photoDetails_field(self, restrictionDialog, currRestrictionLayer, currRestriction):
 
@@ -675,6 +711,7 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_2.setEnabled(False)
 
                 self.camera2 = formCamera(path_absolute, newPhotoFileName2, START_CAMERA_2, TAKE_PHOTO_2, cameraNr, frameWidth, frameHeight)
+
                 START_CAMERA_2.clicked.connect(self.camera2.useCamera)
                 self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
                 self.camera2.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD2))
@@ -719,10 +756,13 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_3.setEnabled(False)
 
                 self.camera3 = formCamera(path_absolute, newPhotoFileName3, START_CAMERA_3, TAKE_PHOTO_3, cameraNr, frameWidth, frameHeight)
+
                 START_CAMERA_3.clicked.connect(self.camera3.useCamera)
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
                 self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))
 
+            if takePhoto:
+                restrictionDialog.closeEvent.connect(functools.partial(self.closeCameras, restrictionDialog))
         pass
 
     def getPhotoPath(self):
