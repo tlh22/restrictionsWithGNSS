@@ -208,7 +208,7 @@ class FieldRestrictionTypeUtilsMixin():
         #self.TOMsUtils = RestrictionTypeUtilsMixin(self.iface)
 
     def setDefaultFieldRestrictionDetails(self, currRestriction, currRestrictionLayer, currDate):
-        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: {}".format(currRestrictionLayer.name()), level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails: {}".format(currRestrictionLayer.name()), level=Qgis.Info)
 
         # TODO: Need to check whether or not these fields exist. Also need to retain the last values and reuse
         # gis.stackexchange.com/questions/138563/replacing-action-triggered-script-by-one-supplied-through-qgis-plugin
@@ -234,13 +234,13 @@ class FieldRestrictionTypeUtilsMixin():
         #currentCPZ, cpzWaitingTimeID, cpzMatchDayTimePeriodID = generateGeometryUtils.getCurrentCPZDetails(currRestriction)
         """TOMsMessageLog.logMessage(
             "In setDefaultFieldRestrictionDetails. CPZ found: {}: control: {}".format(currentCPZ, cpzWaitingTimeID),
-            level=Qgis.Warning)"""
+            level=Qgis.Info)"""
         #currRestriction.setAttribute("CPZ", currentCPZ)
 
         newRestrictionID = str(uuid.uuid4())
         currRestriction.setAttribute("RestrictionID", newRestrictionID)
         TOMsMessageLog.logMessage("In setDefaultFieldRestrictionDetails. newRestID: {}, {}".format(newRestrictionID, currRestriction[currRestrictionLayer.fields().indexFromName("RestrictionID")]),
-                                  level=Qgis.Warning)
+                                  level=Qgis.Info)
 
         if currRestrictionLayer.name() == "Lines":
             currRestriction.setAttribute("RestrictionTypeID", self.readLastUsedDetails("Lines", "RestrictionTypeID", 201))  # 10 = SYL (Lines)
@@ -345,11 +345,7 @@ class FieldRestrictionTypeUtilsMixin():
         return self.settings.value(entry, default)
 
     def setupFieldRestrictionDialog(self, restrictionDialog, currRestrictionLayer, currRestriction):
-
-        #self.restrictionDialog = restrictionDialog
-        #self.currRestrictionLayer = currRestrictionLayer
-        #self.currRestriction = currRestriction
-        #self.restrictionTransaction = restrictionTransaction
+        TOMsMessageLog.logMessage("In setupFieldRestrictionDialog {}:{}... ".format(currRestrictionLayer.name(), currRestriction.attribute("RestrictionID")), level=Qgis.Info)
 
         self.params.getParams()
 
@@ -380,11 +376,16 @@ class FieldRestrictionTypeUtilsMixin():
 
         button_box.rejected.connect(functools.partial(self.onRejectFieldRestrictionDetailsFromForm, restrictionDialog, currRestrictionLayer))
 
+        TOMsMessageLog.logMessage("In setupFieldRestrictionDialog. Entering photoDetails_field ... ", level=Qgis.Info)
+        """reply = QMessageBox.information(None, "Information",
+                                        "Entering camera setup ...",
+                                        QMessageBox.Ok)"""
+
         restrictionDialog.attributeForm().attributeChanged.connect(functools.partial(self.onAttributeChangedClass2_local, currRestriction, currRestrictionLayer))
 
-        self.photoDetails_field(restrictionDialog, currRestrictionLayer, currRestriction)
-
         self.addScrollBars(restrictionDialog)
+
+        self.photoDetails_field(restrictionDialog, currRestrictionLayer, currRestriction)
 
         """
             set form location (based on last position)
@@ -432,8 +433,9 @@ class FieldRestrictionTypeUtilsMixin():
             self.camera1.endCamera()
             self.camera2.endCamera()
             self.camera3.endCamera()
-        except:
-            None
+        except Exception as e:
+            TOMsMessageLog.logMessage('onSaveFieldRestrictionDetails: error closing cameras {}'.format(e),
+                                      level=Qgis.Warning)
 
         # deal with issue whereby a null field provided by PayParkingAreaID is a 0 length string (rather than integer)
 
@@ -441,8 +443,9 @@ class FieldRestrictionTypeUtilsMixin():
             try:
                 if len (currFeature[currFeatureLayer.fields().indexFromName("PayParkingAreaID")].strip()) == 0:
                     currFeature[currFeatureLayer.fields().indexFromName("PayParkingAreaID")] = None
-            except:
-                None
+            except Exception as e:
+                TOMsMessageLog.logMessage('onSaveFieldRestrictionDetails: dealing with PayParkingAreaID {}'.format(e),
+                                          level=Qgis.Warning)
                 
         attrs1 = currFeature.attributes()
         TOMsMessageLog.logMessage("In onSaveDemandDetails: currRestriction: " + str(attrs1),
@@ -502,8 +505,9 @@ class FieldRestrictionTypeUtilsMixin():
             self.camera1.endCamera()
             self.camera2.endCamera()
             self.camera3.endCamera()
-        except:
-            None
+        except Exception as e:
+            TOMsMessageLog.logMessage('onSaveFieldRestrictionDetails: error closing cameras {}'.format(e),
+                                      level=Qgis.Warning)
 
         currFeatureLayer.rollBack()
 
@@ -519,36 +523,22 @@ class FieldRestrictionTypeUtilsMixin():
 
     def photoDetails_field(self, restrictionDialog, currRestrictionLayer, currRestriction):
 
+        TOMsMessageLog.logMessage("In photoDetails_field {}:{} ... ".format(currRestrictionLayer.name(), currRestriction.attribute("RestrictionID")), level=Qgis.Info)
         # Function to deal with photo fields
 
-        self.demandDialog = restrictionDialog
-        self.currDemandLayer = currRestrictionLayer
-        self.currFeature = currRestriction
+        #self.demandDialog = restrictionDialog
+        #self.currDemandLayer = currRestrictionLayer
+        self.currFeature = currRestriction  ## need for SavePhotoTaken -- TODO: should try to change
 
-        TOMsMessageLog.logMessage("gnns: In photoDetails", level=Qgis.Info)
-
-        photoPath = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('PhotoPath')
-        #path_absolute = photoPath
-
-        projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_home')
-
-        path_absolute = os.path.join(projectFolder, photoPath)
-
-        if path_absolute == None:
-            reply = QMessageBox.information(None, "Information", "Please set value for PhotoPath.", QMessageBox.Ok)
-            return
-
-        # Check path exists ...
-        if os.path.isdir(path_absolute) == False:
-            reply = QMessageBox.information(None, "Information", "PhotoPath folder " + str(
-                path_absolute) + " does not exist. Please check value.", QMessageBox.Ok)
+        path_absolute = self.getPhotoPath()
+        if path_absolute is None:
             return
 
         # if cv2 is available, check camera nr
         try:
             cameraNr = int(self.params.setParam("CameraNr"))
         except Exception as e:
-            TOMsMessageLog.logMessage("In photoDetails_field: cameraNr issue: {}".format(e), level=Qgis.Info)
+            TOMsMessageLog.logMessage("In photoDetails_field: cameraNr issue: {}".format(e), level=Qgis.Warning)
             if cv2_available:
                 cameraNr = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
             cameraNr = None
@@ -558,9 +548,9 @@ class FieldRestrictionTypeUtilsMixin():
         # get image resolution
 
         frameWidth, frameHeight = self.getCameraResolution()
-        TOMsMessageLog.logMessage("In gnns: In photoDetails: ... resolution: {}*{} ".format(frameWidth, frameHeight), level=Qgis.Warning)
+        TOMsMessageLog.logMessage("In gnns: In photoDetails_field: ... resolution: {}*{} ".format(frameWidth, frameHeight), level=Qgis.Info)
 
-        layerName = self.currDemandLayer.name()
+        #layerName = self.currDemandLayer.name()
 
         # Generate the full path to the file
 
@@ -568,9 +558,9 @@ class FieldRestrictionTypeUtilsMixin():
         fileName2 = "Photos_02"
         fileName3 = "Photos_03"
 
-        idx1 = self.currDemandLayer.fields().indexFromName(fileName1)
-        idx2 = self.currDemandLayer.fields().indexFromName(fileName2)
-        idx3 = self.currDemandLayer.fields().indexFromName(fileName3)
+        idx1 = currRestrictionLayer.fields().indexFromName(fileName1)
+        idx2 = currRestrictionLayer.fields().indexFromName(fileName2)
+        idx3 = currRestrictionLayer.fields().indexFromName(fileName3)
 
         TOMsMessageLog.logMessage("In photoDetails. idx1: " + str(idx1) + "; " + str(idx2) + "; " + str(idx3),
                                  level=Qgis.Info)
@@ -582,19 +572,19 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Info)
             takePhoto = False
 
-        FIELD1 = self.demandDialog.findChild(QLabel, "Photo_Widget_01")
-        FIELD2 = self.demandDialog.findChild(QLabel, "Photo_Widget_02")
-        FIELD3 = self.demandDialog.findChild(QLabel, "Photo_Widget_03")
+        FIELD1 = restrictionDialog.findChild(QLabel, "Photo_Widget_01")
+        FIELD2 = restrictionDialog.findChild(QLabel, "Photo_Widget_02")
+        FIELD3 = restrictionDialog.findChild(QLabel, "Photo_Widget_03")
 
         if FIELD1:
 
             TOMsMessageLog.logMessage("In photoDetails. FIELD 1 exists",
                                      level=Qgis.Info)
-            if self.currFeature[idx1]:
-                newPhotoFileName1 = os.path.join(path_absolute, self.currFeature[idx1])
+            if currRestriction[idx1]:
+                newPhotoFileName1 = os.path.join(path_absolute, currRestriction[idx1])
                 TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(newPhotoFileName1), level=Qgis.Info)
             else:
-                newPhotoFileName1 = None
+                newPhotoFileName1 = os.path.join(path_absolute, 'NoPhoto.png')
 
             pixmap1 = QPixmap(newPhotoFileName1)
 
@@ -609,33 +599,47 @@ class FieldRestrictionTypeUtilsMixin():
             #photo_Widget1 = imageLabel(tab)
             grid.addWidget(photo_Widget1, 0, 0, 1, 1)
 
+            """
+            TODO: not able to promote widget (not sure why?) so this is the fiddle to bring the imageLabel widget into the form.
+            Probably creating issues with startup of camera.
+            """
             FIELD1.hide()
             FIELD1.setParent(None)
-            FIELD1 = photo_Widget1
-            FIELD1.set_Pixmap(pixmap1)
+            FIELD1_1 = photo_Widget1
+            FIELD1_1.set_Pixmap(pixmap1)
 
             TOMsMessageLog.logMessage("In photoDetails. FIELD 1 Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
             TOMsMessageLog.logMessage("In photoDetails.pixmap1 size: {}".format(pixmap1.size()),
                                       level=Qgis.Info)
 
-            FIELD1.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD1))
+            FIELD1_1.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD1_1))
 
             if takePhoto:
-                START_CAMERA_1 = self.demandDialog.findChild(QPushButton, "startCamera1")
-                TAKE_PHOTO_1 = self.demandDialog.findChild(QPushButton, "getPhoto1")
+                START_CAMERA_1 = restrictionDialog.findChild(QPushButton, "startCamera1")
+                TAKE_PHOTO_1 = restrictionDialog.findChild(QPushButton, "getPhoto1")
                 TAKE_PHOTO_1.setEnabled(False)
 
                 self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr, frameWidth, frameHeight)
+                TOMsMessageLog.logMessage("In photoDetails.pixmap1 setting camera connection ...",
+                                          level=Qgis.Info)
+
+                #self.camera1.identify()
+
                 START_CAMERA_1.clicked.connect(
-                    functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1, FIELD1))
+                   functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1))
+
+                """
+                Occassionally/often getting issues with link between form and camera. NOt sure why but could be related to FIELD1 change around
+                """
+
                 self.camera1.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
-                self.camera1.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD1))
+                self.camera1.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD1_1))
 
         if FIELD2:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 2 exisits",
                                      level=Qgis.Info)
-            if self.currFeature[idx2]:
-                newPhotoFileName2 = os.path.join(path_absolute, self.currFeature[idx2])
+            if currRestriction[idx2]:
+                newPhotoFileName2 = os.path.join(path_absolute, currRestriction[idx2])
                 TOMsMessageLog.logMessage("In photoDetails. Photo1: " + str(newPhotoFileName2), level=Qgis.Info)
             else:
                 newPhotoFileName2 = None
@@ -665,13 +669,13 @@ class FieldRestrictionTypeUtilsMixin():
             FIELD2.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD2))
 
             if takePhoto:
-                START_CAMERA_2 = self.demandDialog.findChild(QPushButton, "startCamera2")
-                TAKE_PHOTO_2 = self.demandDialog.findChild(QPushButton, "getPhoto2")
+                START_CAMERA_2 = restrictionDialog.findChild(QPushButton, "startCamera2")
+                TAKE_PHOTO_2 = restrictionDialog.findChild(QPushButton, "getPhoto2")
                 TAKE_PHOTO_2.setEnabled(False)
 
                 self.camera2 = formCamera(path_absolute, newPhotoFileName2, cameraNr, frameWidth, frameHeight)
                 START_CAMERA_2.clicked.connect(
-                    functools.partial(self.camera2.useCamera, START_CAMERA_2, TAKE_PHOTO_2, FIELD2))
+                    functools.partial(self.camera2.useCamera, START_CAMERA_2, TAKE_PHOTO_2))
                 self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
                 self.camera2.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD2))
 
@@ -679,8 +683,8 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("In photoDetails. FIELD 3 exisits",
                                      level=Qgis.Info)
 
-            if self.currFeature[idx3]:
-                newPhotoFileName3 = os.path.join(path_absolute, self.currFeature[idx3])
+            if currRestriction[idx3]:
+                newPhotoFileName3 = os.path.join(path_absolute, currRestriction[idx3])
                 TOMsMessageLog.logMessage("In photoDetails. Photo1: " + str(newPhotoFileName3), level=Qgis.Info)
             else:
                 newPhotoFileName3 = None
@@ -710,17 +714,40 @@ class FieldRestrictionTypeUtilsMixin():
             FIELD3.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD3))
 
             if takePhoto:
-                START_CAMERA_3 = self.demandDialog.findChild(QPushButton, "startCamera3")
-                TAKE_PHOTO_3 = self.demandDialog.findChild(QPushButton, "getPhoto3")
+                START_CAMERA_3 = restrictionDialog.findChild(QPushButton, "startCamera3")
+                TAKE_PHOTO_3 = restrictionDialog.findChild(QPushButton, "getPhoto3")
                 TAKE_PHOTO_3.setEnabled(False)
 
                 self.camera3 = formCamera(path_absolute, newPhotoFileName3, cameraNr, frameWidth, frameHeight)
                 START_CAMERA_3.clicked.connect(
-                    functools.partial(self.camera3.useCamera, START_CAMERA_3, TAKE_PHOTO_3, FIELD3))
+                    functools.partial(self.camera3.useCamera, START_CAMERA_3, TAKE_PHOTO_3))
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
                 self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))
 
         pass
+
+    def getPhotoPath(self):
+        """ check that photo path exists """
+        TOMsMessageLog.logMessage("In getPhotoPath", level=Qgis.Info)
+
+        photoPath = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('PhotoPath')
+
+        projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable('project_home')
+
+        path_absolute = os.path.join(projectFolder, photoPath)
+
+        if path_absolute == None:
+            reply = QMessageBox.information(None, "Information", "Please set value for PhotoPath.", QMessageBox.Ok)
+            return None
+
+        # Check path exists ...
+        if os.path.isdir(path_absolute) == False:
+            reply = QMessageBox.information(None, "Information", "PhotoPath folder " + str(
+                path_absolute) + " does not exist. Please check value.", QMessageBox.Ok)
+            return None
+
+        TOMsMessageLog.logMessage("In getPhotoPath. Returning {}".format(path_absolute), level=Qgis.Info)
+        return path_absolute
 
     def getCameraResolution(self):
         TOMsConfigFileObject = TOMsConfigFile()
