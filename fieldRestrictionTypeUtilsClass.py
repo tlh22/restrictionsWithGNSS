@@ -523,7 +523,7 @@ class FieldRestrictionTypeUtilsMixin():
 
     def photoDetails_field(self, restrictionDialog, currRestrictionLayer, currRestriction):
 
-        TOMsMessageLog.logMessage("In photoDetails_field {}:{} ... ".format(currRestrictionLayer.name(), currRestriction.attribute("RestrictionID")), level=Qgis.Info)
+        TOMsMessageLog.logMessage("In photoDetails_field {}:{} ... ".format(currRestrictionLayer.name(), currRestriction.attribute("RestrictionID")), level=Qgis.Warning)
         # Function to deal with photo fields
 
         #self.demandDialog = restrictionDialog
@@ -619,15 +619,16 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_1 = restrictionDialog.findChild(QPushButton, "getPhoto1")
                 TAKE_PHOTO_1.setEnabled(False)
 
-                self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr, frameWidth, frameHeight)
+                #self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr, frameWidth, frameHeight)
+                self.camera1 = formCamera(path_absolute, newPhotoFileName1, START_CAMERA_1, TAKE_PHOTO_1, cameraNr, frameWidth, frameHeight)
                 TOMsMessageLog.logMessage("In photoDetails.pixmap1 setting camera connection ...",
-                                          level=Qgis.Info)
+                                          level=Qgis.Warning)
 
                 #self.camera1.identify()
 
-                START_CAMERA_1.clicked.connect(
-                   functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1))
-
+                #START_CAMERA_1.clicked.connect(
+                #   functools.partial(self.camera1.useCamera, START_CAMERA_1, TAKE_PHOTO_1))
+                START_CAMERA_1.clicked.connect(self.camera1.useCamera)
                 """
                 Occassionally/often getting issues with link between form and camera. NOt sure why but could be related to FIELD1 change around
                 """
@@ -673,9 +674,8 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_2 = restrictionDialog.findChild(QPushButton, "getPhoto2")
                 TAKE_PHOTO_2.setEnabled(False)
 
-                self.camera2 = formCamera(path_absolute, newPhotoFileName2, cameraNr, frameWidth, frameHeight)
-                START_CAMERA_2.clicked.connect(
-                    functools.partial(self.camera2.useCamera, START_CAMERA_2, TAKE_PHOTO_2))
+                self.camera2 = formCamera(path_absolute, newPhotoFileName2, START_CAMERA_2, TAKE_PHOTO_2, cameraNr, frameWidth, frameHeight)
+                START_CAMERA_2.clicked.connect(self.camera2.useCamera)
                 self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
                 self.camera2.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD2))
 
@@ -718,11 +718,10 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_3 = restrictionDialog.findChild(QPushButton, "getPhoto3")
                 TAKE_PHOTO_3.setEnabled(False)
 
-                self.camera3 = formCamera(path_absolute, newPhotoFileName3, cameraNr, frameWidth, frameHeight)
-                START_CAMERA_3.clicked.connect(
-                    functools.partial(self.camera3.useCamera, START_CAMERA_3, TAKE_PHOTO_3))
+                self.camera3 = formCamera(path_absolute, newPhotoFileName3, START_CAMERA_3, TAKE_PHOTO_3, cameraNr, frameWidth, frameHeight)
+                START_CAMERA_3.clicked.connect(self.camera3.useCamera)
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
-                self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))
+                self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))"""
 
         pass
 
