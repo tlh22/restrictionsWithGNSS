@@ -147,10 +147,7 @@ class demandFormUtils(FieldRestrictionTypeUtilsMixin):
     def onSaveDemandDetails(self, currFeature, currFeatureLayer, dialog):
         QgsMessageLog.logMessage("In onSaveDemandDetails: ", tag="TOMs panel")
 
-        try:
-            self.camera1.endCamera()
-        except:
-            None
+        self.closeCameras(dialog)
 
         status = currFeatureLayer.updateFeature(currFeature)
         # status = dialog.save()
@@ -166,10 +163,7 @@ class demandFormUtils(FieldRestrictionTypeUtilsMixin):
         QgsMessageLog.logMessage("In onRejectDemandDetailsFromForm", tag="TOMs panel")
         # self.currDemandLayer.destroyEditCommand()
 
-        try:
-            self.camera1.endCamera()
-        except:
-            None
+        self.closeCameras(self.demandDialog)
 
         if self.currDemandLayer.rollBack() == False:
             reply = QMessageBox.information(None, "Information", "Problem rolling back changes", QMessageBox.Ok)

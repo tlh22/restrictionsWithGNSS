@@ -761,8 +761,22 @@ class FieldRestrictionTypeUtilsMixin():
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
                 self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))
 
-            if takePhoto:
-                restrictionDialog.closeEvent.connect(functools.partial(self.closeCameras, restrictionDialog))
+        """
+        Deal with exit from form by using x rather than "Accept/Reject". Need to ensure that cameras are closed
+        """
+        if takePhoto:
+            try:
+                restrictionDialog.finished.connect(functools.partial(self.closeCameras, restrictionDialog))
+            except Exception as e:
+                TOMsMessageLog.logMessage('photoDetails: error setting up close cameras: {}'.format(e),
+                                          level=Qgis.Warning)
+
+            # if coming from Demand
+            try:
+                restrictionDialog.destroyed.connect(functools.partial(self.closeCameras, restrictionDialog))
+            except Exception as e:
+                TOMsMessageLog.logMessage('photoDetails: error setting up close cameras: {}'.format(e),
+                                          level=Qgis.Warning)
         pass
 
     def getPhotoPath(self):
@@ -844,8 +858,12 @@ class FieldRestrictionTypeUtilsMixin():
     def displayImage(self, FIELD, pixmap):
         TOMsMessageLog.logMessage("In utils::displayImage ... ", level=Qgis.Info)
 
-        FIELD.update_image(pixmap.scaled(FIELD.width(), FIELD.height(), QtCore.Qt.KeepAspectRatio,
+        try:
+            FIELD.update_image(pixmap.scaled(FIELD.width(), FIELD.height(), QtCore.Qt.KeepAspectRatio,
                                                 transformMode=QtCore.Qt.SmoothTransformation))
+        except Exception as e:
+            TOMsMessageLog.logMessage('displayImage: error {}'.format(e),
+                                      level=Qgis.Warning)
 
         QApplication.processEvents()  # processes the event queue - https://stackoverflow.com/questions/43094589/opencv-imshow-prevents-qt-python-crashing
 
