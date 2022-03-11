@@ -564,7 +564,7 @@ class FieldRestrictionTypeUtilsMixin():
         except Exception as e:
             TOMsMessageLog.logMessage('photoDetails_field: print error {}'.format(e),
                                       level=Qgis.Warning)
-            
+
         # Function to deal with photo fields
 
         #self.demandDialog = restrictionDialog
