@@ -559,7 +559,12 @@ class FieldRestrictionTypeUtilsMixin():
 
     def photoDetails_field(self, restrictionDialog, currRestrictionLayer, currRestriction):
 
-        TOMsMessageLog.logMessage("In photoDetails_field {}:{} ... ".format(currRestrictionLayer.name(), currRestriction.attribute("RestrictionID")), level=Qgis.Warning)
+        try:
+            TOMsMessageLog.logMessage("In photoDetails_field {}:{} ... ".format(currRestrictionLayer.name(), currRestriction.attribute("RestrictionID")), level=Qgis.Warning)
+        except Exception as e:
+            TOMsMessageLog.logMessage('photoDetails_field: print error {}'.format(e),
+                                      level=Qgis.Warning)
+            
         # Function to deal with photo fields
 
         #self.demandDialog = restrictionDialog
