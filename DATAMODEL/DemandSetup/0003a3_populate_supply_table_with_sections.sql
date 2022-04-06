@@ -22,4 +22,14 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
 WHERE c."GeometryID" = closest.id
 ;
 
---
+-- Need to remove distance from corners ?? not sure how to continuously do this ??
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "RestrictionLength" = "RestrictionLength" - 5.0
+FROM mhtc_operations."Corners" c
+WHERE ST_DWithin(ST_StartPoint (s.geom), c.geom, 0.01);
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "RestrictionLength" = "RestrictionLength" - 5.0
+FROM mhtc_operations."Corners" c
+WHERE ST_DWithin(ST_EndPoint (s.geom), c.geom, 0.01);
