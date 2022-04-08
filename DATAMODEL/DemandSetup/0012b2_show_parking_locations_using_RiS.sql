@@ -140,7 +140,7 @@ AS
                     when "VehicleTypeID" = 5 then 2.0  -- Bus
                     else 1.0  -- Other or Null
               end) as "Demand"
-           from demand."vrms_final"
+           from demand."VRMs_Final"
            group by "SurveyID", "GeometryID"
           ) as v on d."SurveyID" = v."SurveyID" and d."GeometryID" = v."GeometryID"
         order by d."RestrictionTypeID", d."GeometryID", d."SurveyID") as d
