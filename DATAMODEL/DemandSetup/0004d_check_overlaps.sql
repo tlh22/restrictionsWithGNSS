@@ -24,4 +24,6 @@ ORDER BY s1."RoadName";
 
 GRANT ALL ON TABLE mhtc_operations."Supply_Overlaps" TO postgres;
 
+SELECT * FROM mhtc_operations."Supply_Overlaps";
+
 
