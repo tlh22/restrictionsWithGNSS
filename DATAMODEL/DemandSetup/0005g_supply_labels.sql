@@ -108,4 +108,13 @@ UPDATE mhtc_operations."Supply"
 SET label_pos = ST_Multi(ST_LineInterpolatePoint(geom, 0.5))
 WHERE "GeometryID" IN ('S_001033');
 ;
+
+UPDATE mhtc_operations."Supply"
+SET label_loading_pos = ST_Multi(ST_LineInterpolatePoint(geom, 0.5))
+WHERE "GeometryID" IN ('S_001033');
+;
+
+UPDATE toms."RestrictionPolygons"
+SET label_pos = ST_Multi(ST_PointOnSurface(geom))
+WHERE "GeometryID" IN ('P_0000006', 'P_0000012');
 **/
