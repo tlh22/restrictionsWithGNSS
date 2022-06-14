@@ -103,6 +103,57 @@ TABLESPACE pg_default;
 ALTER TABLE mhtc_operations."Routes"
     OWNER to postgres;
 
+
+DO
+$do$
+DECLARE
+    this_survey_area RECORD;
+    nr_rows_inserted INTEGER;
+	str_select VARCHAR;
+BEGIN
+
+    -- ** Bays
+    FOR this_survey_area IN
+        SELECT name
+        FROM mhtc_operations."SurveyAreas"
+        ORDER BY name::int
+    LOOP
+
+        RAISE NOTICE 'Considering survey area % ... ', this_survey_area.name;
+
+        str_select = format('SELECT id, source, target, 1 as cost, 1 as reverse_cost FROM highways_network.edge_table e WHERE "SurveyArea" = %s', this_survey_area.name);
+        --RAISE NOTICE '  select str % ... ', str_select;
+
+        INSERT INTO mhtc_operations."Routes"(
+            surveyarea, seq, node, edge, geom)
+        SELECT this_survey_area.name, c.seq, c.node, c.edge, e.geom
+        FROM pgr_chinesepostman (
+            str_select) c,
+             highways_network.edge_table e
+        WHERE c.edge = e.id;
+
+        GET DIAGNOSTICS nr_rows_inserted = ROW_COUNT;
+        RAISE NOTICE '** Nr edges in route: % ... ', nr_rows_inserted;
+
+        UPDATE mhtc_operations."Routes" AS r
+        SET "InSameDirectionAsRoad" = true
+        FROM highways_network.edge_table e
+        WHERE e.id = r.edge
+        AND e.source = r.node
+        AND "SurveyArea"::int = this_survey_area.name::int;
+
+        UPDATE mhtc_operations."Routes" AS r
+        SET "InSameDirectionAsRoad" = false
+        FROM highways_network.edge_table e
+        WHERE e.id = r.edge
+        AND e.target = r.node
+        AND "SurveyArea"::int = this_survey_area.name::int;
+
+    END LOOP;
+
+END;
+$do$;
+
 --DELETE FROM mhtc_operations."Routes";
 INSERT INTO mhtc_operations."Routes"(
 	surveyarea, seq, node, edge, geom)
