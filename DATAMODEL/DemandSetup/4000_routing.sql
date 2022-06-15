@@ -185,3 +185,9 @@ AND "SurveyArea" = 14;
 
 
 
+---
+
+UPDATE highways_network.edge_table
+SET cost_distance = ST_LENGTH(geom), reverse_cost_distance = ST_LENGTH(geom)
+WHERE cost_distance IS NULL
+
