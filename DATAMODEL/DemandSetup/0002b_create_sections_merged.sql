@@ -79,7 +79,8 @@ UPDATE "mhtc_operations"."RC_Sections_merged" AS c
 
 SET "RoadName" = closest."RoadName", --"USRN" = closest."USRN",
 	"Az" = ST_Azimuth(ST_LineInterpolatePoint(c.geom, 0.5), closest.geom), "StartStreet" = closest."RoadFrom", "EndStreet" = closest."RoadTo"
-FROM (SELECT DISTINCT ON (s."gid") s."gid" AS id, cl."name1" AS "RoadName", ST_ClosestPoint(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS geom, ST_Distance(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, cl."RoadFrom", cl."RoadTo"
+FROM (SELECT DISTINCT ON (s."gid") s."gid" AS id, cl."name1" AS "RoadName", -- cl."roadName1_Name" AS "RoadName",
+    ST_ClosestPoint(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS geom, ST_Distance(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, cl."RoadFrom", cl."RoadTo"
       FROM "highways_network"."roadlink" cl, "mhtc_operations"."RC_Sections_merged" s
       ORDER BY s."gid", length) AS closest
 WHERE c."gid" = closest.id;

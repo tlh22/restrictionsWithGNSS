@@ -34,3 +34,8 @@ SELECT a.name, SUM(s."SectionLength")
 FROM mhtc_operations."RC_Sections_merged" s, mhtc_operations."SurveyAreas" a
 WHERE a.id = s."SurveyArea"
 GROUP BY a.name;
+
+SELECT a.name, ROUND(SUM(ST_Length(s.geom))::numeric, 2)
+FROM mhtc_operations."Supply" s
+GROUP BY a.name
+ORDER BY a.name::int;

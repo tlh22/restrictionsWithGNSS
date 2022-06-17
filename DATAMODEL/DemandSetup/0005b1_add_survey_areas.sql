@@ -2,6 +2,8 @@
 
 DROP TABLE IF EXISTS "mhtc_operations"."SurveyAreas" CASCADE;
 
+DROP SEQUENCE IF EXISTS mhtc_operations."SurveyAreas_id_seq";
+
 CREATE SEQUENCE mhtc_operations."SurveyAreas_id_seq"
     INCREMENT 1
     START 1
@@ -21,6 +23,9 @@ CREATE TABLE mhtc_operations."SurveyAreas"
 );
 
 ALTER TABLE "mhtc_operations"."SurveyAreas" OWNER TO "postgres";
+
+GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA mhtc_operations TO toms_public, toms_operator, toms_admin;
+GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE "mhtc_operations"."SurveyAreas" TO toms_operator, toms_admin;
 
 
 
