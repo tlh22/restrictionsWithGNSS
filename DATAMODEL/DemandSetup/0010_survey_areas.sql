@@ -35,8 +35,13 @@ FROM mhtc_operations."RC_Sections_merged" s, mhtc_operations."SurveyAreas" a
 WHERE a.id = s."SurveyArea"
 GROUP BY a.name;
 
-
 UPDATE "mhtc_operations"."Supply" AS s
 SET  "SurveyArea" = a."name"
 FROM mhtc_operations."SurveyAreas" a
 WHERE s."SurveyArea" = a.id
+
+SELECT a.name, ROUND(SUM(ST_Length(s.geom))::numeric, 2)
+FROM mhtc_operations."Supply" s
+GROUP BY a.name
+ORDER BY a.name::int;
+
