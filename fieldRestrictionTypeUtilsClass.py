@@ -194,7 +194,8 @@ class gpsParams(TOMsParams):
         self.TOMsParamsList.extend([
                           "gpsPort",
                           "CameraNr",
-                          "roamDistance"
+                          "roamDistance",
+                          "rotateCamera"
                                ])
 
 class FieldRestrictionTypeUtilsMixin():
@@ -581,10 +582,17 @@ class FieldRestrictionTypeUtilsMixin():
         except Exception as e:
             TOMsMessageLog.logMessage("In photoDetails_field: cameraNr issue: {}".format(e), level=Qgis.Warning)
             if cv2_available:
-                cameraNr = QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
+                QMessageBox.information(None, "Information", "Please set value for CameraNr.", QMessageBox.Ok)
             cameraNr = None
 
-        TOMsMessageLog.logMessage("In photoDetails_field: cameraNr is: {}".format(cameraNr), level=Qgis.Info)
+        rotateCamera = False
+        try:
+            if int(self.params.setParam("rotateCamera")) > 0:
+                rotateCamera = True
+        except Exception as e:
+            TOMsMessageLog.logMessage("In photoDetails_field: rotateCamera issue: {}".format(e), level=Qgis.Warning)
+
+        TOMsMessageLog.logMessage("In photoDetails_field: cameraNr is: {}; rotate: {}".format(cameraNr, rotateCamera), level=Qgis.Info)
 
         # get image resolution
 
@@ -661,9 +669,9 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_1.setEnabled(False)
 
                 #self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr, frameWidth, frameHeight)
-                self.camera1 = formCamera(path_absolute, newPhotoFileName1, START_CAMERA_1, TAKE_PHOTO_1, cameraNr, frameWidth, frameHeight)
+                self.camera1 = formCamera(path_absolute, newPhotoFileName1, START_CAMERA_1, TAKE_PHOTO_1, cameraNr, frameWidth, frameHeight, rotateCamera)
                 TOMsMessageLog.logMessage("In photoDetails.pixmap1 setting camera connection ...",
-                                          level=Qgis.Warning)
+                                          level=Qgis.Info)
 
                 #self.camera1.identify()
 
@@ -715,7 +723,7 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_2 = restrictionDialog.findChild(QPushButton, "getPhoto2")
                 TAKE_PHOTO_2.setEnabled(False)
 
-                self.camera2 = formCamera(path_absolute, newPhotoFileName2, START_CAMERA_2, TAKE_PHOTO_2, cameraNr, frameWidth, frameHeight)
+                self.camera2 = formCamera(path_absolute, newPhotoFileName2, START_CAMERA_2, TAKE_PHOTO_2, cameraNr, frameWidth, frameHeight, rotateCamera)
 
                 START_CAMERA_2.clicked.connect(self.camera2.useCamera)
                 self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
@@ -760,7 +768,7 @@ class FieldRestrictionTypeUtilsMixin():
                 TAKE_PHOTO_3 = restrictionDialog.findChild(QPushButton, "getPhoto3")
                 TAKE_PHOTO_3.setEnabled(False)
 
-                self.camera3 = formCamera(path_absolute, newPhotoFileName3, START_CAMERA_3, TAKE_PHOTO_3, cameraNr, frameWidth, frameHeight)
+                self.camera3 = formCamera(path_absolute, newPhotoFileName3, START_CAMERA_3, TAKE_PHOTO_3, cameraNr, frameWidth, frameHeight, rotateCamera)
 
                 START_CAMERA_3.clicked.connect(self.camera3.useCamera)
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
