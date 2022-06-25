@@ -671,7 +671,7 @@ class FieldRestrictionTypeUtilsMixin():
                 #self.camera1 = formCamera(path_absolute, newPhotoFileName1, cameraNr, frameWidth, frameHeight)
                 self.camera1 = formCamera(path_absolute, newPhotoFileName1, START_CAMERA_1, TAKE_PHOTO_1, cameraNr, frameWidth, frameHeight, rotateCamera)
                 TOMsMessageLog.logMessage("In photoDetails.pixmap1 setting camera connection ...",
-                                          level=Qgis.Warning)
+                                          level=Qgis.Info)
 
                 #self.camera1.identify()
 
