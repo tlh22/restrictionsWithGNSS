@@ -39,6 +39,7 @@ AND ((ST_Intersects (ST_StartPoint(c1.geom), ST_EndPoint(c3.geom)) OR ST_Interse
 
 -- Now create View: local_authority.StreetGazetteerView
 
+-- DROP MATERIALIZED VIEW local_authority."StreetGazetteerView";
 CREATE MATERIALIZED VIEW local_authority."StreetGazetteerView"
 TABLESPACE pg_default
 AS
