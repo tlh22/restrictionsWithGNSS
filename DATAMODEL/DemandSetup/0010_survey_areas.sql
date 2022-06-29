@@ -40,8 +40,9 @@ SET  "SurveyArea" = a."name"
 FROM mhtc_operations."SurveyAreas" a
 WHERE s."SurveyArea" = a.id
 
-SELECT a.name, ROUND(SUM(ST_Length(s.geom))::numeric, 2)
+SELECT s."SurveyArea", ROUND(SUM(ST_Length(s.geom))::numeric, 2) AS "Length of Restrictions", ROUND(SUM("Capacity")) AS "Capacity"
 FROM mhtc_operations."Supply" s
-GROUP BY a.name
-ORDER BY a.name::int;
+GROUP BY s."SurveyArea"
+ORDER BY s."SurveyArea";
+
 
