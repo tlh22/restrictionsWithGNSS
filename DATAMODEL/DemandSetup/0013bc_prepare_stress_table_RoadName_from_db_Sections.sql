@@ -56,7 +56,7 @@ ALTER TABLE demand."Counts"
 
 -- set up trigger for demand and stress
 
-CREATE OR REPLACE FUNCTION "demand"."update_demand"() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION "demand"."update_demand_sections"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
 DECLARE
@@ -71,10 +71,16 @@ BEGIN
         RETURN OLD;
     END IF;
 
-    NEW."Demand" = COALESCE(NEW."ncars"::float, 0.0) + COALESCE(NEW."nlgvs"::float, 0.0)
-                    + COALESCE(NEW."nmcls"::float, 0.0)*0.33
-                    + (COALESCE(NEW."nogvs"::float, 0) + COALESCE(NEW."nogvs2"::float, 0) + COALESCE(NEW."nminib"::float, 0) + COALESCE(NEW."nbuses"::float, 0))*1.5
-                    + COALESCE(NEW."ntaxis"::float, 0);
+    NEW."Demand" = COALESCE("NrCars"::float, 0.0) +
+        COALESCE("NrLGVs"::float, 0.0) +
+        COALESCE("NrMCLs"::float, 0.0)*0.33 +
+        (COALESCE("NrOGVs"::float, 0.0) + COALESCE("NrMiniBuses"::float, 0.0) + COALESCE("NrBuses"::float, 0.0))*1.5 +
+        COALESCE("NrTaxis"::float, 0.0) +
+        COALESCE("NrCars_Suspended"::float, 0.0) +
+        COALESCE("NrLGVs_Suspended"::float, 0.0) +
+        COALESCE("NrMCLs_Suspended"::float, 0.0)*0.33 +
+        (COALESCE("NrOGVs_Suspended"::float, 0) + COALESCE("NrMiniBuses_Suspended"::float, 0) + COALESCE("NrBuses_Suspended"::float, 0))*1.5 +
+        COALESCE("NrTaxis_Suspended"::float, 0);
 
     /* What to do about suspensions */
 
@@ -103,11 +109,12 @@ $$;
 
 -- create trigger
 
-CREATE TRIGGER "update_demand" BEFORE INSERT OR UPDATE ON "demand"."Counts" FOR EACH ROW EXECUTE FUNCTION "demand"."update_demand"();
+DROP TRIGGER IF EXISTS update_demand ON demand."Counts";
+CREATE TRIGGER "update_demand" BEFORE INSERT OR UPDATE ON "demand"."Counts" FOR EACH ROW EXECUTE FUNCTION "demand"."update_demand_sections"();
 
 -- trigger trigger
 
-UPDATE "demand"."Counts" SET "RestrictionLength" = "RestrictionLength";
+UPDATE "demand"."Counts" SET "ReasonForSuspension" = "ReasonForSuspension";
 
 -- Step 3: output demand
 
@@ -138,11 +145,13 @@ TABLESPACE pg_default
 AS
     SELECT
         row_number() OVER (PARTITION BY true::boolean) AS sid,
-    s."name1" AS "RoadName", s.geom,
-    d."SurveyID", d."Stress" AS "Stress"
+    --s."name1" AS "RoadName",
+    s."roadName1_Name" AS "RoadName",
+    s.geom,
+    d."SurveyID", d."Stress" AS "Stress", "Demand", "Capacity"
 	FROM highways_network."roadlink" s,
 	(
-	SELECT "SurveyID", "RoadName",
+	SELECT "SurveyID", "RoadName", "Demand", "Capacity",
         CASE
             WHEN "Capacity" = 0 THEN
                 CASE
@@ -162,13 +171,16 @@ AS
         END "Stress"
     FROM (
     SELECT "SurveyID", s."RoadName", SUM(s."CapacityFromDemand") AS "Capacity", SUM(d."Demand") AS "Demand"
-    FROM mhtc_operations."Supply" s, demand."Demand_Merged" d
+    FROM mhtc_operations."Supply" s, demand."Counts" d
     WHERE s."GeometryID" = d."GeometryID"
     AND s."RestrictionTypeID" NOT IN (117, 118)  -- Motorcycle bays
+    AND s."SurveyArea" IS NOT NULL
+	AND LENGTH("RoadName") > 0
     GROUP BY d."SurveyID", s."RoadName"
     ORDER BY s."RoadName", d."SurveyID" ) a
     ) d
-	WHERE s."name1" = d."RoadName"
+	--WHERE s."name1" = d."RoadName"
+	WHERE s."roadName1_Name" = d."RoadName"
 WITH DATA;
 
 ALTER TABLE demand."StressResults"
