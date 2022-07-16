@@ -76,9 +76,20 @@ class operatorExpressions(TOMsExpressions):
 
         capacity = feature.attribute("Capacity")
 
+        """
+        if capacity == 0:
+            # use length
+            geom = feature.geometry()
+            length = geom.length()
+            capacity = math.ceil(length/5.0)
+            TOMsMessageLog.logMessage('generateDemandPoints: [{}]capacity set to: {}'.format(feature.attribute("GeometryID"), capacity),
+                                  level=Qgis.Info)
+        """
+        
         nrSpaces = capacity - demand
         if nrSpaces < 0:
             nrSpaces = 0
+            #nrSpaces = demand
 
         TOMsMessageLog.logMessage('generateDemandPoints: capacity: {}; nrSpaces: {}; demand: {}'.format(capacity, nrSpaces, demand),
                                   level=Qgis.Info)
@@ -119,10 +130,14 @@ class operatorExpressions(TOMsExpressions):
         centroidGeomList = []
         counter = 0
         for polygonGeom in geomShowingSpaces.parts():
-            TOMsMessageLog.logMessage('generateDemandPoints: considering part {}'.format(counter),
+            TOMsMessageLog.logMessage('generateDemandPoints: considering {} part {}'.format(feature.attribute("GeometryID"), counter),
                                       level=Qgis.Info)
+
             if not counter in listBaysToDelete:
-                centrePt = QgsPointXY(polygonGeom.centroid())
+                TOMsMessageLog.logMessage(
+                    'generateDemandPoints: considering polygon: {}'.format(polygonGeom.asWkt()),
+                    level=Qgis.Info)
+                centrePt = QgsPointXY(polygonGeom.pointOnSurface())
                 TOMsMessageLog.logMessage(
                     'generateDemandPoints: adding centroid for {}: {}'.format(counter, centrePt.asWkt()),
                     level=Qgis.Info)
