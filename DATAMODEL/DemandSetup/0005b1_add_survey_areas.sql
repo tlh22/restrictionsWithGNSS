@@ -16,10 +16,10 @@ ALTER SEQUENCE mhtc_operations."SurveyAreas_id_seq"
 
 CREATE TABLE mhtc_operations."SurveyAreas"
 (
-    id integer NOT NULL DEFAULT nextval('mhtc_operations."SurveyAreas_id_seq"'::regclass),
-    name character varying(32) COLLATE pg_catalog."default",
+    "Code" integer NOT NULL DEFAULT nextval('mhtc_operations."SurveyAreas_id_seq"'::regclass),
+    "SurveyAreaName" character varying(32) COLLATE pg_catalog."default",
     geom geometry(MultiPolygon,27700),
-    CONSTRAINT "SurveyAreas_pkey" PRIMARY KEY (id)
+    CONSTRAINT "SurveyAreas_pkey" PRIMARY KEY ("Code")
 );
 
 ALTER TABLE "mhtc_operations"."SurveyAreas" OWNER TO "postgres";
