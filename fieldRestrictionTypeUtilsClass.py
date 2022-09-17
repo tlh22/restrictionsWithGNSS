@@ -622,6 +622,8 @@ class FieldRestrictionTypeUtilsMixin():
         FIELD3 = restrictionDialog.findChild(QLabel, "Photo_Widget_03")
         camera1Tab = restrictionDialog.findChild(QWidget, "Photos_01")
 
+        # Want to create a stacked widget with the viewer and the camera
+
         if camera1Tab:
 
             TOMsMessageLog.logMessage("In photoDetails. camera1Tab exists",
