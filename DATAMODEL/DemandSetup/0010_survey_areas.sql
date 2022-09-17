@@ -17,6 +17,9 @@ ALTER TABLE "mhtc_operations"."RC_Sections_merged"
     ADD COLUMN "SurveyArea" integer;
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS s
+SET "SurveyArea" = NULL;
+
+UPDATE "mhtc_operations"."RC_Sections_merged" AS s
 SET "SurveyArea" = a.id
 FROM mhtc_operations."SurveyAreas" a
 WHERE ST_WITHIN (s.geom, a.geom);
@@ -33,7 +36,8 @@ ORDER BY a.name::int;
 SELECT a.name, SUM(s."SectionLength")
 FROM mhtc_operations."RC_Sections_merged" s, mhtc_operations."SurveyAreas" a
 WHERE a.id = s."SurveyArea"
-GROUP BY a.name;
+GROUP BY a.name
+ORDER BY a.name;
 
 UPDATE "mhtc_operations"."Supply" AS s
 SET  "SurveyArea" = a."name"
