@@ -16,10 +16,12 @@ AS
     SELECT
         row_number() OVER (PARTITION BY true::boolean) AS id,
 
-    s."GeometryID", s.geom, s."RestrictionTypeID", s."NrBays", s."Capacity",
+    s."GeometryID", s.geom, s."RestrictionTypeID", s."CapacityFromDemand" AS "Capacity", d."Demand",
     d."SurveyID", d."Stress"
 	FROM mhtc_operations."Supply" s, demand."Counts" d
 	WHERE d."GeometryID" = s."GeometryID"
+	AND s."SurveyArea" IS NOT NULL
+	AND LENGTH(s."RoadName") > 0
 WITH DATA;
 
 ALTER TABLE demand."StressResults_ByGeometryID"

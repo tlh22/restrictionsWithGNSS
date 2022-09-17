@@ -1,25 +1,25 @@
 --
 
 ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "SurveyArea" character varying(254);
+  ADD COLUMN "SurveyAreaID" INTEGER;
 
 UPDATE "mhtc_operations"."Supply" AS s
-SET "SurveyArea" = a.id
+SET "SurveyAreaID" = a."Code"
 FROM mhtc_operations."SurveyAreas" a
 WHERE ST_WITHIN (s.geom, a.geom);
 
 ALTER TABLE mhtc_operations."RC_Sections_merged"
-  ADD COLUMN "SurveyArea" character varying(254);
+  ADD COLUMN "SurveyAreaID" INTEGER;
 
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS s
-SET "SurveyArea" = a.id
+SET "SurveyArea" = a."Code"
 FROM local_authority."SiteArea" a
 WHERE ST_WITHIN (s.geom, a.geom);
 
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS s
-SET "SurveyArea" = a.id
+SET "SurveyArea" = a."Code"
 FROM mhtc_operations."SurveyAreas" a
 WHERE ST_WITHIN (s.geom, a.geom);
 
@@ -48,4 +48,28 @@ SELECT s."SurveyID", s."SurveyDate", s."BeatStartTime", s."BeatEndTime", sa."nam
 	ORDER BY "SurveyName";
 
 
+/***
+ Changes to new structure
 
+
+ALTER TABLE IF EXISTS mhtc_operations."SurveyAreas"
+    RENAME id TO "Code";
+
+ALTER TABLE IF EXISTS mhtc_operations."SurveyAreas"
+    RENAME name TO "SurveyAreaName";
+
+ALTER TABLE mhtc_operations."SurveyAreas"
+    ALTER COLUMN "SurveyAreaName" TYPE character varying(250) COLLATE pg_catalog."default";
+
+-- if required ...
+UPDATE "mhtc_operations"."Supply" AS s
+SET "SurveyAreaID" = a."Code"
+FROM mhtc_operations."SurveyAreas" a
+WHERE ST_WITHIN (s.geom, a.geom);
+
+ALTER TABLE IF EXISTS mhtc_operations."Supply"
+    RENAME "SurveyArea" TO "SurveyAreaID";
+
+alter table mhtc_operations."Supply" alter column "SurveyAreaID" TYPE INTEGER  USING ("SurveyAreaID"::integer) ;
+
+ ***/
