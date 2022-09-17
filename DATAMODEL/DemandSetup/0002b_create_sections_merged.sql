@@ -76,15 +76,18 @@ WHERE r."id" = (mhtc_operations."get_nearest_roadlink_to_section"(c.gid))[1]::in
 */
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS c
-
 SET "RoadName" = closest."RoadName", --"USRN" = closest."USRN",
 	"Az" = ST_Azimuth(ST_LineInterpolatePoint(c.geom, 0.5), closest.geom), "StartStreet" = closest."RoadFrom", "EndStreet" = closest."RoadTo"
-FROM (SELECT DISTINCT ON (s."gid") s."gid" AS id, cl."name1" AS "RoadName", -- cl."roadName1_Name" AS "RoadName",
+FROM (SELECT DISTINCT ON (s."gid") s."gid" AS id, 
+    cl."name1" AS "RoadName", 
+	-- cl."roadName1_Name" AS "RoadName",
     ST_ClosestPoint(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS geom, ST_Distance(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, cl."RoadFrom", cl."RoadTo"
       FROM "highways_network"."roadlink" cl, "mhtc_operations"."RC_Sections_merged" s
+	  --WHERE cl."name1" IS NOT NULL
+	  WHERE LENGTH(cl."roadname1_name") > 0
       ORDER BY s."gid", length) AS closest
 WHERE c."gid" = closest.id
-AND c."RoadName" NOT LIKE '% Car Park%';
+AND closest."RoadName" NOT LIKE '% Car Park%';
 
 UPDATE "mhtc_operations"."RC_Sections_merged"
 SET "SideOfStreet" = 'North'
