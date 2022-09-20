@@ -16,6 +16,11 @@ ALTER COLUMN geom TYPE geometry(linestring, 27700) USING ST_Force2D(ST_GeometryN
 -- for RAMI
 --ALTER TABLE IF EXISTS highways_network.roadlink
 --    ADD COLUMN id serial;
+/***
+alter table highways_network."roadlink"
+    alter geom type geometry(LineString, 27700)
+        using st_force2d(geom);
+        ***/
 
 ALTER TABLE "highways_network"."roadlink"
    ALTER COLUMN id SET DEFAULT nextval('"highways_network"."roadlink_id_seq"'::regclass);
