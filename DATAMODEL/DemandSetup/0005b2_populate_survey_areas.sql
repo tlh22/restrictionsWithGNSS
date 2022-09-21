@@ -11,15 +11,11 @@ WHERE ST_WITHIN (s.geom, a.geom);
 ALTER TABLE mhtc_operations."RC_Sections_merged"
   ADD COLUMN "SurveyAreaID" INTEGER;
 
+UPDATE mhtc_operations."RC_Sections_merged"
+SET "SurveyAreaID" = NULL;
 
 UPDATE "mhtc_operations"."RC_Sections_merged" AS s
-SET "SurveyArea" = a."Code"
-FROM local_authority."SiteArea" a
-WHERE ST_WITHIN (s.geom, a.geom);
-
-
-UPDATE "mhtc_operations"."RC_Sections_merged" AS s
-SET "SurveyArea" = a."Code"
+SET "SurveyAreaID" = a."Code"
 FROM mhtc_operations."SurveyAreas" a
 WHERE ST_WITHIN (s.geom, a.geom);
 
