@@ -83,8 +83,8 @@ FROM (SELECT DISTINCT ON (s."gid") s."gid" AS id,
 	-- cl."roadName1_Name" AS "RoadName",
     ST_ClosestPoint(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS geom, ST_Distance(cl.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, cl."RoadFrom", cl."RoadTo"
       FROM "highways_network"."roadlink" cl, "mhtc_operations"."RC_Sections_merged" s
-	  --WHERE cl."name1" IS NOT NULL
-	  WHERE LENGTH(cl."roadname1_name") > 0
+	  WHERE cl."name1" IS NOT NULL
+	  --WHERE LENGTH(cl."roadName1_Name") > 0
       ORDER BY s."gid", length) AS closest
 WHERE c."gid" = closest.id
 AND closest."RoadName" NOT LIKE '% Car Park%';
