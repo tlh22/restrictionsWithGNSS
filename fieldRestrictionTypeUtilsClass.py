@@ -629,49 +629,16 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("In photoDetails. camera1Tab exists",
                                      level=Qgis.Info)
 
-            camera1Layout = camera1Tab.layout()
-
+            photoFileName1 = None
             if currRestriction[idx1]:
-                newPhotoFileName1 = os.path.join(path_absolute, currRestriction[idx1])
-                TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(newPhotoFileName1), level=Qgis.Info)
+                photoFileName1 = os.path.join(path_absolute, currRestriction[idx1])
+                TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(photoFileName1), level=Qgis.Info)
 
-                pixmap1 = QPixmap(newPhotoFileName1)
-
-                photo_Widget1 = imageLabel(camera1Tab)
-                #TOMsMessageLog.logMessage(
-                #    "In photoDetails. FIELD 1 w: {}; h: {}".format(FIELD1.width(), FIELD1.height()), level=Qgis.Info)
-                photo_Widget1.setObjectName("Photo_Widget_01")
-                #photo_Widget1.setText("No photo is here")
-
-                camera1Layout.addWidget(photo_Widget1)
-
-                """
-                TODO: not able to promote widget (not sure why?) so this is the fiddle to bring the imageLabel widget into the form.
-                Probably creating issues with startup of camera.
-                """
-
-                #FIELD1.hide()
-                #FIELD1.setParent(None)
-                #FIELD1_1 = photo_Widget1
-                photo_Widget1.set_Pixmap(pixmap1)
-
-                TOMsMessageLog.logMessage(
-                    "In photoDetails. photo_Widget1 w: {}; h: {}".format(photo_Widget1.width(), photo_Widget1.height()), level=Qgis.Info)
-
-                TOMsMessageLog.logMessage("In photoDetails. FIELD 1 Photo1: " + str(newPhotoFileName1), level=Qgis.Info)
-                TOMsMessageLog.logMessage("In photoDetails.pixmap1 size: {}, {}".format(pixmap1.size().width(), pixmap1.size().height()),
-                                          level=Qgis.Info)
-
-                photo_Widget1.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, photo_Widget1))
-
-            else:
-
-                if takePhoto:
-
-                    camera1 = TOMsCameraWidget()
-                    camera1Layout.addWidget(camera1)
-
-                    camera1.photoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
+            camera1 = TOMsCameraWidget()
+            camera1.setupWidget(photoFileName1)
+            camera1Layout = camera1Tab.layout()
+            camera1Layout.addWidget(camera1)
+            camera1.photoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
 
         if FIELD2:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 2 exisits",
