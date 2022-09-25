@@ -525,7 +525,7 @@ class FieldRestrictionTypeUtilsMixin():
         except Exception as e:
             TOMsMessageLog.logMessage('closeCameras: error disconnecting camera 1 {}'.format(e),
                                       level=Qgis.Warning)
-        '''
+
 
         try:
             START_CAMERA_2 = dialog.findChild(QPushButton, "startCamera2")
@@ -559,7 +559,7 @@ class FieldRestrictionTypeUtilsMixin():
         except Exception as e:
             TOMsMessageLog.logMessage('closeCameras: error closing cameras {}'.format(e),
                                       level=Qgis.Warning)
-
+        '''
         return
 
     def photoDetails_field(self, restrictionDialog, currRestrictionLayer, currRestriction):
@@ -570,6 +570,12 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage('photoDetails_field: print error {}'.format(e),
                                       level=Qgis.Warning)
 
+        try:
+            TOMsMessageLog.logMessage("In photoDetails_field {}:{} ... ".format(currRestrictionLayer.name(), currRestriction.attribute("GeometryID")), level=Qgis.Warning)
+        except Exception as e:
+            TOMsMessageLog.logMessage('photoDetails_field: print error {}'.format(e),
+                                      level=Qgis.Warning)
+                                      
         # Function to deal with photo fields
 
         #self.demandDialog = restrictionDialog
@@ -618,9 +624,11 @@ class FieldRestrictionTypeUtilsMixin():
             takePhoto = False
 
         #FIELD1 = restrictionDialog.findChild(QLabel, "Photo_Widget_01")
-        FIELD2 = restrictionDialog.findChild(QLabel, "Photo_Widget_02")
-        FIELD3 = restrictionDialog.findChild(QLabel, "Photo_Widget_03")
+        #FIELD2 = restrictionDialog.findChild(QLabel, "Photo_Widget_02")
+        #FIELD3 = restrictionDialog.findChild(QLabel, "Photo_Widget_03")
         camera1Tab = restrictionDialog.findChild(QWidget, "Photos_01")
+        camera2Tab = restrictionDialog.findChild(QWidget, "Photos_02")
+        camera3Tab = restrictionDialog.findChild(QWidget, "Photos_03")
 
         # Want to create a stacked widget with the viewer and the camera
 
@@ -640,50 +648,25 @@ class FieldRestrictionTypeUtilsMixin():
             camera1Layout.addWidget(camera1)
             camera1.photoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
 
-        if FIELD2:
-            TOMsMessageLog.logMessage("In photoDetails. FIELD 2 exisits",
+        '''
+        if camera2Tab:
+
+            TOMsMessageLog.logMessage("In photoDetails. camera2Tab exists",
                                      level=Qgis.Info)
+
+            photoFileName2 = None
             if currRestriction[idx2]:
-                newPhotoFileName2 = os.path.join(path_absolute, currRestriction[idx2])
-                TOMsMessageLog.logMessage("In photoDetails. Photo2: " + str(newPhotoFileName2), level=Qgis.Info)
-            else:
-                newPhotoFileName2 = None
+                photoFileName2 = os.path.join(path_absolute, currRestriction[idx2])
+                TOMsMessageLog.logMessage("In photoDetails. photo2: {}".format(photoFileName2), level=Qgis.Info)
 
-            pixmap2 = QPixmap(newPhotoFileName2)
-
-            tab = FIELD2.parentWidget()
-            grid = FIELD2.parentWidget().layout()
-
-            photo_Widget2 = imageLabel(tab)
-            TOMsMessageLog.logMessage(
-                "In photoDetails. FIELD 2 w: {}; h: {}".format(FIELD2.width(), FIELD2.height()), level=Qgis.Info)
-            photo_Widget2.setObjectName("Photo_Widget_02")
-            photo_Widget2.setText("No photo is here")
-            #photo_Widget2 = imageLabel(tab)
-            grid.addWidget(photo_Widget2, 0, 0, 1, 1)
-
-            FIELD2.hide()
-            FIELD2.setParent(None)
-            FIELD2 = photo_Widget2
-            FIELD2.set_Pixmap(pixmap2)
-
-            TOMsMessageLog.logMessage("In photoDetails. FIELD 2 Photo2: " + str(newPhotoFileName2), level=Qgis.Info)
-            TOMsMessageLog.logMessage("In photoDetails.pixmap2 size: {}".format(pixmap2.size()),
-                                      level=Qgis.Info)
-
-            FIELD2.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD2))
-
-            if takePhoto:
-                START_CAMERA_2 = restrictionDialog.findChild(QPushButton, "startCamera2")
-                TAKE_PHOTO_2 = restrictionDialog.findChild(QPushButton, "getPhoto2")
-                TAKE_PHOTO_2.setEnabled(False)
-
-                self.camera2 = formCamera(path_absolute, newPhotoFileName2, START_CAMERA_2, TAKE_PHOTO_2, cameraNr, frameWidth, frameHeight, rotateCamera)
-
-                START_CAMERA_2.clicked.connect(self.camera2.useCamera)
-                self.camera2.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
-                self.camera2.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD2))
-
+            camera2 = TOMsCameraWidget()
+            camera2.setupWidget(photoFileName2)
+            camera2Layout = camera1Tab.layout()
+            camera2Layout.addWidget(camera2)
+            camera2.photoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
+            '''
+            
+        '''
         if FIELD3:
             TOMsMessageLog.logMessage("In photoDetails. FIELD 3 exisits",
                                      level=Qgis.Info)
@@ -729,6 +712,7 @@ class FieldRestrictionTypeUtilsMixin():
                 self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
                 self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))
 
+        '''
         """
         Deal with exit from form by using x rather than "Accept/Reject". Need to ensure that cameras are closed
         """
@@ -845,7 +829,7 @@ class FieldRestrictionTypeUtilsMixin():
     @pyqtSlot(str)
     def savePhotoTaken(self, idx, fileName):
         TOMsMessageLog.logMessage("In demandFormUtils::savePhotoTaken ... " + fileName + " idx: " + str(idx),
-                                 level=Qgis.Info)
+                                 level=Qgis.Warning)
         if len(fileName) > 0:
             simpleFile = os.path.basename(fileName)
             TOMsMessageLog.logMessage("In demandFormUtils::savePhotoTaken. Simple file: " + simpleFile, level=Qgis.Info)
