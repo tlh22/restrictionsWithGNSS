@@ -637,34 +637,33 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("In photoDetails. camera1Tab exists",
                                      level=Qgis.Info)
 
-            photoFileName1 = None
-            if currRestriction[idx1]:
-                photoFileName1 = os.path.join(path_absolute, currRestriction[idx1])
-                TOMsMessageLog.logMessage("In photoDetails. photo1: {}".format(photoFileName1), level=Qgis.Info)
-
             camera1 = TOMsCameraWidget()
-            camera1.setupWidget(photoFileName1)
+            camera1.setupWidget(currRestriction[idx1])
             camera1Layout = camera1Tab.layout()
             camera1Layout.addWidget(camera1)
             camera1.photoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
 
-        '''
         if camera2Tab:
 
             TOMsMessageLog.logMessage("In photoDetails. camera2Tab exists",
                                      level=Qgis.Info)
 
-            photoFileName2 = None
-            if currRestriction[idx2]:
-                photoFileName2 = os.path.join(path_absolute, currRestriction[idx2])
-                TOMsMessageLog.logMessage("In photoDetails. photo2: {}".format(photoFileName2), level=Qgis.Info)
-
             camera2 = TOMsCameraWidget()
-            camera2.setupWidget(photoFileName2)
-            camera2Layout = camera1Tab.layout()
+            camera2.setupWidget(currRestriction[idx2])
+            camera2Layout = camera2Tab.layout()
             camera2Layout.addWidget(camera2)
             camera2.photoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
-            '''
+
+        if camera3Tab:
+
+            TOMsMessageLog.logMessage("In photoDetails. camera3Tab exists",
+                                     level=Qgis.Info)
+
+            camera3 = TOMsCameraWidget()
+            camera3.setupWidget(currRestriction[idx3])
+            camera3Layout = camera3Tab.layout()
+            camera3Layout.addWidget(camera3)
+            camera3.photoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
             
         '''
         if FIELD3:
