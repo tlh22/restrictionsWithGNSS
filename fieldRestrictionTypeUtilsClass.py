@@ -511,55 +511,32 @@ class FieldRestrictionTypeUtilsMixin():
 
         #del self.mapTool
 
-    def closeCameras(self, dialog):
+    def closeCameras(self, dialog=None):
         """
         Function to close cameras as cleanly as possible
 
         """
-        '''
         try:
-            START_CAMERA_1 = dialog.findChild(QPushButton, "startCamera1")
-            START_CAMERA_1.clicked.disconnect()
-            self.camera1.notifyPhotoTaken.disconnect()
-            self.camera1.pixmapUpdated.disconnect()
+            self.camera1.close_camera()
+            self.camera1.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx1))
         except Exception as e:
             TOMsMessageLog.logMessage('closeCameras: error disconnecting camera 1 {}'.format(e),
                                       level=Qgis.Warning)
 
-
         try:
-            START_CAMERA_2 = dialog.findChild(QPushButton, "startCamera2")
-            START_CAMERA_2.clicked.disconnect()
-            self.camera2.notifyPhotoTaken.disconnect()
-            self.camera2.pixmapUpdated.disconnect()
+            self.camera2.close_camera()
+            self.camera2.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx2))
         except Exception as e:
             TOMsMessageLog.logMessage('closeCameras: error disconnecting camera 2 {}'.format(e),
                                       level=Qgis.Warning)
 
         try:
-            START_CAMERA_3 = dialog.findChild(QPushButton, "startCamera3")
-            START_CAMERA_3.clicked.disconnect()
-            self.camera3.notifyPhotoTaken.disconnect()
-            self.camera3.pixmapUpdated.disconnect()
+            self.camera3.close_camera()
+            self.camera3.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx3))
         except Exception as e:
             TOMsMessageLog.logMessage('closeCameras: error disconnecting camera 3 {}'.format(e),
                                       level=Qgis.Warning)
-        try:
-            #self.camera1.closeEvent.disconnect()
-            self.camera2.closeEvent.disconnect()
-            self.camera3.closeEvent.disconnect()
-        except Exception as e:
-            TOMsMessageLog.logMessage('closeCameras: error disconnecting closeEvents {}'.format(e),
-                                      level=Qgis.Warning)
 
-        try:
-            #self.camera1.endCamera()
-            self.camera2.endCamera()
-            self.camera3.endCamera()
-        except Exception as e:
-            TOMsMessageLog.logMessage('closeCameras: error closing cameras {}'.format(e),
-                                      level=Qgis.Warning)
-        '''
         return
 
     def photoDetails_field(self, restrictionDialog, currRestrictionLayer, currRestriction):
@@ -578,8 +555,6 @@ class FieldRestrictionTypeUtilsMixin():
                                       
         # Function to deal with photo fields
 
-        #self.demandDialog = restrictionDialog
-        #self.currDemandLayer = currRestrictionLayer
         self.currFeature = currRestriction  ## need for SavePhotoTaken -- TODO: should try to change
 
         try:
@@ -609,11 +584,11 @@ class FieldRestrictionTypeUtilsMixin():
         fileName2 = "Photos_02"
         fileName3 = "Photos_03"
 
-        idx1 = currRestrictionLayer.fields().indexFromName(fileName1)
-        idx2 = currRestrictionLayer.fields().indexFromName(fileName2)
-        idx3 = currRestrictionLayer.fields().indexFromName(fileName3)
+        self.idx1 = currRestrictionLayer.fields().indexFromName(fileName1)
+        self.idx2 = currRestrictionLayer.fields().indexFromName(fileName2)
+        self.idx3 = currRestrictionLayer.fields().indexFromName(fileName3)
 
-        TOMsMessageLog.logMessage("In photoDetails. idx1: " + str(idx1) + "; " + str(idx2) + "; " + str(idx3),
+        TOMsMessageLog.logMessage("In photoDetails. idx1: " + str(self.idx1) + "; " + str(self.idx2) + "; " + str(self.idx3),
                                  level=Qgis.Info)
 
         if cameraNr is not None:
@@ -623,9 +598,6 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("Camera FALSE", level=Qgis.Info)
             takePhoto = False
 
-        #FIELD1 = restrictionDialog.findChild(QLabel, "Photo_Widget_01")
-        #FIELD2 = restrictionDialog.findChild(QLabel, "Photo_Widget_02")
-        #FIELD3 = restrictionDialog.findChild(QLabel, "Photo_Widget_03")
         camera1Tab = restrictionDialog.findChild(QWidget, "Photos_01")
         camera2Tab = restrictionDialog.findChild(QWidget, "Photos_02")
         camera3Tab = restrictionDialog.findChild(QWidget, "Photos_03")
@@ -637,81 +609,34 @@ class FieldRestrictionTypeUtilsMixin():
             TOMsMessageLog.logMessage("In photoDetails. camera1Tab exists",
                                      level=Qgis.Info)
 
-            camera1 = TOMsCameraWidget()
-            camera1.setupWidget(currRestriction[idx1])
+            self.camera1 = TOMsCameraWidget()
+            self.camera1.setupWidget(currRestriction[self.idx1])
             camera1Layout = camera1Tab.layout()
-            camera1Layout.addWidget(camera1)
-            camera1.photoTaken.connect(functools.partial(self.savePhotoTaken, idx1))
+            camera1Layout.addWidget(self.camera1)
+            self.camera1.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx1))
 
         if camera2Tab:
 
             TOMsMessageLog.logMessage("In photoDetails. camera2Tab exists",
                                      level=Qgis.Info)
 
-            camera2 = TOMsCameraWidget()
-            camera2.setupWidget(currRestriction[idx2])
+            self.camera2 = TOMsCameraWidget()
+            self.camera2.setupWidget(currRestriction[self.idx2])
             camera2Layout = camera2Tab.layout()
-            camera2Layout.addWidget(camera2)
-            camera2.photoTaken.connect(functools.partial(self.savePhotoTaken, idx2))
+            camera2Layout.addWidget(self.camera2)
+            self.camera2.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx2))
 
         if camera3Tab:
 
             TOMsMessageLog.logMessage("In photoDetails. camera3Tab exists",
                                      level=Qgis.Info)
 
-            camera3 = TOMsCameraWidget()
-            camera3.setupWidget(currRestriction[idx3])
+            self.camera3 = TOMsCameraWidget()
+            self.camera3.setupWidget(currRestriction[self.idx3])
             camera3Layout = camera3Tab.layout()
-            camera3Layout.addWidget(camera3)
-            camera3.photoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
+            camera3Layout.addWidget(self.camera3)
+            self.camera3.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx3))
             
-        '''
-        if FIELD3:
-            TOMsMessageLog.logMessage("In photoDetails. FIELD 3 exisits",
-                                     level=Qgis.Info)
-
-            if currRestriction[idx3]:
-                newPhotoFileName3 = os.path.join(path_absolute, currRestriction[idx3])
-                TOMsMessageLog.logMessage("In photoDetails. Photo3: " + str(newPhotoFileName3), level=Qgis.Info)
-            else:
-                newPhotoFileName3 = None
-
-            pixmap3 = QPixmap(newPhotoFileName3)
-                
-            tab = FIELD3.parentWidget()
-            grid = FIELD3.parentWidget().layout()
-
-            photo_Widget3 = imageLabel(tab)
-            TOMsMessageLog.logMessage(
-                "In photoDetails. FIELD 3 w: {}; h: {}".format(FIELD3.width(), FIELD3.height()), level=Qgis.Info)
-            photo_Widget3.setObjectName("Photo_Widget_03")
-            photo_Widget3.setText("No photo is here")
-            #photo_Widget3 = imageLabel(tab)
-            grid.addWidget(photo_Widget3, 0, 0, 1, 1)
-
-            FIELD3.hide()
-            FIELD3.setParent(None)
-            FIELD3 = photo_Widget3
-            FIELD3.set_Pixmap(pixmap3)
-
-            TOMsMessageLog.logMessage("In photoDetails. FIELD 3 Photo3: " + str(newPhotoFileName3), level=Qgis.Info)
-            TOMsMessageLog.logMessage("In photoDetails.pixmap3 size: {}".format(pixmap3.size()),
-                                      level=Qgis.Info)
-
-            FIELD3.pixmapUpdated.connect(functools.partial(self.displayPixmapUpdated, FIELD3))
-
-            if takePhoto:
-                START_CAMERA_3 = restrictionDialog.findChild(QPushButton, "startCamera3")
-                TAKE_PHOTO_3 = restrictionDialog.findChild(QPushButton, "getPhoto3")
-                TAKE_PHOTO_3.setEnabled(False)
-
-                self.camera3 = formCamera(path_absolute, newPhotoFileName3, START_CAMERA_3, TAKE_PHOTO_3, cameraNr, frameWidth, frameHeight, rotateCamera)
-
-                START_CAMERA_3.clicked.connect(self.camera3.useCamera)
-                self.camera3.notifyPhotoTaken.connect(functools.partial(self.savePhotoTaken, idx3))
-                self.camera3.pixmapUpdated.connect(functools.partial(self.displayImage, FIELD3))
-
-        '''
         """
         Deal with exit from form by using x rather than "Accept/Reject". Need to ensure that cameras are closed
         """
