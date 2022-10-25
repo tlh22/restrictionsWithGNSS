@@ -50,6 +50,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -62,6 +63,7 @@
     <widget class="QLineEdit" name="GeometryID">
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -86,6 +88,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -122,6 +125,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -147,6 +151,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -168,6 +173,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -189,6 +195,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -210,6 +217,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -245,6 +253,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -311,6 +320,7 @@
         <widget class="QLineEdit" name="RestrictionLength">
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -329,6 +339,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -370,6 +381,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -391,6 +403,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -434,6 +447,7 @@
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -452,6 +466,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -491,6 +506,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -509,6 +525,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Arial</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -529,144 +546,23 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="Photos_Tab_01">
+     <widget class="QWidget" name="Photos_01">
       <attribute name="title">
        <string>Photo1</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="1" column="0">
-        <widget class="QPushButton" name="startCamera1">
-         <property name="text">
-          <string>open Camera</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="getPhoto1">
-         <property name="text">
-          <string>take Photo</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="Photo_Widget_01">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>640</width>
-           <height>480</height>
-          </size>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Photo not found</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <layout class="QGridLayout" name="gridLayout_5"/>
      </widget>
-     <widget class="QWidget" name="Photos_Tab_02">
+     <widget class="QWidget" name="Photos_02">
       <attribute name="title">
        <string>Photo2</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="1" column="0">
-        <widget class="QPushButton" name="startCamera2">
-         <property name="text">
-          <string>open Camera</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="getPhoto2">
-         <property name="text">
-          <string>take Photo</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="Photo_Widget_02">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>640</width>
-           <height>480</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Sans Serif</family>
-          </font>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Photo not found</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <layout class="QGridLayout" name="gridLayout_3"/>
      </widget>
-     <widget class="QWidget" name="Photos_Tab_03">
+     <widget class="QWidget" name="Photos_03">
       <attribute name="title">
        <string>Photo3</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_10">
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="Photo_Widget_03">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>640</width>
-           <height>480</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Sans Serif</family>
-          </font>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Photo not found</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="startCamera3">
-         <property name="text">
-          <string>open Camera</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="getPhoto3">
-         <property name="text">
-          <string>take Photo</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <layout class="QGridLayout" name="gridLayout_10"/>
      </widget>
      <widget class="QWidget" name="complianceTab">
       <attribute name="title">

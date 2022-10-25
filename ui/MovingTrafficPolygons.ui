@@ -243,227 +243,23 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="PhotoTab_01">
+     <widget class="QWidget" name="Photos_01">
       <attribute name="title">
        <string>Photo1</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
-        <widget class="QPushButton" name="startCamera1">
-         <property name="maximumSize">
-          <size>
-           <width>150</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>open Camera</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/camara_foto.png</normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/camara_foto.png</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="getPhoto1">
-         <property name="maximumSize">
-          <size>
-           <width>150</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>take Photo</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="Photo_Widget_01">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>640</width>
-           <height>480</height>
-          </size>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>No photo</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <layout class="QGridLayout" name="gridLayout_2"/>
      </widget>
-     <widget class="QWidget" name="PhotoTab_02">
+     <widget class="QWidget" name="Photos_02">
       <attribute name="title">
        <string>Photo2</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QLabel" name="Photo_Widget_02">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>640</width>
-           <height>480</height>
-          </size>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>No photo</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="startCamera2">
-         <property name="maximumSize">
-          <size>
-           <width>150</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>open Camera</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/camara_foto.png</normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/camara_foto.png</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="getPhoto2">
-         <property name="maximumSize">
-          <size>
-           <width>150</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>take Photo</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <layout class="QGridLayout" name="gridLayout_4"/>
      </widget>
-     <widget class="QWidget" name="PhotoTab_03">
+     <widget class="QWidget" name="Photos_03">
       <attribute name="title">
        <string>Photo3</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QLabel" name="Photo_Widget_03">
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>No photo</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="getPhoto3">
-         <property name="maximumSize">
-          <size>
-           <width>150</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>take Photo</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/take-photo-icon-21.jpg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="startCamera3">
-         <property name="maximumSize">
-          <size>
-           <width>150</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>open Camera</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/camara_foto.png</normaloff>../../../../PC18-26 Carnegie Library Lambeth/Mapping/Templates/camara_foto.png</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <layout class="QGridLayout" name="gridLayout_3"/>
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
