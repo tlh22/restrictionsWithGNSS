@@ -606,33 +606,33 @@ class FieldRestrictionTypeUtilsMixin():
 
         if camera1Tab:
 
-            TOMsMessageLog.logMessage("In photoDetails. camera1Tab exists",
-                                     level=Qgis.Info)
+            TOMsMessageLog.logMessage("In photoDetails. camera1Tab exists; photo1: {}".format(currRestriction.attribute("Photos_01")),
+                                     level=Qgis.Warning)
 
             self.camera1 = TOMsCameraWidget()
-            self.camera1.setupWidget(currRestriction[self.idx1])
+            self.camera1.setupWidget(currRestriction.attribute("Photos_01"))
             camera1Layout = camera1Tab.layout()
             camera1Layout.addWidget(self.camera1)
             self.camera1.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx1))
 
         if camera2Tab:
 
-            TOMsMessageLog.logMessage("In photoDetails. camera2Tab exists",
-                                     level=Qgis.Info)
+            TOMsMessageLog.logMessage("In photoDetails. camera2Tab exists; photo2: {}".format(currRestriction.attribute("Photos_02")),
+                                     level=Qgis.Warning)
 
             self.camera2 = TOMsCameraWidget()
-            self.camera2.setupWidget(currRestriction[self.idx2])
+            self.camera2.setupWidget(currRestriction.attribute("Photos_02"))
             camera2Layout = camera2Tab.layout()
             camera2Layout.addWidget(self.camera2)
             self.camera2.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx2))
 
         if camera3Tab:
 
-            TOMsMessageLog.logMessage("In photoDetails. camera3Tab exists",
-                                     level=Qgis.Info)
+            TOMsMessageLog.logMessage("In photoDetails. camera3Tab exists; photo3: {}".format(currRestriction.attribute("Photos_03")),
+                                     level=Qgis.Warning)
 
             self.camera3 = TOMsCameraWidget()
-            self.camera3.setupWidget(currRestriction[self.idx3])
+            self.camera3.setupWidget(currRestriction.attribute("Photos_03"))
             camera3Layout = camera3Tab.layout()
             camera3Layout.addWidget(self.camera3)
             self.camera3.photoTaken.connect(functools.partial(self.savePhotoTaken, self.idx3))
