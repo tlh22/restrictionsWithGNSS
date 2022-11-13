@@ -30,6 +30,14 @@ INSERT INTO toms_lookups."BayTypesInUse"(
 
 INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
+	VALUES (127, 'Polygon');  -- Free bays
+
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (131, 'Polygon');  -- Permit holder
+
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
 	VALUES (152, 'LineString');  -- Unmarked parking area
 
 INSERT INTO toms_lookups."BayTypesInUse"(
