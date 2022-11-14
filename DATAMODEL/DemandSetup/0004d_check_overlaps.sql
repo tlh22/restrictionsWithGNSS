@@ -17,10 +17,11 @@ ALTER TABLE mhtc_operations."Supply_Overlaps"
     OWNER to postgres;
 
 INSERT INTO mhtc_operations."Supply_Overlaps" ("GeometryID", "RoadName", geom)
-SELECT s1."GeometryID", s1."RoadName", ST_Intersection(s1.geom, s2.geom) AS geom
+SELECT s1."GeometryID", s1."RestrictionTypeID", s2."GeometryID", s2."RestrictionTypeID", s1."RoadName", ST_Intersection(s1.geom, s2.geom) AS geom
 FROM mhtc_operations."Supply" s1, mhtc_operations."Supply" s2
-WHERE ST_Overlaps(s1.geom, s2.geom)
-ORDER BY s1."RoadName";
+WHERE ST_INTERSECTS(ST_LineSubstring (s1.geom, 0.1, 0.9), ST_Buffer(s2.geom, 0.1, 'endcap=flat'))
+AND s1."GeometryID" < s2."GeometryID"
+ORDER BY s1."GeometryID", s1."RoadName";
 
 GRANT ALL ON TABLE mhtc_operations."Supply_Overlaps" TO postgres;
 
