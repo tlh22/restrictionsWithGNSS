@@ -38,7 +38,7 @@ a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideO
                      --END
             ELSE
                 "Capacity"
-            END AS "ParkingAvailableDuringSurveyHours", "CPZ"
+            END AS "ParkingAvailableOutsideSurveyHours", "CPZ"
 
 FROM
      (((((((
@@ -211,7 +211,7 @@ a."RoadName", a."StartStreet" AS "RoadFrom", a."EndStreet" AS "RoadTo", a."SideO
                      --END
             ELSE
                 "Capacity"
-            END AS "ParkingAvailableDuringSurveyHours", "CPZ", item_refs
+            END AS "ParkingAvailableOutsideSurveyHours", "CPZ", item_refs
 
 FROM
      (((((((
