@@ -24,13 +24,13 @@ ALTER TABLE "mhtc_operations"."RBKC_item_ref_links"
 INSERT INTO "mhtc_operations"."RBKC_item_ref_links" ("GeometryID", item_ref)
 SELECT s."GeometryID", "item_ref"
 FROM mhtc_operations."Supply" s, local_authority."Bays_Transfer" t
-WHERE ST_INTERSECTS(ST_Line_Substring (s.geom, (ST_LENGTH(s.geom)-0.5)/ST_LENGTH(s.geom), 1.0-(ST_LENGTH(s.geom)-0.5)/ST_LENGTH(s.geom)), ST_Buffer(t.geom, 0.1))
+WHERE ST_INTERSECTS(ST_LineSubstring (s.geom, 0.1, 0.9), ST_Buffer(t.geom, 0.1))
 AND s."RestrictionTypeID" < 200;
 
 INSERT INTO "mhtc_operations"."RBKC_item_ref_links" ("GeometryID", item_ref)
 SELECT s."GeometryID", "item_ref"
 FROM mhtc_operations."Supply" s, local_authority."Lines_Transfer" t
-WHERE ST_INTERSECTS(s.geom, ST_Buffer(t.geom, 0.1))
+WHERE ST_INTERSECTS(ST_LineSubstring (s.geom, 0.1, 0.9), ST_Buffer(t.geom, 0.1))
 AND s."RestrictionTypeID" > 200;
 
 
