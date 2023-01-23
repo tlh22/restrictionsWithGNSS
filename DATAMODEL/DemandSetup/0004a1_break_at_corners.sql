@@ -209,17 +209,3 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
       WHERE ST_DWithin(c1.geom, s.geom, 2.0)
       ORDER BY s."GeometryID", length) AS closest
 WHERE c."GeometryID" = closest.id;
-
--- set up corner protection parameter
-
-INSERT INTO mhtc_operations.project_parameters(
-	"Field", "Value")
-	VALUES ('CornerProtectionDistance', 5.0);
-
---DROP FUNCTION IF EXISTS mhtc_operations."getParameter";
-
-CREATE OR REPLACE FUNCTION mhtc_operations."getParameter"(param text) RETURNS text AS
-'SELECT "Value"
-FROM mhtc_operations."project_parameters"
-WHERE "Field" = $1'
-LANGUAGE SQL;
