@@ -25,13 +25,15 @@ INSERT INTO "mhtc_operations"."RBKC_item_ref_links" ("GeometryID", item_ref)
 SELECT s."GeometryID", "item_ref"
 FROM mhtc_operations."Supply" s, local_authority."Bays_Transfer" t
 WHERE ST_INTERSECTS(ST_LineSubstring (s.geom, 0.1, 0.9), ST_Buffer(t.geom, 0.1))
-AND s."RestrictionTypeID" < 200;
+AND s."RestrictionTypeID" < 200
+AND "GeometryID" NOT IN (SELECT DISTINCT "Geometry" FROM "mhtc_operations"."RBKC_item_ref_links");
 
 INSERT INTO "mhtc_operations"."RBKC_item_ref_links" ("GeometryID", item_ref)
 SELECT s."GeometryID", "item_ref"
 FROM mhtc_operations."Supply" s, local_authority."Lines_Transfer" t
 WHERE ST_INTERSECTS(ST_LineSubstring (s.geom, 0.1, 0.9), ST_Buffer(t.geom, 0.1))
-AND s."RestrictionTypeID" > 200;
+AND s."RestrictionTypeID" > 200
+AND "GeometryID" NOT IN (SELECT DISTINCT "Geometry" FROM "mhtc_operations"."RBKC_item_ref_links");
 
 
 -- Check
