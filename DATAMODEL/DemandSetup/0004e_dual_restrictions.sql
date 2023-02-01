@@ -19,6 +19,9 @@ TABLESPACE pg_default;
 ALTER TABLE mhtc_operations."DualRestrictions"
     OWNER to postgres;
 
+ALTER TABLE mhtc_operations."DualRestrictions"
+ADD UNIQUE ("GeometryID", "LinkedTo");
+
 -- Supply output
 
 -- For RBKC need to consider that Market Bays, taxi bays and cycle hangards should have lower status than SYL/DYL.
@@ -62,7 +65,7 @@ AND d1.id < d2.id;
 -- Add geometry column
 
 ALTER TABLE mhtc_operations."DualRestrictions"
-    ADD COLUMN "geom" geometry(LineString,27700);
+    ADD COLUMN IF NOT EXISTS "geom" geometry(LineString,27700);
 
 UPDATE mhtc_operations."DualRestrictions" AS d
 SET geom = s.geom

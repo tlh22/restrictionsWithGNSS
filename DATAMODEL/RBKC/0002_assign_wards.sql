@@ -16,3 +16,10 @@ SET "WardID" = a."id"
 FROM local_authority."Wards_2022" a
 WHERE ST_Intersects (s.geom, a.geom)
 AND "WardID" IS NOT NULL;
+
+-- Check
+
+SELECT "GeometryID" 
+FROM "mhtc_operations"."Supply" s, local_authority."Wards_2022" a
+WHERE ST_Intersects (s.geom, a.geom)
+AND "WardID" IS NULL;
