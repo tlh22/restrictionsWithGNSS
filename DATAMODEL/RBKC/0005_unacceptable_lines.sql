@@ -23,3 +23,12 @@ WHERE ST_INTERSECTS(ST_LineSubstring (s1.geom, 0.1, 0.9), ST_Buffer(s2.geom, 0.1
 AND s1."RestrictionTypeID" IN (217, 226)
 AND s2."RestrictionTypeID" IN (222)
 );
+
+
+-- Maybe had buffer too small. This seems better - with 0.5m buffer
+
+SELECT s."GeometryID", s."RoadName"
+FROM mhtc_operations."Supply" s, mhtc_operations."2018_Buffered_SYL_Unacc" u
+WHERE s."RestrictionTypeID" IN (201, 224)
+AND ST_Within(ST_LineSubstring(s.geom, 0.1, 0.9), u.geom)
+
