@@ -3,6 +3,9 @@
 ALTER TABLE mhtc_operations."Supply"
   ADD COLUMN "SurveyAreaID" INTEGER;
 
+UPDATE mhtc_operations."Supply"
+SET "SurveyAreaID" = NULL;
+
 UPDATE "mhtc_operations"."Supply" AS s
 SET "SurveyAreaID" = a."Code"
 FROM mhtc_operations."SurveyAreas" a

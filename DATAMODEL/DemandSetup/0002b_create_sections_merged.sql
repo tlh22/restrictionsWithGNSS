@@ -164,7 +164,7 @@ WITH section_details AS (
 	UPPER(CONCAT(REPLACE("RoadName", ' ', '_'), '_', to_char(ROW_NUMBER () OVER (
                                                              PARTITION BY "RoadName"
                                                              ORDER BY "RoadName"
-                                                            ), 'FM00'))) AS "SectionName"
+                                                            ), 'FM000'))) AS "SectionName"
 	FROM mhtc_operations."RC_Sections_merged"
         )
 
