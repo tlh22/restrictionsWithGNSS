@@ -108,7 +108,7 @@ DELETE
 FROM mhtc_operations."DualRestrictions" d
 USING mhtc_operations."Supply" s1, mhtc_operations."Supply" s2
 WHERE d."GeometryID" = s1."GeometryID"
-AND s1."GeometryID" IN (201, 221, 224)
+AND s1."RestrictionTypeID" IN (201, 221, 224)
 AND d."LinkedTo" = s2."GeometryID"
 AND s2."RestrictionTypeID" = 202;
 
