@@ -12,13 +12,12 @@ GRANT SELECT ON TABLE "mhtc_operations"."project_parameters" TO toms_operator, t
 INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('VehicleLength', '5.0');
 INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('VehicleWidth', '2.5');
 INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('MotorcycleWidth', '1.0');
+
 INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('CycleWidth', '0.5');
 
 -- set up corner protection parameter
 
-INSERT INTO mhtc_operations.project_parameters(
-	"Field", "Value")
-	VALUES ('CornerProtectionDistance', 5.0)   -- Need to confirm this each time ...
+INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('CornerProtectionDistance', 5.0);
 
 --DROP FUNCTION IF EXISTS mhtc_operations."getParameter";
 
@@ -27,3 +26,4 @@ CREATE OR REPLACE FUNCTION mhtc_operations."getParameter"(param text) RETURNS te
 FROM mhtc_operations."project_parameters"
 WHERE "Field" = $1'
 LANGUAGE SQL;
+

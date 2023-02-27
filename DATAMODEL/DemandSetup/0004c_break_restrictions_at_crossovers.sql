@@ -151,6 +151,8 @@ FROM mhtc_operations."CrossoverNodes";
 
 -- ***
 
+ALTER TABLE IF EXISTS demand."VRMs" DROP CONSTRAINT IF EXISTS "VRMs_GeometryID_fkey";
+
 DELETE FROM mhtc_operations."Supply";
 
 --
