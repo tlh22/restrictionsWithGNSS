@@ -20,7 +20,7 @@ AND (s."RestrictionTypeID" IN (201, 216, 217)
 --OR s."RestrictionTypeID" IN (220, 221, 222)
 --OR s."RestrictionTypeID" IN (224, 225, 226)
 	 )
-ORDER BY  "Description", "RoadName"
+ORDER BY  "Description", "RoadName";
 
 /***
  Add fields
