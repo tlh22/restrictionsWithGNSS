@@ -35,5 +35,11 @@ ALTER TABLE IF EXISTS mhtc_operations."SurveyAreas"
     RENAME name TO "SurveyAreaName";
 ***/
 
+-- Add to Supply
 
+ALTER TABLE mhtc_operations."Supply"
+  ADD COLUMN "SurveyAreaID" INTEGER;
+
+UPDATE mhtc_operations."Supply"
+SET "SurveyAreaID" = NULL;
 
