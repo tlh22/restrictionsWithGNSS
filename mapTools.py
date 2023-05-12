@@ -66,7 +66,7 @@ from qgis.gui import (
     QgsMapToolAdvancedDigitizing,
     QgsRubberBand,
     QgsMapMouseEvent,
-    QgsMapToolIdentify, QgsMapToolCapture, QgsMapTool,
+    QgsMapToolIdentify, QgsMapToolCapture, QgsMapToolDigitizeFeature, QgsMapTool,
     QgsMapToolEmitPoint
 )
 
@@ -247,7 +247,7 @@ class MapToolMixin:
 
 #############################################################################
 
-class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
+class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolDigitizeFeature):
     # helpful link - http://apprize.info/python/qgis/7.html ??
     #deActivatedInProcess = pyqtSignal(bool)
 
@@ -264,7 +264,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             TOMsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), level=Qgis.Warning)
             return
 
-        QgsMapToolCapture.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
+        QgsMapToolDigitizeFeature.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
         FieldRestrictionTypeUtilsMixin.__init__(self, iface)
 
         # https: // qgis.org / api / classQgsMapToolCapture.html
@@ -318,7 +318,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         TOMsMessageLog.logMessage(("In CreateRestrictionTool - mode set."), level=Qgis.Info)
 
         # Seems that this is important - or at least to create a point list that is used later to create Geometry
-        self.sketchPoints = self.points()
+        self.sketchPoints = self.pointsZM()
         #self.setPoints(self.sketchPoints)  ... not sure when to use this ??
 
         # Set up rubber band. In current implementation, it is not showing feeback for "next" location
@@ -328,7 +328,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         #self.currLayer = self.currentVectorLayer()
         self.currLayer = self.layer
 
-        TOMsMessageLog.logMessage(("In CreateRestrictionTool - init. Curr layer is " + str(self.currLayer.name()) + "Incoming: " + str(self.layer)), level=Qgis.Info)
+        TOMsMessageLog.logMessage(("In CreateRestrictionTool - init. Curr layer is " + str(self.currLayer.name()) + " Incoming: " + str(self.layer)), level=Qgis.Info)
 
         # set up snapping configuration   *******************
         """
@@ -384,7 +384,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         self.rb.reset(True)
 
     def cadCanvasReleaseEvent(self, event):
-        QgsMapToolCapture.cadCanvasReleaseEvent(self, event)
+        QgsMapToolDigitizeFeature.cadCanvasReleaseEvent(self, event)
         TOMsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent"), level=Qgis.Info)
 
         if event.button() == Qt.LeftButton:
@@ -415,13 +415,17 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
             self.lastPoint = self.currPoint
 
-            TOMsMessageLog.logMessage(("In Create - cadCanvasReleaseEvent (AddVertex/Line) Result: " + str(self.result) + " X:" + str(self.currPoint.x()) + " Y:" + str(self.currPoint.y())), level=Qgis.Info)
+            TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent (AddVertex/Line). NrPts: {} Result: {}. X:{}; Y:{}".format(nrPoints, str(self.result), str(self.currPoint.x()), str(self.currPoint.y())), level=Qgis.Info)
 
             if self.layer.geometryType() == 0:
                 self.getPointsCaptured()
 
-        elif (event.button() == Qt.RightButton):
+        elif event.button() == Qt.RightButton:
             # Stop capture when right button or escape key is pressed
+            nrPoints = self.size()
+            nrPoints2 = len(self.pointsZM())
+            self.stopCapturing()
+            TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent. Right Button. NrPts: {}; {}".format(str(nrPoints), nrPoints2), level=Qgis.Info)
             self.getPointsCaptured()
 
             # Need to think about the default action here if none of these buttons/keys are pressed.
@@ -439,11 +443,11 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured"), level=Qgis.Info)
 
         # Check the number of points
-        self.nrPoints = self.size()
-        TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured; Stopping: " + str(self.nrPoints)),
+        nrPoints = self.size()
+        TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured; Stopping: " + str(nrPoints)),
                                  level=Qgis.Info)
 
-        self.sketchPoints = self.points()
+        self.sketchPoints = self.pointsZM()
 
         for point in self.sketchPoints:
             TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured X:" + str(point.x()) + " Y: " + str(point.y())), level=Qgis.Info)
@@ -451,7 +455,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         # stop capture activity
         self.stopCapturing()
 
-        if self.nrPoints > 0:
+        if nrPoints > 0:
 
             # take points from the rubber band and copy them into the "feature"
 
@@ -513,7 +517,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
         return status
 
-class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
+class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolDigitizeFeature):
 
     def __init__(self, iface, layer):
 
@@ -525,7 +529,7 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             TOMsMessageLog.logMessage(("In CreateRestrictionTool - No geometry type found. EXITING ...."), level=Qgis.Warning)
             return
 
-        QgsMapToolCapture.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
+        QgsMapToolDigitizeFeature.__init__(self, iface.mapCanvas(), iface.cadDockWidget(), captureMode)
         FieldRestrictionTypeUtilsMixin.__init__(self, iface)
 
         # TODO: change pointer type so that know in this tool
@@ -568,7 +572,7 @@ class CreatePointTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             "In CreatePointTool.processPoint",
             level=Qgis.Warning)
 
-        self.sketchPoints = self.points()
+        self.sketchPoints = self.pointsZM()
         nrPoints = self.size()
 
         for point in self.sketchPoints:
