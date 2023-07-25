@@ -1,3 +1,5 @@
+/*** For RAMI use Processing - Export to PostgreSQL ***/
+
 -- set up road names
 ALTER TABLE "highways_network"."roadlink"
   ADD COLUMN "RoadFrom" character varying(100);
