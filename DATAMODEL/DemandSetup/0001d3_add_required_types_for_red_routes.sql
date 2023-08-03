@@ -7,10 +7,7 @@ INSERT INTO toms_lookups."SignTypesInUse"("Code")
 	FROM toms_lookups."SignTypes"
 	WHERE "Description" LIKE ('Parking - Red Route/Greenway%')
 	AND "Code" NOT IN (SELECT "Code"
-	                   FROM toms_lookups."SignTypes"
-	                   WHERE "Description" LIKE ('Parking - Red Route/Greenway%')
-	                   AND "Code" NOT IN (SELECT "Code" FROM toms_lookups."SignTypesInUse")
-	                   )
+	                   FROM toms_lookups."SignTypesInUse")
 	ORDER BY "Description";
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."SignTypesInUse_View";
