@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS "mhtc_operations"."project_parameters";
+
 CREATE TABLE "mhtc_operations"."project_parameters" (
     "Field" character varying NOT NULL,
     "Value" character varying NOT NULL
