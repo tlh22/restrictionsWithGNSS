@@ -32,6 +32,8 @@ FROM mhtc_operations."Supply" s1, mhtc_operations."Supply" s2
 WHERE ST_INTERSECTS(ST_LineSubstring (s1.geom, 0.1, 0.9), ST_Buffer(s2.geom, 0.1, 'endcap=flat'))
 AND s1."GeometryID" != s2."GeometryID"
 AND s1."RestrictionTypeID" > 200
+AND s1."GeomShapeID" < 100
+AND s2."GeomShapeID" < 100
 AND s2."RestrictionTypeID" NOT IN (121, 147, 151, 164);
 
 -- Now consider specifically
@@ -40,8 +42,14 @@ SELECT s1."GeometryID", s2."GeometryID"
 FROM mhtc_operations."Supply" s1, mhtc_operations."Supply" s2
 WHERE ST_INTERSECTS(ST_LineSubstring (s1.geom, 0.1, 0.9), ST_Buffer(s2.geom, 0.1, 'endcap=flat'))
 AND s1."GeometryID" != s2."GeometryID"
+AND s1."GeomShapeID" < 100
+AND s2."GeomShapeID" < 100
 AND s1."RestrictionTypeID" IN (121, 147, 151, 164)
-AND s2."RestrictionTypeID" IN (201, 221, 224, 202);
+AND s2."RestrictionTypeID" IN (201, 221, 224, 202)
+AND NOT EXISTS (SELECT 1
+				FROM mhtc_operations."DualRestrictions"
+				WHERE "GeometryID" = s1."GeometryID" 
+				AND "LinkedTo" = s2."GeometryID");
 
 -- Also need to consider School Keep Clears and SYLs/DYLs
 
@@ -50,8 +58,14 @@ SELECT s1."GeometryID", s2."GeometryID"
 FROM mhtc_operations."Supply" s1, mhtc_operations."Supply" s2
 WHERE ST_INTERSECTS(ST_LineSubstring (s1.geom, 0.1, 0.9), ST_Buffer(s2.geom, 0.1, 'endcap=flat'))
 AND s1."GeometryID" != s2."GeometryID"
+AND s1."GeomShapeID" < 100
+AND s2."GeomShapeID" < 100
 AND s1."RestrictionTypeID" IN (203, 204, 205, 206, 207, 208)
-AND s2."RestrictionTypeID" IN (201, 221, 224, 202);
+AND s2."RestrictionTypeID" IN (201, 221, 224, 202)
+AND NOT EXISTS (SELECT 1
+				FROM mhtc_operations."DualRestrictions"
+				WHERE "GeometryID" = s1."GeometryID" 
+				AND "LinkedTo" = s2."GeometryID");
 
 -- Remove duplicates
 

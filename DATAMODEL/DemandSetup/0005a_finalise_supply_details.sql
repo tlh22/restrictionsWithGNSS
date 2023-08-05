@@ -19,6 +19,7 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
         ST_Distance(c1.geom, ST_LineInterpolatePoint(s.geom, 0.5)) AS length, c1."RoadName", c1."SideOfStreet", c1."StartStreet", c1."EndStreet"
       FROM mhtc_operations."Supply" s, mhtc_operations."RC_Sections_merged" c1
       WHERE ST_DWithin(c1.geom, s.geom, 2.0)
+	  AND LENGTH(c1."RoadName") > 0
       ORDER BY s."GeometryID", length) AS closest
 WHERE c."GeometryID" = closest.id;
 
