@@ -21,6 +21,8 @@ INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('CycleW
 
 INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('CornerProtectionDistance', 5.0);
 
+INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('BusLength', '14.0');
+
 --DROP FUNCTION IF EXISTS mhtc_operations."getParameter";
 
 CREATE OR REPLACE FUNCTION mhtc_operations."getParameter"(param text) RETURNS text AS
