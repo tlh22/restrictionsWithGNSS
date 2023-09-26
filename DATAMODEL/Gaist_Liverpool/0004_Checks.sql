@@ -26,3 +26,10 @@ FROM (SELECT SfR."RestrictionGeometryID", s."Dft Diagra", s."MHTC_TimePeriodCode
 	  FROM "mhtc_operations"."SignsForRestrictions" SfR, local_authority."Gaist_Signs" s
 	  WHERE SfR."SignGeometryID" = s."GeometryID")
 HAVING COUNT("RestrictionGeometryID") = 1
+
+-- signs without restriction
+SELECT "GeometryID"
+FROM local_authority."Gaist_Signs" s
+WHERE s."GeometryID" NOT IN (
+	SELECT "Sign_geometryID"
+	FROM "mhtc_operations"."SignsForRestrictions" SfR)
