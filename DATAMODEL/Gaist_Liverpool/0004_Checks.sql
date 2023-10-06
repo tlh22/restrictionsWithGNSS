@@ -33,3 +33,27 @@ FROM local_authority."Gaist_Signs" s
 WHERE s."GeometryID" NOT IN (
 	SELECT "Sign_geometryID"
 	FROM "mhtc_operations"."SignsForRestrictions" SfR)
+	
+	
+-- List of sign types found
+SELECT DISTINCT s."Dft Diagra", t.*
+FROM local_authority."Gaist_Signs" s LEFT JOIN toms_lookups."SignTypes" t ON s."Dft Diagra" = t."TSRGD_Diagram"
+ORDER BY s."Dft Diagra"
+
+-- List of sign types found
+SELECT DISTINCT s."Dft Diagra", t.*
+FROM local_authority."Gaist_Signs" s LEFT JOIN toms_lookups."SignTypes" t ON s."Dft Diagra" = t."TSRGD_Diagram"
+ORDER BY s."Dft Diagra"
+
+SELECT DISTINCT s."Dft Diagra", t."Code", t."Description", t."TSRGD_Diagram", COUNT(s."Dft Diagra")
+FROM local_authority."Gaist_Signs" s LEFT JOIN toms_lookups."SignTypes" t ON s."Dft Diagra" = t."TSRGD_Diagram"
+GROUP BY s."Dft Diagra", t."Code", t."Description", t."TSRGD_Diagram"
+ORDER BY s."Dft Diagra"
+
+-- List of restriction types provided
+
+SELECT "Dft Diagra", COUNT("Dft Diagra")
+--, "RestrictionTypeID", "TimePeriodID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID"
+	FROM local_authority."Gaist_RoadMarkings_Lines"
+	GROUP BY "Dft Diagra"
+	;
