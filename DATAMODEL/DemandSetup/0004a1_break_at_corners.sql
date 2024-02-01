@@ -206,7 +206,7 @@ FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.g
 									  ) cnr) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
 
-
+/***
 SELECT ST_Union(ST_Snap(cnr.geom, s2.geom, 0.00000001)) AS geom
 FROM "mhtc_operations"."Supply_orig" s2, (
 	SELECT geom
@@ -270,7 +270,7 @@ begin
     END LOOP;
 
 end; $$;			
-
+***/
 
 
 DELETE FROM "mhtc_operations"."Supply"
@@ -297,3 +297,4 @@ AND NOT (
 	ST_DWithin(ST_StartPoint(s.geom), c.geom, 0.25) OR
 	ST_Dwithin(ST_EndPoint(s.geom), c.geom, 0.25)
 	)
+ORDER BY "GeometryID"
