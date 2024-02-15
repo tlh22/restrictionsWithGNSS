@@ -37,8 +37,9 @@ TABLESPACE pg_default;
 INSERT INTO local_authority."WaitingLoadingStoppingRestrictions_orig"(
 	"GeometryID", image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, geom, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID")
 SELECT
-	"GeometryID", image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, geom, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID"
-	FROM local_authority."WaitingLoadingStoppingRestrictions";
+	"GeometryID", image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, w.id, fault_rpt, w.geom, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID"
+	FROM local_authority."WaitingLoadingStoppingRestrictions" w, local_authority."SiteArea" s
+	WHERE ST_Intersects(w.geom, s.geom);
 
 DROP INDEX IF EXISTS local_authority."sidx_WaitingLoadingStoppingRestrictions_orig_geom";
 
@@ -47,9 +48,7 @@ CREATE INDEX IF NOT EXISTS "sidx_WaitingLoadingStoppingRestrictions_orig_geom"
     (geom)
     TABLESPACE pg_default;
 
-
 DELETE FROM local_authority."WaitingLoadingStoppingRestrictions";
-
 
 /***
 May need to vary the size of the buffer and the snapping tolerance. Not sure why, but ... (possibly buffer size of 0.1?, and snap tolerance of 0.24)
@@ -98,10 +97,10 @@ FROM local_authority."WaitingLoadingStoppingRestrictions_orig" rc,
 									  union
 									  SELECT geom
 									  FROM "mhtc_operations"."SectionBreakPoints") cnr) c
-WHERE ST_DWithin(rc.geom, c.geom, 0.25);
+WHERE ST_DWithin(rc.geom, c.geom, 0.25)
 union
 SELECT
-	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeometryTypeID", "NoWaitingTimeID", 
+	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID", 
     s1.geom
 FROM local_authority."WaitingLoadingStoppingRestrictions_orig" s1, 
 									(SELECT ST_Union(ST_Snap(cnr.geom, rc.geom, 0.00000001)) AS geom
@@ -120,7 +119,7 @@ WHERE ST_Length(geom) < 0.0001;
 -- set road and section details
 
 ALTER TABLE IF EXISTS local_authority."WaitingLoadingStoppingRestrictions"
-    ADD COLUMN "DemandSection_GeometryID" character varying(12);
+    ADD COLUMN IF NOT EXISTS "DemandSection_GeometryID" character varying(12);
 	
 UPDATE local_authority."WaitingLoadingStoppingRestrictions" AS c
 SET "DemandSection_GeometryID" = closest."DemandSection_GeometryID", "street" = closest."RoadName"

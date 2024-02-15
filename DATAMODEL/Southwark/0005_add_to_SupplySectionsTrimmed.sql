@@ -65,8 +65,6 @@ CREATE TABLE mhtc_operations."SupplySectionsTrimmed"
 	"StartStreet" character varying(254),
     "EndStreet" character varying(254),
     "SideOfStreet" character varying(100),
-	"Capacity" integer,
-    "BayWidth" double precision,
     "SurveyAreaID" integer,
 	"DemandSection_GeometryID" character varying(12) COLLATE pg_catalog."default" 
     --CONSTRAINT "Supply_orig_pkey" PRIMARY KEY ("RestrictionID"),
@@ -81,11 +79,11 @@ TABLESPACE pg_default;
 INSERT INTO mhtc_operations."SupplySectionsTrimmed"(
 	--"RestrictionID",
 	"GeometryID", "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "Capacity", "SurveyAreaID", "DemandSection_GeometryID", geom)
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "SurveyAreaID", "DemandSection_GeometryID", geom)
 SELECT
     --"RestrictionID",
     "GeometryID", "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "Capacity", "SurveyAreaID", "DemandSection_GeometryID",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "SurveyAreaID", "DemandSection_GeometryID",
 	(ST_Dump(COALESCE(ST_Difference(geom, (SELECT ST_Buffer(ST_Union(b.geom), 0.00001, 'endcap=flat')
 											 FROM mhtc_operations."Supply" a, local_authority."WaitingLoadingStoppingRestrictions" b
 											 WHERE ST_Intersects(a.geom, ST_Buffer(b.geom, 0.00001, 'endcap=flat'))
@@ -131,3 +129,9 @@ SELECT
 FROM mhtc_operations."SupplySectionsTrimmed";
 
 ***/
+
+DROP TRIGGER IF EXISTS "update_capacity_supply" ON "mhtc_operations"."SupplySectionsTrimmed";
+CREATE TRIGGER "update_capacity_supply" BEFORE INSERT OR UPDATE OF geom, "RestrictionTypeID", "RestrictionLength", "NrBays" ON "mhtc_operations"."SupplySectionsTrimmed" FOR EACH ROW EXECUTE FUNCTION "public"."update_capacity"();
+
+UPDATE "mhtc_operations"."SupplySectionsTrimmed"
+SET "RestrictionLength" = ROUND(ST_Length (geom)::numeric,2);

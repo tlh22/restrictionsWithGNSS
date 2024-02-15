@@ -11,55 +11,65 @@ THEN
 ***/
 
 ALTER TABLE IF EXISTS local_authority."WaitingLoadingStoppingRestrictions"
-    ADD COLUMN "RestrictionTypeID" integer;
+    ADD COLUMN IF NOT EXISTS "RestrictionTypeID" integer;
 
 ALTER TABLE IF EXISTS local_authority."WaitingLoadingStoppingRestrictions"
-    ADD COLUMN "GeomShapeID" integer;
+    ADD COLUMN IF NOT EXISTS "GeomShapeID" integer;
 	
 UPDATE local_authority."WaitingLoadingStoppingRestrictions"
 SET "RestrictionTypeID" = 202, "GeomShapeID" = 10
-WHERE type = 'No waiting'
-AND hours_of_operation = 'At any time';
+WHERE UPPER(type) = UPPER('No waiting')
+AND UPPER(hours_of_operation) = UPPER('At any time')
+AND "RestrictionTypeID" IS NULL
+;
 
 UPDATE local_authority."WaitingLoadingStoppingRestrictions"
 SET "RestrictionTypeID" = 107, "GeomShapeID" = 10
-WHERE type = 'No stopping'
-AND road_marking = 'Bus stop';
+WHERE UPPER(type) = UPPER('No stopping')
+AND UPPER(road_marking) = UPPER('Bus stop')
+AND "RestrictionTypeID" IS NULL
+;
 
 UPDATE local_authority."WaitingLoadingStoppingRestrictions"
 SET "RestrictionTypeID" = 224, "GeomShapeID" = 10
-WHERE road_marking = 'Single yellow line';
+WHERE UPPER(road_marking) = UPPER('Single yellow line')
+AND "RestrictionTypeID" IS NULL
+;
 
 UPDATE local_authority."WaitingLoadingStoppingRestrictions"
 SET "RestrictionTypeID" = 203, "GeomShapeID" = 12
-WHERE type = 'School Keep Clear'
-AND road_marking = 'Zig zag';
+WHERE UPPER(type) = UPPER('School Keep Clear')
+AND UPPER(road_marking) = UPPER('Zig zag')
+AND "RestrictionTypeID" IS NULL
+;
 
 
 ALTER TABLE IF EXISTS local_authority."WaitingLoadingStoppingRestrictions"
-    ADD COLUMN "NoWaitingTimeID" integer;
+    ADD COLUMN IF NOT EXISTS "NoWaitingTimeID" integer;
 	
 UPDATE local_authority."WaitingLoadingStoppingRestrictions"
 SET "NoWaitingTimeID" = 1
-WHERE "hours_of_operation" = 'At any time';
+WHERE UPPER("hours_of_operation") = UPPER('At any time')
+AND "NoWaitingTimeID" IS NULL
+;
 
 UPDATE local_authority."WaitingLoadingStoppingRestrictions"
 SET "NoWaitingTimeID" = 1
-WHERE "road_marking" IN ('Bus stop', 'Double yellow line')
+WHERE UPPER("road_marking") IN (UPPER('Bus stop'), UPPER('Double yellow line'))
 AND "NoWaitingTimeID" IS NULL;
 
 -- Create temp table of unique time periods
 	
-CREATE TABLE mhtc_operations."time_period_lookup"
+CREATE TABLE IF NOT EXISTS mhtc_operations."time_period_lookup"
 AS
 SELECT DISTINCT type, road_marking, days_of_operation, hours_of_operation
 	FROM local_authority."WaitingLoadingStoppingRestrictions"
-	WHERE "hours_of_operation" != 'At any time';
+	WHERE UPPER("hours_of_operation") != UPPER('At any time');
 	
-ALTER TABLE IF EXISTS mhtc_operations."time_period_lookup" ADD COLUMN gid BIGSERIAL PRIMARY KEY;
+ALTER TABLE IF EXISTS mhtc_operations."time_period_lookup" ADD COLUMN IF NOT EXISTS gid BIGSERIAL PRIMARY KEY;
 
 ALTER TABLE IF EXISTS mhtc_operations."time_period_lookup"
-    ADD COLUMN "NoWaitingTimeID" integer;
+    ADD COLUMN IF NOT EXISTS "NoWaitingTimeID" integer;
 	
 /***
 	Now manually add MHTC time period ids
@@ -74,6 +84,8 @@ WHERE w.type = t.type
 AND w.road_marking = t.road_marking
 AND w.days_of_operation = t.days_of_operation
 AND w.hours_of_operation = t.hours_of_operation
+AND w."NoWaitingTimeID" IS NULL
+;
 
 -- Now break at corners
 

@@ -24,7 +24,7 @@ CREATE TABLE local_authority."WaitingLoadingStoppingRestrictions_orig2"
     fault_rpt character varying COLLATE pg_catalog."default",
     geom geometry(LineString,27700),
     "RestrictionTypeID" integer,
-    "GeometryTypeID" integer,
+    "GeomShapeID" integer,
     "NoWaitingTimeID" integer,
 	"DemandSection_GeometryID" character varying(12),
     CONSTRAINT "WaitingLoadingStoppingRestrictions_orig2_pkey" PRIMARY KEY ("GeometryID")
@@ -35,9 +35,9 @@ TABLESPACE pg_default;
 --- populate
 
 INSERT INTO local_authority."WaitingLoadingStoppingRestrictions_orig2"(
-	"GeometryID", image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, geom, "RestrictionTypeID", "GeometryTypeID", "NoWaitingTimeID", "DemandSection_GeometryID")
+	"GeometryID", image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, geom, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID", "DemandSection_GeometryID")
 SELECT
-	"GeometryID", image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, geom, "RestrictionTypeID", "GeometryTypeID", "NoWaitingTimeID", "DemandSection_GeometryID"
+	"GeometryID", image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, geom, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID", "DemandSection_GeometryID"
 	FROM local_authority."WaitingLoadingStoppingRestrictions";
 
 -- process 
@@ -45,17 +45,17 @@ SELECT
 DELETE FROM local_authority."WaitingLoadingStoppingRestrictions";
 
 INSERT INTO local_authority."WaitingLoadingStoppingRestrictions" (
-	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeometryTypeID", "NoWaitingTimeID", "DemandSection_GeometryID",
+	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID", "DemandSection_GeometryID",
        geom)
 SELECT
-	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeometryTypeID", "NoWaitingTimeID", "DemandSection_GeometryID",    (ST_Dump(ST_Split(lg1.geom, mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25)))).geom
+	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID", "DemandSection_GeometryID",    (ST_Dump(ST_Split(lg1.geom, mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25)))).geom
     FROM local_authority."WaitingLoadingStoppingRestrictions_orig2" lg1 LEFT JOIN LATERAL mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25) pt ON TRUE
 	WHERE lg1."RestrictionTypeID" in (201, 216, 217, 224, 225, 226, 227, 229)
 
 UNION
 
 	SELECT
-	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeometryTypeID", "NoWaitingTimeID", "DemandSection_GeometryID",
+	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID", "DemandSection_GeometryID",
     geom
 	FROM local_authority."WaitingLoadingStoppingRestrictions_orig2" lg1
     WHERE mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25) IS NULL
@@ -64,7 +64,7 @@ UNION
 UNION
 
 	SELECT
-	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeometryTypeID", "NoWaitingTimeID", "DemandSection_GeometryID",
+	image, type, road_marking, days_of_operation, hours_of_operation, length_m, tsrgd, spec, zone, street, featid, notes, photo, id, fault_rpt, "RestrictionTypeID", "GeomShapeID", "NoWaitingTimeID", "DemandSection_GeometryID",
     geom
 	FROM local_authority."WaitingLoadingStoppingRestrictions_orig2" lg1
     WHERE lg1."RestrictionTypeID" NOT IN (201, 216, 217, 224, 225, 226, 227, 229);

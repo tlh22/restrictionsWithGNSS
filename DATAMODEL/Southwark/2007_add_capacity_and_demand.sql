@@ -305,8 +305,8 @@ BEGIN
 	
 	FOR supply_calc IN
 		SELECT
-			"Capacity", "RestrictionTypeID"
-		FROM mhtc_operations."Supply"
+			gid, "Capacity", "RestrictionTypeID"
+		FROM mhtc_operations."SupplySectionsTrimmed"
 		WHERE "DemandSection_GeometryID" = NEW."GeometryID"
 			
 	LOOP
@@ -336,8 +336,8 @@ BEGIN
 
 				SELECT "Controlled"
 				INTO controlled
-				FROM mhtc_operations."Supply" s, demand."TimePeriodsControlledDuringSurveyHours" t
-				WHERE s."GeometryID" = NEW."GeometryID"
+				FROM mhtc_operations."SupplySectionsTrimmed" s, demand."TimePeriodsControlledDuringSurveyHours" t
+				WHERE s."gid" = supply_calc.gid
 				AND s."NoWaitingTimeID" = t."TimePeriodID"
 				AND t."SurveyID" = NEW."SurveyID";
 
