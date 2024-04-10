@@ -114,29 +114,6 @@ DECLARE
 
 BEGIN
 
-	-- Check that we are dealing with Counts
-	SELECT EXISTS INTO check_exists (
-	SELECT FROM
-		pg_tables
-	WHERE
-		schemaname = 'demand' AND
-		tablename  = 'Surveys_Counts'
-	) ;
-
-	IF check_exists THEN
-
-		SELECT EXISTS
-		(SELECT 1
-		FROM demand."Surveys_Counts" sv
-		WHERE sv."SurveyID" = NEW."SurveyID")
-		INTO count_survey;
-		
-		IF count_survey IS FALSE OR count_survey IS NULL THEN
-			RETURN NEW;
-		END IF;
-
-	END IF;
-
     RAISE NOTICE '--- considering capacity for (%); survey (%) ', NEW."GeometryID", NEW."SurveyID";
 
     ---
@@ -254,59 +231,71 @@ BEGIN
 	
 	-- Now calculate values ...
 	
-    NEW."Demand" = COALESCE(NrCars::float, 0.0) * carPCU +
-        COALESCE(NrLGVs::float, 0.0) * lgvPCU +
-        COALESCE(NrMCLs::float, 0.0) * mclPCU +
-        COALESCE(NrOGVs::float, 0.0) * ogvPCU + COALESCE(NrMiniBuses::float, 0.0) * minibusPCU + COALESCE(NrBuses::float, 0.0) * busPCU +
-        COALESCE(NrTaxis::float, 0.0) * taxiPCU +
-        COALESCE(NrPCLs::float, 0.0) * pclPCU +
-        COALESCE(NrEScooters::float, 0.0) * escooterPCU +
-        COALESCE(NrDocklessPCLs::float, 0.0) * docklesspclPCU +
+	-- Now calculate values ...
+	
+    NEW."Demand" = COALESCE(NrCars::float, 0.0) * carPCU::float +
+        COALESCE(NrLGVs::float, 0.0) * lgvPCU::float +
+        COALESCE(NrMCLs::float, 0.0) * mclPCU::float +
+        COALESCE(NrOGVs::float, 0.0) * ogvPCU::float + 
+		COALESCE(NrMiniBuses::float, 0.0) * minibusPCU::float + 
+		COALESCE(NrBuses::float, 0.0) * busPCU::float +
+        COALESCE(NrTaxis::float, 0.0) * taxiPCU::float +
+        COALESCE(NrPCLs::float, 0.0) * pclPCU::float +
+        COALESCE(NrEScooters::float, 0.0) * escooterPCU::float +
+        COALESCE(NrDocklessPCLs::float, 0.0) * docklesspclPCU::float +
 
         -- vehicles parked incorrectly
-        COALESCE(NrCarsParkedIncorrectly::float, 0.0) * carPCU +
-        COALESCE(NrLGVsParkedIncorrectly::float, 0.0) * lgvPCU +
-        COALESCE(NrMCLsParkedIncorrectly::float, 0.0) * mclPCU +
-        COALESCE(NrOGVsParkedIncorrectly::float, 0) * ogvPCU + COALESCE(NrMiniBusesParkedIncorrectly::float, 0) * minibusPCU + COALESCE(NrBusesParkedIncorrectly::float, 0) * busPCU +
-        COALESCE(NrTaxisParkedIncorrectly::float, 0) * carPCU +
+        COALESCE(NrCarsParkedIncorrectly::float, 0.0) * carPCU::float +
+        COALESCE(NrLGVsParkedIncorrectly::float, 0.0) * lgvPCU::float +
+        COALESCE(NrMCLsParkedIncorrectly::float, 0.0) * mclPCU::float +
+        COALESCE(NrOGVsParkedIncorrectly::float, 0) * ogvPCU::float + 
+		COALESCE(NrMiniBusesParkedIncorrectly::float, 0) * minibusPCU::float + 
+		COALESCE(NrBusesParkedIncorrectly::float, 0) * busPCU::float +
+        COALESCE(NrTaxisParkedIncorrectly::float, 0) * carPCU::float +
 
         -- vehicles in P&D bay displaying disabled badge
-  		COALESCE(NrCarsWithDisabledBadgeParkedInPandD::float, 0.0) * carPCU
+  		COALESCE(NrCarsWithDisabledBadgeParkedInPandD::float, 0.0) * carPCU::float
         ;
 
     NEW."Demand_Suspended" =
         -- include suspended vehicles
-        COALESCE(NrCars_Suspended::float, 0.0) * carPCU +
-        COALESCE(NrLGVs_Suspended::float, 0.0) * lgvPCU +
-        COALESCE(NrMCLs_Suspended::float, 0.0) * mclPCU +
-        COALESCE(NrOGVs_Suspended::float, 0) * ogvPCU + COALESCE(NrMiniBuses_Suspended::float, 0) * minibusPCU + COALESCE(NrBuses_Suspended::float, 0) * busPCU +
+        COALESCE(NrCars_Suspended::float, 0.0) * carPCU::float +
+        COALESCE(NrLGVs_Suspended::float, 0.0) * lgvPCU::float +
+        COALESCE(NrMCLs_Suspended::float, 0.0) * mclPCU::float +
+        COALESCE(NrOGVs_Suspended::float, 0) * ogvPCU::float + 
+		COALESCE(NrMiniBuses_Suspended::float, 0) * minibusPCU::float + 
+		COALESCE(NrBuses_Suspended::float, 0) * busPCU::float +
         COALESCE(NrTaxis_Suspended::float, 0) +
-        COALESCE(NrPCLs_Suspended::float, 0.0) * pclPCU +
-        COALESCE(NrEScooters_Suspended::float, 0.0) * escooterPCU +
-        COALESCE(NrDocklessPCLs_Suspended::float, 0.0) * docklesspclPCU;
+        COALESCE(NrPCLs_Suspended::float, 0.0) * pclPCU::float +
+        COALESCE(NrEScooters_Suspended::float, 0.0) * escooterPCU::float +
+        COALESCE(NrDocklessPCLs_Suspended::float, 0.0) * docklesspclPCU::float;
 
     NEW."Demand_Waiting" =
         -- vehicles waiting
-        COALESCE(NrCarsWaiting::float, 0.0) * carPCU +
-        COALESCE(NrLGVsWaiting::float, 0.0) * lgvPCU +
-        COALESCE(NrMCLsWaiting::float, 0.0) * mclPCU +
-        COALESCE(NrOGVsWaiting::float, 0) * ogvPCU + COALESCE(NrMiniBusesWaiting::float, 0) * minibusPCU + COALESCE(NrBusesWaiting::float, 0) * busPCU +
-        COALESCE(NrTaxisWaiting::float, 0) * carPCU;
+        COALESCE(NrCarsWaiting::float, 0.0) * carPCU::float +
+        COALESCE(NrLGVsWaiting::float, 0.0) * lgvPCU::float +
+        COALESCE(NrMCLsWaiting::float, 0.0) * mclPCU::float +
+        COALESCE(NrOGVsWaiting::float, 0) * ogvPCU::float + 
+		COALESCE(NrMiniBusesWaiting::float, 0) * minibusPCU::float + 
+		COALESCE(NrBusesWaiting::float, 0) * busPCU::float +
+        COALESCE(NrTaxisWaiting::float, 0) * carPCU::float;
 
     NEW."Demand_Idling" =
         -- vehicles idling
-        COALESCE(NrCarsIdling::float, 0.0) * carPCU +
-        COALESCE(NrLGVsIdling::float, 0.0) * lgvPCU +
-        COALESCE(NrMCLsIdling::float, 0.0) * mclPCU +
-        COALESCE(NrOGVsIdling::float, 0) * ogvPCU + COALESCE(NrMiniBusesIdling::float, 0) * minibusPCU + COALESCE(NrBusesIdling::float, 0) * busPCU +
-        COALESCE(NrTaxisIdling::float, 0) * carPCU;
+        COALESCE(NrCarsIdling::float, 0.0) * carPCU::float +
+        COALESCE(NrLGVsIdling::float, 0.0) * lgvPCU::float +
+        COALESCE(NrMCLsIdling::float, 0.0) * mclPCU::float +
+        COALESCE(NrOGVsIdling::float, 0) * ogvPCU::float + 
+		COALESCE(NrMiniBusesIdling::float, 0) * minibusPCU::float + 
+		COALESCE(NrBusesIdling::float, 0) * busPCU::float +
+        COALESCE(NrTaxisIdling::float, 0) * carPCU::float;
 
 	-- Loop through each restriction in the section to determine supply values
 	
 	FOR supply_calc IN
 		SELECT
-			gid, "Capacity", "RestrictionTypeID"
-		FROM mhtc_operations."SupplySectionsTrimmed"
+			"GeometryID", "Capacity", "RestrictionTypeID"
+		FROM mhtc_operations."Supply"
 		WHERE "DemandSection_GeometryID" = NEW."GeometryID"
 			
 	LOOP
@@ -336,8 +325,8 @@ BEGIN
 
 				SELECT "Controlled"
 				INTO controlled
-				FROM mhtc_operations."SupplySectionsTrimmed" s, demand."TimePeriodsControlledDuringSurveyHours" t
-				WHERE s."gid" = supply_calc.gid
+				FROM mhtc_operations."Supply" s, demand."TimePeriodsControlledDuringSurveyHours" t
+				WHERE s."GeometryID" = supply_calc."GeometryID"
 				AND s."NoWaitingTimeID" = t."TimePeriodID"
 				AND t."SurveyID" = NEW."SurveyID";
 
