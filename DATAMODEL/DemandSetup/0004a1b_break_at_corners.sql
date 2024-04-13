@@ -1,16 +1,5 @@
 -- Table: mhtc_operations.Supply
 
-/**
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "SectionID" integer;
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "StartStreet" character varying(254);
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "EndStreet" character varying(254);
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "SideOfStreet" character varying(100);
-**/
-
 SET search_path TO toms, mhtc_operations, highways_assets, moving_traffic, public;
 
 DROP TABLE IF EXISTS mhtc_operations."Supply_orig" CASCADE;
@@ -92,89 +81,9 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
 	FROM mhtc_operations."Supply";
 
--- set up corner table
-
-DROP TABLE IF EXISTS mhtc_operations."Corners_Single" CASCADE;
-
-CREATE TABLE mhtc_operations."Corners_Single"
-(
-  id SERIAL,
-  geom geometry(Point,27700),
-  CONSTRAINT "Corners_Single_pkey" PRIMARY KEY (id)
-)
-WITH (
-  OIDS=FALSE
-);
-
-ALTER TABLE mhtc_operations."Corners_Single"
-  OWNER TO postgres;
-GRANT ALL ON TABLE mhtc_operations."Corners_Single" TO postgres;
-
--- Index: public."sidx_Corners_Single_geom"
-
--- DROP INDEX public."sidx_Corners_Single_geom";
-
-CREATE INDEX "sidx_Corners_Single_geom"
-  ON mhtc_operations."Corners_Single"
-  USING gist
-  (geom);
-
-INSERT INTO mhtc_operations."Corners_Single" (geom)
-SELECT DISTINCT((ST_Dump(geom)).geom) As geom
-FROM mhtc_operations."Corners"
-UNION
-SELECT (ST_Dump(geom)).geom As geom
-FROM mhtc_operations."SectionBreakPoints";
-
-/***
-INSERT INTO mhtc_operations."Corners_Single" (geom)
-SELECT DISTINCT ((ST_Dump(ST_Snap(cnr.geom, rc.geom, 0.25))).geom) AS geom
-FROM "topography"."road_casement" rc,
-	(SELECT geom, id
-	 FROM "mhtc_operations"."Corners"
-	 union
-	 SELECT geom, id
-	 FROM "mhtc_operations"."SectionBreakPoints") cnr;
-***/
-
-/*
-CREATE OR REPLACE FUNCTION mhtc_operations.cnrPoint(geometry) RETURNS geometry AS
-'SELECT ST_ClosestPoint($1, c.geom) AS geom
-FROM mhtc_operations."Corners_Single" c
-WHERE ST_Intersects($1, ST_Buffer(c.geom, 2.0))
-AND ST_DWithin($1, c.geom, 1.0)'
-LANGUAGE SQL;
-*/
--- ***
+---***
 
 DELETE FROM mhtc_operations."Supply";
-
---
-/*
-INSERT INTO "mhtc_operations"."Supply" (
-	--"RestrictionID", "GeometryID",
-	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
-       geom)
-	SELECT
-	--"RestrictionID", "GeometryID",
-	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
-     (ST_Dump(ST_Split(
-	                            ST_Snap(lg1.geom, mhtc_operations.cnrPoint(lg1.geom), 0.00000001),
-	                            mhtc_operations.cnrPoint(lg1.geom)))).geom
-	FROM "mhtc_operations"."Supply_orig" lg1 LEFT JOIN LATERAL mhtc_operations.cnrPoint(lg1.geom) pt ON TRUE
-
-UNION
-
-	SELECT
-	--"RestrictionID", "GeometryID",
-	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
-    geom
-	FROM "mhtc_operations"."Supply_orig" lg1
-    WHERE mhtc_operations.cnrPoint(lg1.geom) IS NULL;
-*/
 
 /***
 May need to vary the size of the buffer and the snapping tolerance. Not sure why, but ... (possibly buffer size of 0.1?, and snap tolerance of 0.24)
@@ -207,6 +116,7 @@ FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.g
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
 
 
+/***
 SELECT ST_Union(ST_Snap(cnr.geom, s2.geom, 0.00000001)) AS geom
 FROM "mhtc_operations"."Supply_orig" s2, (
 	SELECT geom
@@ -270,7 +180,7 @@ begin
     END LOOP;
 
 end; $$;			
-
+***/
 
 
 DELETE FROM "mhtc_operations"."Supply"
@@ -297,3 +207,4 @@ AND NOT (
 	ST_DWithin(ST_StartPoint(s.geom), c.geom, 0.25) OR
 	ST_Dwithin(ST_EndPoint(s.geom), c.geom, 0.25)
 	)
+ORDER BY "GeometryID";

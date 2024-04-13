@@ -40,6 +40,7 @@ SELECT s."SurveyID", s."SurveyDate", s."BeatStartTime", s."BeatEndTime", sa."nam
 	FROM demand."Surveys" s, mhtc_operations."SurveyAreas" sa
 	ORDER BY "SurveyName";
 
+***/
 
 /***
  Changes to new structure
