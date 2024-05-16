@@ -19,7 +19,7 @@ CREATE TABLE mhtc_operations."Supply_orig"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
     "GeometryID" character varying(12) COLLATE pg_catalog."default" NOT NULL,
-    geom geometry(LineString,27700) NOT NULL,
+    geom public.geometry(LineString,27700) NOT NULL,
     "RestrictionLength" double precision NOT NULL,
     "RestrictionTypeID" integer NOT NULL,
     "GeomShapeID" integer NOT NULL,
@@ -37,10 +37,10 @@ CREATE TABLE mhtc_operations."Supply_orig"
     --"labelLoading_Y" double precision,
     --"labelLoading_Rotation" double precision,
     --"label_TextChanged" character varying(254) COLLATE pg_catalog."default",
-	label_pos geometry(MultiPoint,27700),
-    label_ldr geometry(MultiLineString,27700),
-	label_loading_pos geometry(MultiPoint,27700),
-    label_loading_ldr geometry(MultiLineString,27700),
+	label_pos public.geometry(MultiPoint,27700),
+    label_ldr public.geometry(MultiLineString,27700),
+	label_loading_pos public.geometry(MultiPoint,27700),
+    label_loading_ldr public.geometry(MultiLineString,27700),
     "OpenDate" date,
     "CloseDate" date,
     "CPZ" character varying(40) COLLATE pg_catalog."default",
@@ -99,7 +99,7 @@ DROP TABLE IF EXISTS mhtc_operations."Corners_Single" CASCADE;
 CREATE TABLE mhtc_operations."Corners_Single"
 (
   id SERIAL,
-  geom geometry(Point,27700),
+  geom public.geometry(Point,27700),
   CONSTRAINT "Corners_Single_pkey" PRIMARY KEY (id)
 )
 WITH (
@@ -138,7 +138,7 @@ FROM "topography"."road_casement" rc,
 ***/
 
 /*
-CREATE OR REPLACE FUNCTION mhtc_operations.cnrPoint(geometry) RETURNS geometry AS
+CREATE OR REPLACE FUNCTION mhtc_operations.cnrPoint(public.geometry) RETURNS public.geometry AS
 'SELECT ST_ClosestPoint($1, c.geom) AS geom
 FROM mhtc_operations."Corners_Single" c
 WHERE ST_Intersects($1, ST_Buffer(c.geom, 2.0))
@@ -206,7 +206,7 @@ FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.g
 									  ) cnr) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
 
-
+/***
 SELECT ST_Union(ST_Snap(cnr.geom, s2.geom, 0.00000001)) AS geom
 FROM "mhtc_operations"."Supply_orig" s2, (
 	SELECT geom
@@ -270,7 +270,7 @@ begin
     END LOOP;
 
 end; $$;			
-
+***/
 
 
 DELETE FROM "mhtc_operations"."Supply"
@@ -297,3 +297,4 @@ AND NOT (
 	ST_DWithin(ST_StartPoint(s.geom), c.geom, 0.25) OR
 	ST_Dwithin(ST_EndPoint(s.geom), c.geom, 0.25)
 	)
+ORDER BY "GeometryID"

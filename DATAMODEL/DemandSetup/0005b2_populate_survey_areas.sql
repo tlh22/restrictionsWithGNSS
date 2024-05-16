@@ -39,6 +39,7 @@ INSERT INTO mhtc_operations."SupplyPlansList" (
 SELECT s."SurveyID", s."SurveyDate", s."BeatStartTime", s."BeatEndTime", sa."name", sa.geom, CONCAT('Area_', sa."name", '_', s."BeatTitle") AS "SurveyName"
 	FROM demand."Surveys" s, mhtc_operations."SurveyAreas" sa
 	ORDER BY "SurveyName";
+***/
 
 
 /***

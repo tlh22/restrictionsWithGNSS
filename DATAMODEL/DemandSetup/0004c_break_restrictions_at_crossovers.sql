@@ -6,7 +6,7 @@ CREATE TABLE mhtc_operations."Supply_orig3"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
     "GeometryID" character varying(12) COLLATE pg_catalog."default" NOT NULL,
-    geom geometry(LineString,27700) NOT NULL,
+    geom public.geometry(LineString,27700) NOT NULL,
     "RestrictionLength" double precision NOT NULL,
     "RestrictionTypeID" integer NOT NULL,
     "GeomShapeID" integer NOT NULL,
@@ -24,10 +24,10 @@ CREATE TABLE mhtc_operations."Supply_orig3"
     --"labelLoading_Y" double precision,
     --"labelLoading_Rotation" double precision,
     --"label_TextChanged" character varying(254) COLLATE pg_catalog."default",
-	label_pos geometry(MultiPoint,27700),
-    label_ldr geometry(MultiLineString,27700),
-	label_loading_pos geometry(MultiPoint,27700),
-    label_loading_ldr geometry(MultiLineString,27700),
+	label_pos public.geometry(MultiPoint,27700),
+    label_ldr public.geometry(MultiLineString,27700),
+	label_loading_pos public.geometry(MultiPoint,27700),
+    label_loading_ldr public.geometry(MultiLineString,27700),
     "OpenDate" date,
     "CloseDate" date,
     "CPZ" character varying(40) COLLATE pg_catalog."default",
@@ -84,7 +84,7 @@ DROP TABLE IF EXISTS  mhtc_operations."CrossoverNodes" CASCADE;
 CREATE TABLE mhtc_operations."CrossoverNodes"
 (
   id SERIAL,
-  geom geometry(Point,27700),
+  geom public.geometry(Point,27700),
   CONSTRAINT "CrossoverNodes_pkey" PRIMARY KEY (id)
 )
 WITH (
@@ -122,14 +122,14 @@ INSERT INTO mhtc_operations."CrossoverNodes" (geom)
 SELECT ST_EndPoint(geom) As geom
 FROM highway_assets."CrossingPoints";
 
--- Make "blade" geometry
+-- Make "blade" public.geometry
 
 DROP TABLE IF EXISTS  mhtc_operations."CrossoverNodes_Single" CASCADE;
 
 CREATE TABLE mhtc_operations."CrossoverNodes_Single"
 (
   id SERIAL,
-  geom geometry(MultiPoint,27700),
+  geom public.geometry(MultiPoint,27700),
   CONSTRAINT "CrossoverNodes_Single_pkey" PRIMARY KEY (id)
 )
 WITH (
