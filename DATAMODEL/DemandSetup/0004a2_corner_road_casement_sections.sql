@@ -9,6 +9,9 @@ CREATE OR REPLACE FUNCTION mhtc_operations."get_road_casement_section"(corner_id
     This function generates the section of road casement of interest
     """
     line_segment_geom = None
+	
+    if distance_from_corner_point is None:
+        return None
     #
     #plpy.info('get_road_casement_section 1: corner_point_geom:{})'.format(corner_point_geom))
     plpy.info('get_road_casement_section: cornerID: {})'.format(corner_id))

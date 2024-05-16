@@ -41,6 +41,7 @@ SELECT s."SurveyID", s."SurveyDate", s."BeatStartTime", s."BeatEndTime", sa."nam
 	ORDER BY "SurveyName";
 ***/
 
+***/
 
 /***
  Changes to new structure

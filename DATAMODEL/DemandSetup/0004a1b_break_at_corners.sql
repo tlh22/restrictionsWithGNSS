@@ -1,16 +1,5 @@
 -- Table: mhtc_operations.Supply
 
-/**
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "SectionID" integer;
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "StartStreet" character varying(254);
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "EndStreet" character varying(254);
-ALTER TABLE mhtc_operations."Supply"
-  ADD COLUMN "SideOfStreet" character varying(100);
-**/
-
 SET search_path TO toms, mhtc_operations, highways_assets, moving_traffic, public;
 
 DROP TABLE IF EXISTS mhtc_operations."Supply_orig" CASCADE;
@@ -92,6 +81,8 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
 	FROM mhtc_operations."Supply";
 
+
+---***
 -- set up corner table
 
 DROP TABLE IF EXISTS mhtc_operations."Corners_Single" CASCADE;
@@ -147,34 +138,8 @@ LANGUAGE SQL;
 */
 -- ***
 
+
 DELETE FROM mhtc_operations."Supply";
-
---
-/*
-INSERT INTO "mhtc_operations"."Supply" (
-	--"RestrictionID", "GeometryID",
-	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
-       geom)
-	SELECT
-	--"RestrictionID", "GeometryID",
-	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
-     (ST_Dump(ST_Split(
-	                            ST_Snap(lg1.geom, mhtc_operations.cnrPoint(lg1.geom), 0.00000001),
-	                            mhtc_operations.cnrPoint(lg1.geom)))).geom
-	FROM "mhtc_operations"."Supply_orig" lg1 LEFT JOIN LATERAL mhtc_operations.cnrPoint(lg1.geom) pt ON TRUE
-
-UNION
-
-	SELECT
-	--"RestrictionID", "GeometryID",
-	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
-    geom
-	FROM "mhtc_operations"."Supply_orig" lg1
-    WHERE mhtc_operations.cnrPoint(lg1.geom) IS NULL;
-*/
 
 /***
 May need to vary the size of the buffer and the snapping tolerance. Not sure why, but ... (possibly buffer size of 0.1?, and snap tolerance of 0.24)
@@ -297,4 +262,5 @@ AND NOT (
 	ST_DWithin(ST_StartPoint(s.geom), c.geom, 0.25) OR
 	ST_Dwithin(ST_EndPoint(s.geom), c.geom, 0.25)
 	)
-ORDER BY "GeometryID"
+ORDER BY "GeometryID";
+
