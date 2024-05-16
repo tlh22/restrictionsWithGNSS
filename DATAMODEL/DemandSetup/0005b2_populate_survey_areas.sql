@@ -39,6 +39,7 @@ INSERT INTO mhtc_operations."SupplyPlansList" (
 SELECT s."SurveyID", s."SurveyDate", s."BeatStartTime", s."BeatEndTime", sa."name", sa.geom, CONCAT('Area_', sa."name", '_', s."BeatTitle") AS "SurveyName"
 	FROM demand."Surveys" s, mhtc_operations."SurveyAreas" sa
 	ORDER BY "SurveyName";
+***/
 
 ***/
 
@@ -67,3 +68,14 @@ ALTER TABLE IF EXISTS mhtc_operations."Supply"
 alter table mhtc_operations."Supply" alter column "SurveyAreaID" TYPE INTEGER  USING ("SurveyAreaID"::integer) ;
 
  ***/
+ 
+ /***
+ALTER TABLE IF EXISTS mhtc_operations."Supply"
+      ADD COLUMN "SiteAreaID" INTEGER;
+	
+UPDATE "mhtc_operations"."Supply" AS s
+SET "SiteAreaID" = a."id"
+FROM local_authority."SiteArea" a
+WHERE ST_WITHIN (s.geom, a.geom);
+
+***/

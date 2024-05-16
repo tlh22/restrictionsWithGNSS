@@ -6,7 +6,7 @@ CREATE TABLE mhtc_operations."Supply_orig3"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
     "GeometryID" character varying(12) COLLATE pg_catalog."default" NOT NULL,
-    geom geometry(LineString,27700) NOT NULL,
+    geom public.geometry(LineString,27700) NOT NULL,
     "RestrictionLength" double precision NOT NULL,
     "RestrictionTypeID" integer NOT NULL,
     "GeomShapeID" integer NOT NULL,
@@ -24,15 +24,15 @@ CREATE TABLE mhtc_operations."Supply_orig3"
     --"labelLoading_Y" double precision,
     --"labelLoading_Rotation" double precision,
     --"label_TextChanged" character varying(254) COLLATE pg_catalog."default",
-	label_pos geometry(MultiPoint,27700),
-    label_ldr geometry(MultiLineString,27700),
-	label_loading_pos geometry(MultiPoint,27700),
-    label_loading_ldr geometry(MultiLineString,27700),
+	label_pos public.geometry(MultiPoint,27700),
+    label_ldr public.geometry(MultiLineString,27700),
+	label_loading_pos public.geometry(MultiPoint,27700),
+    label_loading_ldr public.geometry(MultiLineString,27700),
     "OpenDate" date,
     "CloseDate" date,
     "CPZ" character varying(40) COLLATE pg_catalog."default",
-    "LastUpdateDateTime" timestamp without time zone NOT NULL,
-    "LastUpdatePerson" character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    "LastUpdateDateTime" timestamp without time zone,
+    "LastUpdatePerson" character varying(255) COLLATE pg_catalog."default",
     "BayOrientation" double precision,
     "NrBays" integer NOT NULL DEFAULT '-1'::integer,
     "TimePeriodID" integer,
@@ -84,7 +84,7 @@ DROP TABLE IF EXISTS  mhtc_operations."CrossoverNodes" CASCADE;
 CREATE TABLE mhtc_operations."CrossoverNodes"
 (
   id SERIAL,
-  geom geometry(Point,27700),
+  geom public.geometry(Point,27700),
   CONSTRAINT "CrossoverNodes_pkey" PRIMARY KEY (id)
 )
 WITH (
@@ -122,14 +122,14 @@ INSERT INTO mhtc_operations."CrossoverNodes" (geom)
 SELECT ST_EndPoint(geom) As geom
 FROM highway_assets."CrossingPoints";
 
--- Make "blade" geometry
+-- Make "blade" public.geometry
 
 DROP TABLE IF EXISTS  mhtc_operations."CrossoverNodes_Single" CASCADE;
 
 CREATE TABLE mhtc_operations."CrossoverNodes_Single"
 (
   id SERIAL,
-  geom geometry(MultiPoint,27700),
+  geom public.geometry(MultiPoint,27700),
   CONSTRAINT "CrossoverNodes_Single_pkey" PRIMARY KEY (id)
 )
 WITH (
@@ -227,7 +227,7 @@ FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.
                                           ) cnr
 									  ) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25)
-AND "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135)  -- SYLs, SRLs, Unmarked and general bays
+AND "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)  -- SYLs, SRLs, Unmarked and general bays
 union
 SELECT
     "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", --"label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr",
@@ -237,7 +237,7 @@ SELECT
 FROM "mhtc_operations"."Supply_orig3" s1
 WHERE "RestrictionTypeID" NOT IN (
 SELECT "RestrictionTypeID" FROM "mhtc_operations"."Supply_orig3"
-WHERE "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135)
+WHERE "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)
 )
 ;
 

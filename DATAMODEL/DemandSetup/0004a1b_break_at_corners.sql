@@ -8,7 +8,7 @@ CREATE TABLE mhtc_operations."Supply_orig"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
     "GeometryID" character varying(12) COLLATE pg_catalog."default" NOT NULL,
-    geom geometry(LineString,27700) NOT NULL,
+    geom public.geometry(LineString,27700) NOT NULL,
     "RestrictionLength" double precision NOT NULL,
     "RestrictionTypeID" integer NOT NULL,
     "GeomShapeID" integer NOT NULL,
@@ -26,15 +26,15 @@ CREATE TABLE mhtc_operations."Supply_orig"
     --"labelLoading_Y" double precision,
     --"labelLoading_Rotation" double precision,
     --"label_TextChanged" character varying(254) COLLATE pg_catalog."default",
-	label_pos geometry(MultiPoint,27700),
-    label_ldr geometry(MultiLineString,27700),
-	label_loading_pos geometry(MultiPoint,27700),
-    label_loading_ldr geometry(MultiLineString,27700),
+	label_pos public.geometry(MultiPoint,27700),
+    label_ldr public.geometry(MultiLineString,27700),
+	label_loading_pos public.geometry(MultiPoint,27700),
+    label_loading_ldr public.geometry(MultiLineString,27700),
     "OpenDate" date,
     "CloseDate" date,
     "CPZ" character varying(40) COLLATE pg_catalog."default",
-    "LastUpdateDateTime" timestamp without time zone NOT NULL,
-    "LastUpdatePerson" character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    "LastUpdateDateTime" timestamp without time zone,
+    "LastUpdatePerson" character varying(255) COLLATE pg_catalog."default",
     "BayOrientation" double precision,
     "NrBays" integer NOT NULL DEFAULT '-1'::integer,
     "TimePeriodID" integer,
@@ -81,7 +81,63 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
 	FROM mhtc_operations."Supply";
 
+
 ---***
+-- set up corner table
+
+DROP TABLE IF EXISTS mhtc_operations."Corners_Single" CASCADE;
+
+CREATE TABLE mhtc_operations."Corners_Single"
+(
+  id SERIAL,
+  geom public.geometry(Point,27700),
+  CONSTRAINT "Corners_Single_pkey" PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+ALTER TABLE mhtc_operations."Corners_Single"
+  OWNER TO postgres;
+GRANT ALL ON TABLE mhtc_operations."Corners_Single" TO postgres;
+
+-- Index: public."sidx_Corners_Single_geom"
+
+-- DROP INDEX public."sidx_Corners_Single_geom";
+
+CREATE INDEX "sidx_Corners_Single_geom"
+  ON mhtc_operations."Corners_Single"
+  USING gist
+  (geom);
+
+INSERT INTO mhtc_operations."Corners_Single" (geom)
+SELECT DISTINCT((ST_Dump(geom)).geom) As geom
+FROM mhtc_operations."Corners"
+UNION
+SELECT (ST_Dump(geom)).geom As geom
+FROM mhtc_operations."SectionBreakPoints";
+
+/***
+INSERT INTO mhtc_operations."Corners_Single" (geom)
+SELECT DISTINCT ((ST_Dump(ST_Snap(cnr.geom, rc.geom, 0.25))).geom) AS geom
+FROM "topography"."road_casement" rc,
+	(SELECT geom, id
+	 FROM "mhtc_operations"."Corners"
+	 union
+	 SELECT geom, id
+	 FROM "mhtc_operations"."SectionBreakPoints") cnr;
+***/
+
+/*
+CREATE OR REPLACE FUNCTION mhtc_operations.cnrPoint(public.geometry) RETURNS public.geometry AS
+'SELECT ST_ClosestPoint($1, c.geom) AS geom
+FROM mhtc_operations."Corners_Single" c
+WHERE ST_Intersects($1, ST_Buffer(c.geom, 2.0))
+AND ST_DWithin($1, c.geom, 1.0)'
+LANGUAGE SQL;
+*/
+-- ***
+
 
 DELETE FROM mhtc_operations."Supply";
 
@@ -114,7 +170,6 @@ FROM "mhtc_operations"."Supply_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.g
 									  FROM "mhtc_operations"."Corners_Single"
 									  ) cnr) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);
-
 
 /***
 SELECT ST_Union(ST_Snap(cnr.geom, s2.geom, 0.00000001)) AS geom
@@ -208,3 +263,4 @@ AND NOT (
 	ST_Dwithin(ST_EndPoint(s.geom), c.geom, 0.25)
 	)
 ORDER BY "GeometryID";
+

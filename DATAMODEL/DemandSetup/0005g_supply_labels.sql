@@ -2,13 +2,13 @@
 Set up labels for Supply
 **/
 
-ALTER TABLE mhtc_operations."Supply" ADD COLUMN "label_Rotation" double precision;
-ALTER TABLE mhtc_operations."Supply" ADD COLUMN "label_TextChanged" character varying(254) COLLATE pg_catalog."default";
+ALTER TABLE mhtc_operations."Supply" ADD COLUMN IF NOT EXISTS "label_Rotation" double precision;
+ALTER TABLE mhtc_operations."Supply" ADD COLUMN IF NOT EXISTS "label_TextChanged" character varying(254) COLLATE pg_catalog."default";
 
-ALTER TABLE mhtc_operations."Supply" ADD COLUMN "labelLoading_Rotation" double precision;
-ALTER TABLE mhtc_operations."Supply" ADD COLUMN "labelLoading_TextChanged" character varying(254) COLLATE pg_catalog."default";
+ALTER TABLE mhtc_operations."Supply" ADD COLUMN IF NOT EXISTS "labelLoading_Rotation" double precision;
+ALTER TABLE mhtc_operations."Supply" ADD COLUMN IF NOT EXISTS "labelLoading_TextChanged" character varying(254) COLLATE pg_catalog."default";
 
-ALTER TABLE mhtc_operations."Supply" ADD COLUMN "RestrictionID" character varying(254) COLLATE pg_catalog."default";
+ALTER TABLE mhtc_operations."Supply" ADD COLUMN IF NOT EXISTS "RestrictionID" character varying(254) COLLATE pg_catalog."default";
 
 -- set label position to default
 

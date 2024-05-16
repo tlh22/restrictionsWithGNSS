@@ -31,8 +31,8 @@ CREATE TABLE mhtc_operations."Supply_orig2"
     "OpenDate" date,
     "CloseDate" date,
     "CPZ" character varying(40) COLLATE pg_catalog."default",
-    "LastUpdateDateTime" timestamp without time zone,
-    "LastUpdatePerson" character varying(255) COLLATE pg_catalog."default",
+    "LastUpdateDateTime" timestamp without time zone ,
+    "LastUpdatePerson" character varying(255) COLLATE pg_catalog."default" ,
     "BayOrientation" double precision,
     "NrBays" integer NOT NULL DEFAULT '-1'::integer,
     "TimePeriodID" integer,
@@ -60,6 +60,7 @@ CREATE TABLE mhtc_operations."Supply_orig2"
 	"StartStreet" character varying(254),
     "EndStreet" character varying(254),
     "SideOfStreet" character varying(100),
+	"DemandSection_GeometryID" character varying(12),
     --CONSTRAINT "Supply_orig2_pkey" PRIMARY KEY ("RestrictionID"),
     --CONSTRAINT "Supply_orig2_GeometryID_key" UNIQUE ("GeometryID")
     CONSTRAINT "Supply_orig2_pkey" PRIMARY KEY ("GeometryID")
@@ -72,11 +73,11 @@ TABLESPACE pg_default;
 INSERT INTO mhtc_operations."Supply_orig2"(
 	--"RestrictionID",
 	"GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr","OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet")
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "DemandSection_GeometryID")
 SELECT
     --"RestrictionID",
     "GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr","OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "DemandSection_GeometryID"
 	FROM mhtc_operations."Supply";
 
 --
@@ -91,63 +92,42 @@ DELETE FROM mhtc_operations."Supply";
 INSERT INTO "mhtc_operations"."Supply" (
 	--"RestrictionID", "GeometryID",
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "DemandSection_GeometryID",
        geom)
 SELECT
 	--"RestrictionID", "GeometryID",
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "DemandSection_GeometryID",
     (ST_Dump(ST_Split(lg1.geom, mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25)))).geom
     FROM "mhtc_operations"."Supply_orig2" lg1 LEFT JOIN LATERAL mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25) pt ON TRUE
-	WHERE lg1."RestrictionTypeID" in (201, 216, 217, 224, 225, 226, 227, 229)
+	WHERE lg1."RestrictionTypeID" in (1000)
 
 UNION
 
 	SELECT
 	--"RestrictionID", "GeometryID",
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr","OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",  "Capacity", "BayWidth",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "DemandSection_GeometryID",
     geom
 	FROM "mhtc_operations"."Supply_orig2" lg1
     WHERE mhtc_operations."cnrBufferExtent"(lg1.geom, 0.25) IS NULL
-    AND lg1."RestrictionTypeID" in (201, 216, 217, 224, 225, 226, 227, 229)
+    AND lg1."RestrictionTypeID" in (1000)
 
 UNION
 
 	SELECT
 	--"RestrictionID", "GeometryID",
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
-    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "DemandSection_GeometryID",
     geom
 	FROM "mhtc_operations"."Supply_orig2" lg1
-    WHERE lg1."RestrictionTypeID" NOT IN (201, 216, 217, 224, 225, 226, 227, 229);
+    WHERE lg1."RestrictionTypeID" NOT IN (1000);
 
 -- deal with acceptablity around corners
 
---SYLs
+-- identify corner areas
 UPDATE mhtc_operations."Supply" AS s
 SET "RestrictionTypeID" = 220, "UnacceptableTypeID" = 6
 FROM mhtc_operations."CornerProtectionSections_Single" c
 WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=round')))
-AND s."RestrictionTypeID" IN (216, 225);
-
--- Unmarked
-UPDATE mhtc_operations."Supply" AS s
-SET "RestrictionTypeID" = 221, "UnacceptableTypeID" = 6
-FROM mhtc_operations."CornerProtectionSections_Single" c
-WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=round')))
-AND s."RestrictionTypeID" IN (201, 224);
-
--- SRLs
-UPDATE mhtc_operations."Supply" AS s
-SET "RestrictionTypeID" = 222, "UnacceptableTypeID" = 6
-FROM mhtc_operations."CornerProtectionSections_Single" c
-WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=round')))
-AND s."RestrictionTypeID" IN (217, 226);
-
--- Unmarked within PPZ
-UPDATE mhtc_operations."Supply" AS s
-SET "RestrictionTypeID" = 228, "UnacceptableTypeID" = 6
-FROM mhtc_operations."CornerProtectionSections_Single" c
-WHERE ST_Within(s.geom, (ST_BUFFER(c.geom, 1.0, 'endcap=round')))
-AND s."RestrictionTypeID" IN (227, 229);
+;

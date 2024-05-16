@@ -1,35 +1,18 @@
---DROP SEQUENCE IF EXISTS mhtc_operations."Supply_id_seq" CASCADE;
+/***
 
-CREATE SEQUENCE "mhtc_operations"."Supply_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+First step is to copy the existing supply table to a new schema
 
-CREATE OR REPLACE FUNCTION "public"."create_supply_geometryid"() RETURNS "trigger"
-    LANGUAGE "plpgsql"
-    AS $$
-DECLARE
-	 nextSeqVal varchar := '';
-BEGIN
+***/
 
-	SELECT concat('S_', to_char(nextval('"mhtc_operations"."Supply_id_seq"'::regclass), 'FM000000'::text)) INTO nextSeqVal;
+CREATE SCHEMA IF NOT EXISTS mhtc_operations2;
 
-    NEW."GeometryID" := nextSeqVal;
-	RETURN NEW;
+--DROP TABLE IF EXISTS mhtc_operations2."Supply" CASCADE;
 
-END;
-$$;
-
---DROP TABLE IF EXISTS mhtc_operations."Supply" CASCADE;
-
-CREATE TABLE mhtc_operations."Supply"
+CREATE TABLE mhtc_operations2."Supply"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
     "GeometryID" character varying(12) COLLATE pg_catalog."default" NOT NULL,
-    geom public.geometry(LineString,27700) NOT NULL,
+    geom geometry(LineString,27700) NOT NULL,
     "RestrictionLength" double precision NOT NULL,
     "RestrictionTypeID" integer NOT NULL,
     "GeomShapeID" integer NOT NULL,
@@ -47,10 +30,10 @@ CREATE TABLE mhtc_operations."Supply"
     --"labelLoading_Y" double precision,
     --"labelLoading_Rotation" double precision,
     --"label_TextChanged" character varying(254) COLLATE pg_catalog."default",
-	label_pos public.geometry(MultiPoint,27700),
-    label_ldr public.geometry(MultiLineString,27700),
-	label_loading_pos public.geometry(MultiPoint,27700),
-    label_loading_ldr public.geometry(MultiLineString,27700),
+	label_pos geometry(MultiPoint,27700),
+    label_ldr geometry(MultiLineString,27700),
+	label_loading_pos geometry(MultiPoint,27700),
+    label_loading_ldr geometry(MultiLineString,27700),
     "OpenDate" date,
     "CloseDate" date,
     "CPZ" character varying(40) COLLATE pg_catalog."default",
@@ -83,18 +66,25 @@ CREATE TABLE mhtc_operations."Supply"
     "SideOfStreet" character varying(100),
     "Capacity" integer,
     "BayWidth" double precision,
+	"SurveyAreaID" integer, 
     --CONSTRAINT "Supply_pkey" PRIMARY KEY ("RestrictionID"),
     --CONSTRAINT "Supply_GeometryID_key" UNIQUE ("GeometryID")
-    CONSTRAINT "Supply_pkey" UNIQUE ("GeometryID")
+    CONSTRAINT "Supply2_pkey" UNIQUE ("GeometryID")
     );
 
 CREATE INDEX "sidx_Supply_geom"
-    ON mhtc_operations."Supply" USING gist
+    ON mhtc_operations2."Supply" USING gist
     (geom)
     TABLESPACE pg_default;
 
-CREATE TRIGGER "set_restriction_length_Lines"
-    BEFORE INSERT OR UPDATE
-    ON mhtc_operations."Supply"
-    FOR EACH ROW
-    EXECUTE PROCEDURE public.set_restriction_length();
+
+INSERT INTO mhtc_operations2."Supply"(
+	--"RestrictionID",
+	"GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "Capacity", "BayWidth", "SurveyAreaID")
+SELECT
+    --"RestrictionID",
+    "GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet", "Capacity", "BayWidth", "SurveyAreaID"
+	FROM mhtc_operations."Supply";
+	
