@@ -67,3 +67,14 @@ ALTER TABLE IF EXISTS mhtc_operations."Supply"
 alter table mhtc_operations."Supply" alter column "SurveyAreaID" TYPE INTEGER  USING ("SurveyAreaID"::integer) ;
 
  ***/
+ 
+ /***
+ALTER TABLE IF EXISTS mhtc_operations."Supply"
+      ADD COLUMN "SiteAreaID" INTEGER;
+	
+UPDATE "mhtc_operations"."Supply" AS s
+SET "SiteAreaID" = a."id"
+FROM local_authority."SiteArea" a
+WHERE ST_WITHIN (s.geom, a.geom);
+
+***/

@@ -31,8 +31,8 @@ CREATE TABLE mhtc_operations."Supply_orig3"
     "OpenDate" date,
     "CloseDate" date,
     "CPZ" character varying(40) COLLATE pg_catalog."default",
-    "LastUpdateDateTime" timestamp without time zone NOT NULL,
-    "LastUpdatePerson" character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    "LastUpdateDateTime" timestamp without time zone,
+    "LastUpdatePerson" character varying(255) COLLATE pg_catalog."default",
     "BayOrientation" double precision,
     "NrBays" integer NOT NULL DEFAULT '-1'::integer,
     "TimePeriodID" integer,
@@ -227,7 +227,7 @@ FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.
                                           ) cnr
 									  ) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25)
-AND "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135)  -- SYLs, SRLs, Unmarked and general bays
+AND "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)  -- SYLs, SRLs, Unmarked and general bays
 union
 SELECT
     "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", --"label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr",
@@ -237,7 +237,7 @@ SELECT
 FROM "mhtc_operations"."Supply_orig3" s1
 WHERE "RestrictionTypeID" NOT IN (
 SELECT "RestrictionTypeID" FROM "mhtc_operations"."Supply_orig3"
-WHERE "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135)
+WHERE "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)
 )
 ;
 
