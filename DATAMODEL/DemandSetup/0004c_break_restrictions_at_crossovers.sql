@@ -100,7 +100,7 @@ CREATE INDEX "sidx_CrossoverNodes_geom"
   USING gist
   (geom);
 
-/*
+/***
 INSERT INTO mhtc_operations."CrossoverNodes" (geom)
 SELECT ST_StartPoint(geom) As geom
 FROM mhtc_operations."Supply_orig3"
@@ -112,7 +112,7 @@ SELECT ST_EndPoint(geom) As geom
 FROM mhtc_operations."Supply_orig3"
 WHERE "RestrictionTypeID" = 220
 AND "UnacceptableTypeID" IN (1, 4);
-*/
+***/
 
 INSERT INTO mhtc_operations."CrossoverNodes" (geom)
 SELECT ST_StartPoint(geom) As geom
@@ -156,7 +156,7 @@ ALTER TABLE IF EXISTS demand."VRMs" DROP CONSTRAINT IF EXISTS "VRMs_GeometryID_f
 DELETE FROM mhtc_operations."Supply";
 
 --
-/*
+/***
 INSERT INTO "mhtc_operations"."Supply" (
 	--"RestrictionID", "GeometryID",
 	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID",
@@ -193,7 +193,7 @@ SELECT
 
 DELETE FROM "mhtc_operations"."Supply"
 WHERE ST_Length(geom) < 0.0001;
-*/
+***/
 
 
 INSERT INTO "mhtc_operations"."Supply" (
@@ -268,14 +268,14 @@ AND ST_Within(s1.geom, ST_Buffer(s2.geom, 0.1));
 
 -- delete unmarked unacceptable lines intersecting with bays
 
-/*
+/***
 DELETE FROM "mhtc_operations"."Supply" AS s2
 USING "mhtc_operations"."Supply" s1
 WHERE s2."RestrictionTypeID" = 220
 AND s2."UnacceptableTypeID" IN (1, 4)
 AND s1."RestrictionTypeID" < 200
 AND ST_Intersects(s1.geom, ST_Buffer(ST_LineInterpolatePoint(s2.geom, 0.5), 0.1));
-*/
+***/
 
 -- sort out unacceptability ...
 
@@ -304,3 +304,16 @@ WHERE "RestrictionTypeID" IN (227, 229)
 AND "UnacceptableTypeID" IS NOT NULL;
 
 -- deal with labels
+
+
+-- Check for locations where crossovers have not broken restriction
+
+SELECT "GeometryID", c.geom
+FROM mhtc_operations."Supply" s, mhtc_operations."CrossoverNodes_Single" c
+WHERE ST_DWithin(s.geom, c.geom, 0.25)
+AND NOT (
+	ST_DWithin(ST_StartPoint(s.geom), c.geom, 0.25) OR
+	ST_Dwithin(ST_EndPoint(s.geom), c.geom, 0.25)
+	)
+AND s."RestrictionTypeID" NOT IN (202, 108)   -- DYL, Bus Stop
+ORDER BY "GeometryID";
