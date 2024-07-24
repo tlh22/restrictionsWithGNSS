@@ -24,7 +24,7 @@ ADD UNIQUE ("GeometryID", "LinkedTo");
 
 -- Supply output
 
--- For RBKC need to consider that Market Bays, taxi bays and cycle hangards should have lower status than SYL/DYL.
+-- For RBKC need to consider that Market Bays, taxi bays and cycle hangars should have lower status than SYL/DYL.
 
 INSERT INTO mhtc_operations."DualRestrictions" ("GeometryID", "LinkedTo")
 SELECT s1."GeometryID", s2."GeometryID"
@@ -66,6 +66,8 @@ AND NOT EXISTS (SELECT 1
 				FROM mhtc_operations."DualRestrictions"
 				WHERE "GeometryID" = s1."GeometryID" 
 				AND "LinkedTo" = s2."GeometryID");
+
+TODO: Need to ensure that SKC breaks for each restriction ...
 
 -- Remove duplicates
 
