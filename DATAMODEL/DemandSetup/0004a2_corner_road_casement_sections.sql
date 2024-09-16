@@ -14,7 +14,7 @@ CREATE OR REPLACE FUNCTION mhtc_operations."get_road_casement_section"(corner_id
         return None
     #
     #plpy.info('get_road_casement_section 1: corner_point_geom:{})'.format(corner_point_geom))
-    plpy.info('get_road_casement_section: cornerID: {})'.format(corner_id))
+    #plpy.info('get_road_casement_section: cornerID: {})'.format(corner_id))
     # get the length of the line
     plan = plpy.prepare("SELECT ST_Length($1::geometry) as l", ['geometry'])
     restrictionLength = plpy.execute(plan, [road_casement_geom])[0]["l"]
@@ -33,7 +33,7 @@ CREATE OR REPLACE FUNCTION mhtc_operations."get_road_casement_section"(corner_id
     start_point_location = corner_point_location - fraction
     end_point_location = corner_point_location + fraction
 
-    plpy.info('get_road_casement_section 2: restrictionLength: {}; start_point_location:{}; end_point_location: {})'.format(restrictionLength, start_point_location, end_point_location))
+    #plpy.info('get_road_casement_section 2: restrictionLength: {}; start_point_location:{}; end_point_location: {})'.format(restrictionLength, start_point_location, end_point_location))
     # now check start/end points
     """
     if corner_point_location == 0.0:  # TODO: needs further work ...

@@ -1,4 +1,6 @@
 
+SET search_path TO toms, mhtc_operations, highways_assets, moving_traffic, public;
+
 -- set up corner table
 
 DROP TABLE IF EXISTS mhtc_operations."Corners_Single" CASCADE;
