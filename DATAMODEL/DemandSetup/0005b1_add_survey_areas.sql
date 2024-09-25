@@ -18,7 +18,7 @@ CREATE TABLE mhtc_operations."SurveyAreas"
 (
     "Code" integer NOT NULL DEFAULT nextval('mhtc_operations."SurveyAreas_id_seq"'::regclass),
     "SurveyAreaName" character varying(32) COLLATE pg_catalog."default",
-    geom geometry(MultiPolygon,27700),
+    geom geometry(Polygon,27700),
     CONSTRAINT "SurveyAreas_pkey" PRIMARY KEY ("Code")
 );
 
@@ -42,4 +42,3 @@ ALTER TABLE mhtc_operations."Supply"
 
 UPDATE mhtc_operations."Supply"
 SET "SurveyAreaID" = NULL;
-
