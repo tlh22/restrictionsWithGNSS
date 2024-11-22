@@ -3,7 +3,7 @@ Adds field to allow turn on/off of label. This avoid multiple labels/leaders bei
 **/
 
 ALTER TABLE "mhtc_operations"."Supply"
-    ADD COLUMN "DisplayLabel" boolean DEFAULT TRUE NOT NULL;
+    ADD COLUMN IF NOT EXISTS "DisplayLabel" boolean DEFAULT TRUE NOT NULL;
 
 
 CREATE OR REPLACE FUNCTION mhtc_operations.reset_label_leader()

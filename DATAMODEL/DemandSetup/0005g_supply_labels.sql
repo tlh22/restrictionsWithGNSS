@@ -26,7 +26,7 @@ SET label_loading_ldr = ST_Multi(ST_MakeLine(ST_LineInterpolatePoint(geom, 0.5),
 
 -- get trigger working
 DROP TRIGGER IF EXISTS "insert_mngmt" ON mhtc_operations."Supply";
-CREATE TRIGGER insert_mngmt BEFORE INSERT OR UPDATE ON mhtc_operations."Supply" FOR EACH ROW EXECUTE PROCEDURE toms."labelling_for_restrictions"();
+CREATE TRIGGER insert_mngmt BEFORE INSERT OR UPDATE OF geom, label_pos, label_loading_pos ON mhtc_operations."Supply" FOR EACH ROW EXECUTE PROCEDURE toms."labelling_for_restrictions"();
 
 -- Run the trigger once to populate leaders
 --UPDATE mhtc_operations."Supply" SET label_pos = label_pos;

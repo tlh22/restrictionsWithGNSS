@@ -28,6 +28,7 @@ WHERE ST_INTERSECTS(ST_LineSubstring (s1.geom, 0.1, 0.9), ST_Buffer(s2.geom, 0.1
 AND s1."GeometryID" < s2."GeometryID"
 AND s1."GeomShapeID" < 100
 AND s2."GeomShapeID" < 100
+AND NOT ((s1."GeomShapeID" IN (3, 6, 9, 23, 26, 29) AND s2."GeomShapeID" IN (10, 11, 12)) OR (s2."GeomShapeID" IN (3, 6, 9, 23, 26, 29) AND s1."GeomShapeID" IN (10, 11, 12)))
 ORDER BY s1."GeometryID", s1."RoadName";
 
 GRANT ALL ON TABLE mhtc_operations."Supply_Overlaps" TO postgres;

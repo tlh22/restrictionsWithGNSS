@@ -43,6 +43,10 @@ INSERT INTO toms_lookups."BayTypesInUse"(
 INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (122, 'LineString');  -- Bus Stand
+	
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (147, 'LineString');  -- Cycle hangar
 
 DELETE FROM toms_lookups."BayTypesInUse"
 WHERE "Code" = 154;  -- Unmarked parking area (within controlled area)

@@ -34,7 +34,8 @@ AND s1."GeometryID" != s2."GeometryID"
 AND s1."RestrictionTypeID" > 200
 AND s1."GeomShapeID" < 100
 AND s2."GeomShapeID" < 100
-AND s2."RestrictionTypeID" NOT IN (121, 147, 151, 164);
+AND s2."RestrictionTypeID" NOT IN (121, 147, 151, 164)
+AND s2."GeomShapeID" NOT IN (3, 6, 9, 23, 26, 29);
 
 -- Now consider specifically
 INSERT INTO mhtc_operations."DualRestrictions" ("GeometryID", "LinkedTo")
@@ -46,6 +47,7 @@ AND s1."GeomShapeID" < 100
 AND s2."GeomShapeID" < 100
 AND s1."RestrictionTypeID" IN (121, 147, 151, 164)
 AND s2."RestrictionTypeID" IN (201, 221, 224, 202)
+AND NOT ((s1."GeomShapeID" IN (3, 6, 9, 23, 26, 29) AND s2."GeomShapeID" IN (10, 11, 12)) OR (s2."GeomShapeID" IN (3, 6, 9, 23, 26, 29) AND s1."GeomShapeID" IN (10, 11, 12)))
 AND NOT EXISTS (SELECT 1
 				FROM mhtc_operations."DualRestrictions"
 				WHERE "GeometryID" = s1."GeometryID" 
@@ -67,7 +69,7 @@ AND NOT EXISTS (SELECT 1
 				WHERE "GeometryID" = s1."GeometryID" 
 				AND "LinkedTo" = s2."GeometryID");
 
-TODO: Need to ensure that SKC breaks for each restriction ...
+-- TODO: Need to ensure that SKC breaks for each restriction ...
 
 -- Remove duplicates
 
@@ -186,4 +188,4 @@ USING mhtc_operations."Supply" s
 WHERE d."LinkedTo" = s."GeometryID"
 AND s."RestrictionTypeID" IN (116);
 
-
+-- TO DO Remove on-pavement bays / SYLs
