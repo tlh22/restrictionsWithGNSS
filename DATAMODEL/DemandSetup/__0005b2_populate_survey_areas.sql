@@ -5,8 +5,8 @@ SET "SurveyAreaID" = a."Code"
 FROM mhtc_operations."SurveyAreas" a
 WHERE ST_WITHIN (s.geom, a.geom);
 
-ALTER TABLE mhtc_operations."RC_Sections_merged"
-  ADD COLUMN "SurveyAreaID" INTEGER;
+ALTER TABLE IF EXISTS mhtc_operations."RC_Sections_merged"
+  ADD COLUMN IF NOT EXISTS "SurveyAreaID" INTEGER;
 
 UPDATE mhtc_operations."RC_Sections_merged"
 SET "SurveyAreaID" = NULL;
@@ -39,8 +39,6 @@ INSERT INTO mhtc_operations."SupplyPlansList" (
 SELECT s."SurveyID", s."SurveyDate", s."BeatStartTime", s."BeatEndTime", sa."name", sa.geom, CONCAT('Area_', sa."name", '_', s."BeatTitle") AS "SurveyName"
 	FROM demand."Surveys" s, mhtc_operations."SurveyAreas" sa
 	ORDER BY "SurveyName";
-***/
-
 ***/
 
 /***

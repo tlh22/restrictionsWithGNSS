@@ -66,4 +66,146 @@ WHERE ST_Within(s.geom, c.geom);
 
 **/
 
+-- 
 
+/**
+Use UnacceptableTypeID to show differences
+**/
+
+/**
+--SYLs
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 225
+WHERE "RestrictionTypeID" in (216, 220);
+
+--SRLs
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 226
+WHERE "RestrictionTypeID" in (217, 222);
+
+--Unmarked
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 224
+WHERE "RestrictionTypeID" in (201, 221);
+**/
+
+-- or the other way
+
+--SYLs
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 201
+WHERE "RestrictionTypeID" = 224
+AND "UnacceptableTypeID" IS NULL;
+
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 221
+WHERE "RestrictionTypeID" = 224
+AND "UnacceptableTypeID" IS NOT NULL;
+
+-- SRLs
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 217
+WHERE "RestrictionTypeID" = 226
+AND "UnacceptableTypeID" IS NULL;
+
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 222
+WHERE "RestrictionTypeID" = 226
+AND "UnacceptableTypeID" IS NOT NULL;
+
+-- Unmarked
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 216
+WHERE "RestrictionTypeID" = 225
+AND "UnacceptableTypeID" IS NULL;
+
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 220
+WHERE "RestrictionTypeID" = 225
+AND "UnacceptableTypeID" IS NOT NULL;
+
+-- Unmarked within PPZ
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 227
+WHERE "RestrictionTypeID" = 229
+AND "UnacceptableTypeID" IS NULL;
+
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 228
+WHERE "RestrictionTypeID" = 229
+AND "UnacceptableTypeID" IS NOT NULL;
+
+--
+
+/**
+Consider "short" line areas
+**/
+
+/*
+SELECT "GeometryID", "RestrictionTypeID", "RestrictionLength", "Capacity"
+FROM mhtc_operations."Supply"
+WHERE "RestrictionTypeID" = 216
+AND "RestrictionLength" < 5.0
+ORDER BY "RestrictionLength"
+*/
+
+-- Unmarked
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 220, "UnacceptableTypeID" = 10
+WHERE "RestrictionTypeID" IN (216, 225)
+AND "Capacity" = 0;
+
+-- Unmarked within PPZ
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 228, "UnacceptableTypeID" = 10
+WHERE "RestrictionTypeID" IN (227, 229)
+AND "Capacity" = 0;
+
+-- SYLs
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 221, "UnacceptableTypeID" = 10
+WHERE "RestrictionTypeID" IN (201, 224)
+AND "Capacity" = 0;
+
+-- SRLs
+UPDATE mhtc_operations."Supply"
+SET "RestrictionTypeID" = 222, "UnacceptableTypeID" = 10
+WHERE "RestrictionTypeID" IN (217, 226)
+AND "Capacity" = 0;
+
+/**
+Deal with unmarked areas within PPZ
+**/
+
+UPDATE mhtc_operations."Supply" AS s
+SET "RestrictionTypeID" = 227
+FROM toms."RestrictionPolygons" p
+WHERE s."RestrictionTypeID" = 216  -- Unmarked (Acceptable)
+AND p."RestrictionTypeID" IN ( 2, 3, 4, 9, 10, 11 )
+AND ST_Within(s.geom, p.geom);
+
+UPDATE mhtc_operations."Supply" AS s
+SET "RestrictionTypeID" = 228
+FROM toms."RestrictionPolygons" p
+WHERE s."RestrictionTypeID" = 220   -- Unmarked (Unacceptable)
+AND p."RestrictionTypeID" IN ( 2, 3, 4, 9, 10, 11 )
+AND ST_Within(s.geom, p.geom);
+
+UPDATE mhtc_operations."Supply" AS s
+SET "RestrictionTypeID" = 229
+FROM toms."RestrictionPolygons" p
+WHERE s."RestrictionTypeID" = 225   -- Unmarked
+AND p."RestrictionTypeID" IN ( 2, 3, 4, 9, 10, 11 )
+AND ST_Within(s.geom, p.geom);
+
+/***
+ * ensure last update details are set
+ ***/
+
+DROP TRIGGER IF EXISTS "set_last_update_details_supply" ON "mhtc_operations"."Supply";
+
+CREATE TRIGGER "set_last_update_details_supply"
+    BEFORE INSERT OR UPDATE OF "GeometryID", geom, "RestrictionTypeID", "GeomShapeID", "Notes", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "AdditionalConditionID", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "BayWidth"
+    ON mhtc_operations."Supply"
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.set_last_update_details();
