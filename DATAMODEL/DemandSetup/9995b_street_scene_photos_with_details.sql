@@ -43,8 +43,8 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id,
 WHERE c."GeometryID" = closest.id;
 
 -- Add simple id for display
-ALTER TABLE "toms"."Signs"
-  ADD COLUMN "SignRef" integer;
+ALTER TABLE IF EXISTS "toms"."Signs"
+  ADD COLUMN IF NOT EXISTS "SignRef" integer;
 
 UPDATE toms."Signs" AS c
 SET "SignRef" = sid

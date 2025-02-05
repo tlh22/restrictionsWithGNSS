@@ -129,7 +129,9 @@ ALTER FUNCTION "mhtc_operations".set_section_length()
     OWNER TO postgres;
 
 ALTER TABLE "mhtc_operations"."RC_Sections_merged"
-    ADD COLUMN "SectionLength" double precision;
+    ADD COLUMN IF NOT EXISTS "SectionLength" double precision;
+
+DROP TRIGGER IF EXISTS "set_section_length"ON "mhtc_operations"."RC_Sections_merged";
 
 CREATE TRIGGER "set_section_length"
     BEFORE INSERT OR UPDATE
@@ -142,15 +144,15 @@ UPDATE "mhtc_operations"."RC_Sections_merged" SET "SectionLength" = "SectionLeng
 ALTER TABLE "mhtc_operations"."RC_Sections_merged" ALTER COLUMN "SectionLength" SET NOT NULL;
 
 ALTER TABLE "mhtc_operations"."RC_Sections_merged"
-    ADD COLUMN "Photos_01" character varying(255);
+    ADD COLUMN IF NOT EXISTS "Photos_01" character varying(255);
 ALTER TABLE "mhtc_operations"."RC_Sections_merged"
-    ADD COLUMN "Photos_02" character varying(255);
+    ADD COLUMN IF NOT EXISTS "Photos_02" character varying(255);
 ALTER TABLE "mhtc_operations"."RC_Sections_merged"
-    ADD COLUMN "Photos_03" character varying(255);
+    ADD COLUMN IF NOT EXISTS "Photos_03" character varying(255);
 
 -- set up names for sections
 
-ALTER TABLE mhtc_operations."RC_Sections_merged" ADD COLUMN "SectionName" character varying(254);
+ALTER TABLE mhtc_operations."RC_Sections_merged" ADD COLUMN IF NOT EXISTS "SectionName" character varying(254);
 
 /***
 SELECT gid, geom, "RoadName", "Az", "StartStreet", "EndStreet", "SideOfStreet", "SurveyArea", "SectionName", n."SubID", n."SectionID", n."Road Name", n."Section Start", n."Section End", n."Section Side of Street"

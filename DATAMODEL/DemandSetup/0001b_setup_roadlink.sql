@@ -2,15 +2,17 @@
 
 -- set up road names
 ALTER TABLE "highways_network"."roadlink"
-  ADD COLUMN "RoadFrom" character varying(100);
+  ADD COLUMN IF NOT EXISTS "RoadFrom" character varying(100);
 ALTER TABLE "highways_network"."roadlink"
-  ADD COLUMN "RoadTo" character varying(100);
+  ADD COLUMN IF NOT EXISTS "RoadTo" character varying(100);
 
 /***
 -- for import from gml
 ALTER TABLE highways_network.roadlink
     RENAME ogc_fid TO id;
 ***/
+
+DROP MATERIALIZED VIEW IF EXISTS local_authority."StreetGazetteerView";
 
 ALTER TABLE "highways_network"."roadlink"
 ALTER COLUMN geom TYPE geometry(linestring, 27700) USING ST_Force2D(ST_GeometryN(geom, 1));
@@ -46,7 +48,7 @@ AND ((ST_Intersects (ST_StartPoint(c1.geom), ST_EndPoint(c3.geom)) OR ST_Interse
 
 -- Now create View: local_authority.StreetGazetteerView
 
--- DROP MATERIALIZED VIEW local_authority."StreetGazetteerView";
+
 CREATE MATERIALIZED VIEW local_authority."StreetGazetteerView"
 TABLESPACE pg_default
 AS
