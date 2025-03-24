@@ -1,0 +1,121 @@
+Set up of supply project
+
+1. set up new connections within .pg_service.conf - Office and Field
+
+2. Create database and restore most recent "template", e.g., TOMs_Test_240606.backup
+
+3. remove any test data - restrictionsWithGNSS\DATAMODEL\DemandSetup\0000_remove_test_data.sql
+
+4. rename the project files in Office/Supply/Demand
+
+5. Choose the appropriate TOMs.conf file in Demand
+
+6. Change the connection details within the QGIS project files - Office, Supply, Demand - load and Demand
+
+7. Open Office project and:
+   a. Add relevant layers - from geopackage - TopographicArea, CartographicText; from ShapeFiles - Site Area; from db add RoadLink_2019
+   b. Select features from RoadLink_2019 that intersect with SiteArea - Vector->Research Tools->Select by Location (use intersect as geometric predicate)
+   c. Create new PostGIS connection within QGIS
+   d. Import layers into database with Database->DB Manager then with the relevant PostGIS database connected, use "Import Layer/File" to add the following (tick "Replace destination table" and "Create spatial index"):
+      - TopographicArea - topography/os_mastermap_topography_polygons
+	  - CartographicText - topography/os_mastermap_topography_text
+	  - project_code_SiteArea - local_authority/SiteArea
+	  - RoadLink_2019 - highways_network/roadlink (import only selected features)
+	  
+8. Reopen Office project (without saving). Zoom to SiteArea and details should be showing. Save project at this point
+
+9. In PgAdmin, run queries from restrictionsWithGNSS\DATAMODEL\DemandSetup:
+ - 0001a_create_road_casement.sql
+ - 0001b_setup_roadlink.sql
+ - 0001c1_setup_mapgrid.sql
+ - 0001c2_convert_site_area_to_single_poly.sql
+ - 0001d1_prepare_required_restriction_and_sign_types.sql
+ - 0001e_permissions.sql
+
+10. Within office project:
+   a. add Corner points and SectionBreak points
+   b. modify SiteArea so that it uses Corners/SectionBreaks
+   
+11. In pgAdmin, create sections:
+ - 0002a_create_sections.sql
+ - 0002b_create_sections_merged.sql
+ - 0002c_project_parameters.sql (consider the vehicle length and corner protection distances)
+ - 0002e_topo_mask.sql
+ - 0002d_permissions.sql
+ 
+12. Backup database - and load into field machine
+
+13. Ensure that CrossingPoint is abel to save - 0001f_crossing_points_field_fix.sql
+
+13. Check field project loads correctly - and that it is possible to create all the restriction types - bays, lines, signs and crossing points
+
+--- After field survey
+
+1. Backup field database - including crossing points 
+
+2. Rename orginal database
+
+3. Create new database with the same name as previous and restore details from field db
+
+4.Deal with any time periods that were missed. Add into "TimePeriodsInUse" and then refresh (with data) the materialised view "TimePeriodsInUse_View" 
+
+5. Use Snap/Trace plugin for Bays/Lines and then CrossingPoints
+a. Snap. Remove duplicate points; Snap nodes together; Snap vertices to kerbline. 
+b. Trace kerbline. Should be OK with 0.5m
+
+6. Amend site area to include any complete features - specifically CrossingPoints
+
+7. Run scripts
+  - 0003a1_create_supply_table.sql
+  - 0003a2_populate_supply_table_with_bays_lines.sql (if using restrictions)
+  - 0003b_copy_supply.sql
+  - 0004a1a0_add_corner_and_section_break_points.sql
+  - 0004a1b_break_at_corners.sql
+  - 0004a2_corner_unacceptability.sql
+  - 0004b_break_restrictions_at_crossovers.sql
+  - 0004c_narrow_roads.sql
+
+8. Reopen project
+
+9. Run more scripts
+  - 0004d_check_overlaps.sql (Check overlaps and resolve issues)
+  - 0004e_dual_restrictions.sql
+  - 0005a_finalise_supply_details.sql
+  - 0005a1_set_trigger_for_project_parameters.sql
+  - 0005b1_add_survey_areas and populate.sql
+  - 0005e_site.sql
+  - 0005f_amend_labelling_function.sql
+
+10. Recalculate AzToRoadCentreLine. Open Supply layer. In edit mode, update AzimmuthToRoadCentreLine using TOMs2 function
+ 
+11. Check Geometry Shape for Crossings
+
+12. Check acceptability on Road width
+
+13. Remove any supply that is outside the site area
+
+-- Now prepare the demand project ...
+
+14. Run scripts in demandForm
+ - 0007a_demand_lookups_structure.sql
+ - 0007b_demand_lookups_data.sql
+ - 0007c_surveys.sql
+ 
+15. Use 0007d2_CreateSurveyList.xlsx to create Surveys
+
+16. Run scripts
+  - 0007d_surveys_data.sql
+  - 0008a2_generate_count_table.sql (or VRMs if required)
+  - 0008b_RestrictionsInSurveys.sql
+  - 0009_create_unique_fields_for_QGIS_counts.sql
+  
+17. Open Load project and create geopackages using Processing->Toolbox->Package Layers and add layers as per details in 0008d_next_steps.txt
+
+18. Test demand project ... 
+ 
+  
+
+
+
+
+
