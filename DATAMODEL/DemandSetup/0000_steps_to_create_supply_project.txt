@@ -36,49 +36,55 @@ Set up of supply project
    a. add Corner points and SectionBreak points
    b. modify SiteArea so that it uses Corners/SectionBreaks
    
+   c. Consider lengths of roads to ensure that they are no longer than 250m
+    - 0001h_check_road_lengths.sql
+   d. Break roads at site boundary and rename to avoid issue with stress preparation
+    - 0001i_break_roads_at_site_boundaries.sql
+   
 11. In pgAdmin, create sections:
- - 0002a_create_sections.sql
- - 0002b_create_sections_merged.sql
+ - 0002a_create_sections.sql (added sections_merged queries here)
  - 0002c_project_parameters.sql (consider the vehicle length and corner protection distances)
  - 0002e_topo_mask.sql
  - 0002d_permissions.sql
  
 12. Backup database - and load into field machine
 
-13. Ensure that CrossingPoint is abel to save - 0001f_crossing_points_field_fix.sql
+13. Ensure that CrossingPoint is able to save - 0001f_crossing_points_field_fix.sql
 
 13. Check field project loads correctly - and that it is possible to create all the restriction types - bays, lines, signs and crossing points
 
---- After field survey
+--- **** After field survey
 
 1. Backup field database - including crossing points 
 
 2. Rename orginal database
 
-3. Create new database with the same name as previous and restore details from field db
+3. Create new database with the same name as previous and restore details from field db. This means that the connection details remain the same.
 
 4.Deal with any time periods that were missed. Add into "TimePeriodsInUse" and then refresh (with data) the materialised view "TimePeriodsInUse_View" 
 
-5. Use Snap/Trace plugin for Bays/Lines and then CrossingPoints
-a. Snap. Remove duplicate points; Snap nodes together; Snap vertices to kerbline. 
-b. Trace kerbline. Should be OK with 0.5m
+5a. Use Snap/Trace plugin for Bays/Lines
+  a. Snap. Remove duplicate points; Snap nodes together; Snap vertices to kerbline. Start with tolerance of 0.5. Increae as appropriate - but only use Snap vertices to Kerbline
+  b. Trace kerbline. Should be OK with 0.5m
 
+5b. Use Snap/Trace plugin for CrossingPoints. (Use CrossingPoints in both Bays and Lines)
+  a. Snap. Remove duplicate points; Snap vertices to kerbline. Start with tolerance of 0.5. Increae as appropriate - but only use Snap vertices to Kerbline
+  b. Trace kerbline. Should be OK with 0.5m
+  
 6. Amend site area to include any complete features - specifically CrossingPoints
 
-7. Run scripts
+7. Check for road lengths > 250m. Add section break points as appropriate.
+
+8. Run scripts
   - 0003a1_create_supply_table.sql
   - 0003a2_populate_supply_table_with_bays_lines.sql (if using restrictions)
   - 0003b_copy_supply.sql
   - 0004a1a0_add_corner_and_section_break_points.sql
-  - 0004a1b_break_at_corners.sql
+  - 0004a1b_break_at_corners.sql (Will need to reopen project to check if issues)
   - 0004a2_corner_unacceptability.sql
-  - 0004b_break_restrictions_at_crossovers.sql
+  - 0004b_break_restrictions_at_crossovers.sql (Will need to reopen project to check if issues)
   - 0004c_narrow_roads.sql
-
-8. Reopen project
-
-9. Run more scripts
-  - 0004d_check_overlaps.sql (Check overlaps and resolve issues)
+  - 0004d_check_overlaps.sql (Will need to reopen project to check if issues)
   - 0004e_dual_restrictions.sql
   - 0005a_finalise_supply_details.sql
   - 0005a1_set_trigger_for_project_parameters.sql
@@ -86,15 +92,24 @@ b. Trace kerbline. Should be OK with 0.5m
   - 0005e_site.sql
   - 0005f_amend_labelling_function.sql
 
-10. Recalculate AzToRoadCentreLine. Open Supply layer. In edit mode, update AzimmuthToRoadCentreLine using TOMs2 function
+9. Reopen project
+
+10. Recalculate AzToRoadCentreLine. Open Supply layer. In edit mode, update AzimmuthToRoadCentreLine using TOMs2 function  getAzimuthToRoadCentreLine() 
  
 11. Check Geometry Shape for Crossings
 
-12. Check acceptability on Road width
+12. Check acceptability on Road width, Bus/Cycle lanes, etc
 
 13. Remove any supply that is outside the site area
 
--- Now prepare the demand project ...
+13a. In layer "Site", add the boundary of the site being considered
+
+2. Set up SYL/ZigZag control times using TimePeriodsControlledDuringSurveyHours plugin
+   - Create table - use script in TimePeriodsControlledDuringSurveyHours plugin (..\TimePeriodsControlledDuringSurveyHours\DATAMODEL\0001_controlled_surveys.sql)
+   - within Office project, run TimePeriodsControlledDuringSurveyHours plugin
+   - Manually selected true/false 
+
+-- **** Now prepare the demand project ...
 
 14. Run scripts in demandForm
  - 0007a_demand_lookups_structure.sql
