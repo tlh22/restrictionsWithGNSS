@@ -1,16 +1,32 @@
 Set up of supply project
 
-1. set up new connections within .pg_service.conf - Office and Field
+1. set up new connections within .pg_service.conf - Office and Field, e.g., 
+
+#
+[CS2509_Strands_Colindale_Office]
+host=localhost
+port={local port}
+dbname=CS2509_Strands_Colindale
+user=postgres
+password={you local postgres password}
+#
+[CS2509_Strands_Colindale_Field]
+host={IP address of field machine}
+port={field machine port}
+dbname=CS2509_Strands_Colindale
+user={your user name on field machine}
+password={your password on field machine}
+#
 
 2. Create database and restore most recent "template", e.g., TOMs_Test_240606.backup
 
-3. remove any test data - restrictionsWithGNSS\DATAMODEL\DemandSetup\0000_remove_test_data.sql
+3. Remove any test data - restrictionsWithGNSS\DATAMODEL\DemandSetup\0000_remove_test_data.sql
 
-4. rename the project files in Office/Supply/Demand
+4. Copy the folder "..\restrictionsWithGNSS\QGIS\Project folder structure" to your working area and then rename the top level folder and project files in Office/Supply/Demand with the project name. Ensure that the OS mapping and the site area files are in the Office folder structure
 
 5. Choose the appropriate TOMs.conf file in Demand
 
-6. Change the connection details within the QGIS project files - Office, Supply, Demand - load and Demand
+6. Change the connection details within the QGIS project files - Office, Supply, Demand - load and Demand. Open the project files in a text editor and then use Find/Replace to modify the connection details. ** will prepare a script to assist with this **
 
 7. Open Office project and:
    a. Add relevant layers - from geopackage - TopographicArea, CartographicText; from ShapeFiles - Site Area; from db add RoadLink_2019
@@ -25,7 +41,7 @@ Set up of supply project
 8. Reopen Office project (without saving). Zoom to SiteArea and details should be showing. Save project at this point
 
 9. In PgAdmin, run queries from restrictionsWithGNSS\DATAMODEL\DemandSetup:
- - 0001a_create_road_casement.sql
+ - 0001a_create_road_casement.sql (ensure that all required areas are included. Possibly need to use RC_Polygons)
  - 0001b_setup_roadlink.sql
  - 0001c1_setup_mapgrid.sql
  - 0001c2_convert_site_area_to_single_poly.sql
@@ -40,6 +56,7 @@ Set up of supply project
     - 0001h_check_road_lengths.sql
    d. Break roads at site boundary and rename to avoid issue with stress preparation
     - 0001i_break_roads_at_site_boundaries.sql
+   e. Check that the road centreline is within the road area
    
 11. In pgAdmin, create sections:
  - 0002a_create_sections.sql (added sections_merged queries here)
@@ -47,11 +64,16 @@ Set up of supply project
  - 0002e_topo_mask.sql
  - 0002d_permissions.sql
  
-12. Backup database - and load into field machine
+12. Check RC_Sections_merged to ensure that breaks match road names
+ - Update symbology in RC_Sections_merged (Delete All / Classify)
+ - Check for breaks and add/move as required
+ - Add/Amend road centrelines as required 
+ 
+13. Backup database - and load into field machine
 
-13. Ensure that CrossingPoint is able to save - 0001f_crossing_points_field_fix.sql
+14. Ensure that CrossingPoint is able to save - 0001f_crossing_points_field_fix.sql
 
-13. Check field project loads correctly - and that it is possible to create all the restriction types - bays, lines, signs and crossing points
+15. Check field project loads correctly - and that it is possible to create all the restriction types - bays, lines, signs and crossing points
 
 --- **** After field survey
 
