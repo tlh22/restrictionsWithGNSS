@@ -46,6 +46,7 @@ password={your password on field machine}
  - 0001c1_setup_mapgrid.sql
  - 0001c2_convert_site_area_to_single_poly.sql
  - 0001d1_prepare_required_restriction_and_sign_types.sql
+	* Check that all the necessary time periods are present, e.g., CPZs or SKCs
  - 0001e_permissions.sql
 
 10. Within office project:
