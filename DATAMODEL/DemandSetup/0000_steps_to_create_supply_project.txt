@@ -49,6 +49,8 @@ password={your password on field machine}
 	* Check that all the necessary time periods are present, e.g., CPZs or SKCs
  - 0001e_permissions.sql
 
+Reopen Office project
+
 10. Within office project:
    a. add Corner points and SectionBreak points
    b. modify SiteArea so that it uses Corners/SectionBreaks
@@ -96,9 +98,7 @@ password={your password on field machine}
   
 6. Amend site area to include any complete features - specifically CrossingPoints
 
-7. Check for road lengths > 250m. Add section break points as appropriate.
-
-8. Run scripts
+7. Run scripts
   - 0003a1_create_supply_table.sql
   - 0003a2_populate_supply_table_with_bays_lines.sql (if using restrictions)
   - 0003b_copy_supply.sql
@@ -115,22 +115,17 @@ password={your password on field machine}
   - 0005e_site.sql
   - 0005f_amend_labelling_function.sql
 
-9. Reopen project
+8. Reopen project
 
-10. Recalculate AzToRoadCentreLine. Open Supply layer. In edit mode, update AzimmuthToRoadCentreLine using TOMs2 function  getAzimuthToRoadCentreLine() 
+9. Recalculate AzToRoadCentreLine. Open Supply layer. In edit mode, update AzimmuthToRoadCentreLine using TOMs2 function  getAzimuthToRoadCentreLine() 
  
-11. Check Geometry Shape for Crossings
+10. Check Geometry Shape for Crossings
 
-12. Check acceptability on Road width, Bus/Cycle lanes, etc
+11. Check acceptability on Road width, Bus/Cycle lanes, etc
 
-13. Remove any supply that is outside the site area
+12. Remove any supply that is outside the site area
 
-13a. In layer "Site", add the boundary of the site being considered
-
-2. Set up SYL/ZigZag control times using TimePeriodsControlledDuringSurveyHours plugin
-   - Create table - use script in TimePeriodsControlledDuringSurveyHours plugin (..\TimePeriodsControlledDuringSurveyHours\DATAMODEL\0001_controlled_surveys.sql)
-   - within Office project, run TimePeriodsControlledDuringSurveyHours plugin
-   - Manually selected true/false 
+13. In layer "Site", add the boundary of the site being considered
 
 -- **** Now prepare the demand project ...
 
@@ -147,9 +142,15 @@ password={your password on field machine}
   - 0008b_RestrictionsInSurveys.sql
   - 0009_create_unique_fields_for_QGIS_counts.sql
   
-17. Open Load project and create geopackages using Processing->Toolbox->Package Layers and add layers as per details in 0008d_next_steps.txt
+17. Set up SYL/ZigZag control times using TimePeriodsControlledDuringSurveyHours plugin
+   - Create table - use script in TimePeriodsControlledDuringSurveyHours plugin (..\TimePeriodsControlledDuringSurveyHours\DATAMODEL\0001_controlled_surveys.sql)
+   - Reopen Office project
+   - within Office project, run TimePeriodsControlledDuringSurveyHours plugin
+   - Manually selected true/false 
+  
+18. Open Load project and create geopackages using Processing->Toolbox->Package Layers and add layers as per details in 0008d_next_steps.txt
 
-18. Test demand project ... 
+19. Test demand project ... 
  
   
 
