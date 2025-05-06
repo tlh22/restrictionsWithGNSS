@@ -245,7 +245,7 @@ DELETE FROM "mhtc_operations"."Supply"
 WHERE ST_Length(geom) < 0.0001;
 
 
--- Change acceptability type of bay
+-- Change acceptability type of lines
 
 UPDATE "mhtc_operations"."Supply" AS s1
 SET "UnacceptableTypeID" =

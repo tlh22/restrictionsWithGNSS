@@ -123,6 +123,8 @@ Reopen Office project
 
 11. Check acceptability on Road width, Bus/Cycle lanes, etc
 
+11a. Check all restrictions have a RoadName
+
 12. Remove any supply that is outside the site area
 
 13. In layer "Site", add the boundary of the site being considered
