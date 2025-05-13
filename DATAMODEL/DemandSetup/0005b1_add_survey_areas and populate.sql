@@ -43,13 +43,19 @@ ALTER TABLE IF EXISTS mhtc_operations."Supply"
 UPDATE mhtc_operations."Supply"
 SET "SurveyAreaID" = NULL;
 
-
---
-
 UPDATE "mhtc_operations"."Supply" AS s
 SET "SurveyAreaID" = a."Code"
 FROM mhtc_operations."SurveyAreas" a
 WHERE ST_WITHIN (s.geom, a.geom);
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "SurveyAreaID" = a."Code"
+FROM mhtc_operations."SurveyAreas" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND "SurveyAreaID" IS NULL;
+
+
+-- Add to RC_Sections_merged
 
 ALTER TABLE IF EXISTS mhtc_operations."RC_Sections_merged"
   ADD COLUMN IF NOT EXISTS "SurveyAreaID" INTEGER;
@@ -61,3 +67,34 @@ UPDATE "mhtc_operations"."RC_Sections_merged" AS s
 SET "SurveyAreaID" = a."Code"
 FROM mhtc_operations."SurveyAreas" a
 WHERE ST_WITHIN (s.geom, a.geom);
+
+UPDATE "mhtc_operations"."RC_Sections_merged" AS s
+SET "SurveyAreaID" = a."Code"
+FROM mhtc_operations."SurveyAreas" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND "SurveyAreaID" IS NULL;
+
+/***
+
+--
+-- Calculate length of section within area
+
+SELECT a."SurveyAreaName", SUM(s."SectionLength")
+FROM mhtc_operations."RC_Sections_merged" s, mhtc_operations."SurveyAreas" a
+WHERE ST_WITHIN (s.geom, a.geom)
+GROUP BY a."SurveyAreaName"
+ORDER BY a."SurveyAreaName";
+
+***/
+
+/***
+-- Calculate length/capacity within area
+
+SELECT a."SurveyAreaName", SUM(s."RestrictionLength") AS "RestrictionLength", SUM("Capacity") AS "Total Capacity",
+SUM (CASE WHEN "RestrictionTypeID" > 200 THEN 0 ELSE s."Capacity" END) AS "Bay Capacity"
+FROM mhtc_operations."Supply" s, mhtc_operations."SurveyAreas" a
+WHERE a."Code" = s."SurveyAreaID"
+--AND a."SurveyAreaName" LIKE 'V%'
+GROUP BY a."SurveyAreaName"
+ORDER BY a."SurveyAreaName";
+***/

@@ -52,3 +52,11 @@ DELETE FROM toms_lookups."BayTypesInUse"
 WHERE "Code" = 154;  -- Unmarked parking area (within controlled area)
 
 REFRESH MATERIALIZED VIEW "toms_lookups"."BayTypesInUse_View";
+
+/***
+Add 0 into time periods
+***/
+INSERT INTO toms_lookups."TimePeriodsInUse"("Code")
+VALUES (0);
+
+REFRESH MATERIALIZED VIEW "toms_lookups"."TimePeriodsInUse_View";

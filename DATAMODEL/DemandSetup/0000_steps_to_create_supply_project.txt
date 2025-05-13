@@ -89,7 +89,7 @@ Reopen Office project
 4.Deal with any time periods that were missed. Add into "TimePeriodsInUse" and then refresh (with data) the materialised view "TimePeriodsInUse_View" 
 
 5a. Use Snap/Trace plugin for Bays/Lines
-  a. Snap. Remove duplicate points; Snap nodes together; Snap vertices to kerbline. Start with tolerance of 0.5. Increae as appropriate - but only use Snap vertices to Kerbline
+  a. Snap. Remove duplicate points; Snap nodes together; Snap vertices to kerbline. Start with tolerance of 0.5. Increase as appropriate - but only use Snap vertices to Kerbline
   b. Trace kerbline. Should be OK with 0.5m
 
 5b. Use Snap/Trace plugin for CrossingPoints. (Use CrossingPoints in both Bays and Lines)

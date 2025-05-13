@@ -213,7 +213,7 @@ FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.
                                           ) cnr
 									  ) c
 WHERE ST_DWithin(s1.geom, c.geom, 0.25)
-AND "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 125, 126, 127, 129, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)  -- SYLs, SRLs, Unmarked and general bays
+AND "RestrictionTypeID" IN (201, 216, 217, 220, 221, 222, 224, 225, 226, 227, 229, 101, 102, 104, 105, 125, 126, 127, 129, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)  -- SYLs, SRLs, Unmarked and general bays
 union
 SELECT
     "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", --"label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr",
@@ -227,7 +227,7 @@ FROM "mhtc_operations"."Supply_orig3" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.
                                           ) cnr
 									  ) c
 WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25)
-AND "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)  -- SYLs, SRLs, Unmarked and general bays
+AND "RestrictionTypeID" IN (201, 216, 217, 220, 221, 222, 224, 225, 226, 227, 229, 101, 102, 104, 105, 125, 126, 127, 129, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)  -- SYLs, SRLs, Unmarked and general bays
 union
 SELECT
     "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", --"label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr",
@@ -237,7 +237,7 @@ SELECT
 FROM "mhtc_operations"."Supply_orig3" s1
 WHERE "RestrictionTypeID" NOT IN (
 SELECT "RestrictionTypeID" FROM "mhtc_operations"."Supply_orig3"
-WHERE "RestrictionTypeID" IN (201, 216, 217, 224, 225, 226, 227, 229, 101, 102, 104, 105, 127, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)
+WHERE "RestrictionTypeID" IN (201, 216, 217, 220, 221, 222, 224, 225, 226, 227, 229, 101, 102, 104, 105, 125, 126, 127, 129, 131, 133, 134, 135, 142, 152, 154, 203, 207, 208, 231)
 )
 ;
 
@@ -263,7 +263,7 @@ SET "UnacceptableTypeID" = CASE WHEN s2."CrossingPointTypeID" = 1 or s2."Crossin
                                 END
 FROM highway_assets."CrossingPoints" s2
 WHERE s1."RestrictionTypeID" > 200
-AND s1."RestrictionTypeID" IN (201, 216, 217, 227, 224, 225, 226, 229)
+AND s1."RestrictionTypeID" IN (201, 216, 217, 220, 221, 222, 227, 224, 225, 226, 229, 203, 207, 208, 231)
 AND ST_Within(s1.geom, ST_Buffer(s2.geom, 0.1));
 
 -- delete unmarked unacceptable lines intersecting with bays

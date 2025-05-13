@@ -262,5 +262,6 @@ AND NOT (
 	ST_DWithin(ST_StartPoint(s.geom), c.geom, 0.25) OR
 	ST_Dwithin(ST_EndPoint(s.geom), c.geom, 0.25)
 	)
+AND ST_Contains(s.geom, c.geom)
 ORDER BY "GeometryID";
 

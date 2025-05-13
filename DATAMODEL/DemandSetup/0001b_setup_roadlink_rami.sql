@@ -1,5 +1,13 @@
 /*** Import RoadLink from geopackage and use Processing - Export to PostgreSQL ***/
 
+/***
+DROP TABLE IF EXISTS "highways_network"."roadlink" CASCADE;
+
+CREATE TABLE "highways_network"."roadlink" AS
+    TABLE "highways_network"."RoadLink"
+    WITH DATA;
+***/
+
 -- set up road names
 ALTER TABLE "highways_network"."roadlink"
   ADD COLUMN IF NOT EXISTS "RoadFrom" character varying(100);
@@ -22,6 +30,9 @@ ALTER TABLE IF EXISTS highways_network.roadlink
 
 ALTER TABLE IF EXISTS "highways_network"."roadlink"
    ALTER COLUMN id SET DEFAULT nextval('"highways_network"."roadlink_id_seq"'::regclass);
+   
+ALTER TABLE highways_network."roadlink" DROP CONSTRAINT IF EXISTS roadlink_pkey;
+ALTER TABLE highways_network."roadlink" ADD CONSTRAINT roadlink_pkey PRIMARY KEY ("id");
 
 UPDATE highways_network."roadlink" AS c1
 SET "RoadFrom" = c2."roadName1_Name", "RoadTo" = c3."roadName1_Name"
