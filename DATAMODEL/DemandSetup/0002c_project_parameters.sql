@@ -23,6 +23,10 @@ INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('Corner
 
 INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('BusLength', '14.0');
 
+-- add considersation of RBKC capacity formula
+
+INSERT INTO mhtc_operations.project_parameters("Field", "Value") VALUES ('RBKC_capacity_formula', '0.0');
+
 --DROP FUNCTION IF EXISTS mhtc_operations."getParameter";
 
 CREATE OR REPLACE FUNCTION mhtc_operations."getParameter"(param text) RETURNS text AS
