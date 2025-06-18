@@ -1,5 +1,8 @@
 Set up of supply project
 
+Create survey area based. For Lambeth, 200m walking distance from the site
+Obtain OS mapping based on site area
+
 1. set up new connections within .pg_service.conf - Office and Field, e.g., 
 
 #
@@ -57,8 +60,6 @@ Reopen Office project
    
    c. Consider lengths of roads to ensure that they are no longer than 250m
     - 0001h_check_road_lengths.sql
-   d. Break roads at site boundary and rename to avoid issue with stress preparation
-    - 0001i_break_roads_at_site_boundaries.sql
    e. Check that the road centreline is within the road area
    
 11. In pgAdmin, create sections:
@@ -77,7 +78,8 @@ Reopen Office project
 14. Ensure that CrossingPoint is able to save - 0001f_crossing_points_field_fix.sql
 
 15. Check field project loads correctly - and that it is possible to create all the restriction types - bays, lines, signs and crossing points
-
+ *** issues with QGIS versions > 3.22
+ 
 --- **** After field survey
 
 1. Backup field database - including crossing points 
@@ -97,7 +99,9 @@ Reopen Office project
   b. Trace kerbline. Should be OK with 0.5m
   
 6. Amend site area to include any complete features - specifically CrossingPoints
-
+   d. Break roads at site boundary and rename to avoid issue with stress preparation
+    - 0001i_break_roads_at_site_boundaries.sql
+	
 7. Run scripts
   - 0003a1_create_supply_table.sql
   - 0003a2_populate_supply_table_with_bays_lines.sql (if using restrictions)

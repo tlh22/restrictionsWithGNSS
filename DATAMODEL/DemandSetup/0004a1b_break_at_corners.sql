@@ -4,6 +4,10 @@ SET search_path TO toms, mhtc_operations, highways_assets, moving_traffic, publi
 
 DROP TABLE IF EXISTS mhtc_operations."Supply_orig" CASCADE;
 
+CREATE TABLE mhtc_operations."Supply_orig" AS 
+TABLE mhtc_operations."Supply";
+
+/***
 CREATE TABLE mhtc_operations."Supply_orig"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
@@ -81,6 +85,7 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
 	FROM mhtc_operations."Supply";
 
+***/
 
 ---***
 -- set up corner table

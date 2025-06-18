@@ -1,6 +1,10 @@
 --
 --DROP TABLE IF EXISTS mhtc_operations."Supply_Copy";
 
+CREATE TABLE mhtc_operations."Supply_Copy" AS 
+TABLE mhtc_operations."Supply";
+
+/***
 CREATE TABLE mhtc_operations."Supply_Copy"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
@@ -79,3 +83,4 @@ SELECT
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
 	FROM mhtc_operations."Supply";
 
+***/

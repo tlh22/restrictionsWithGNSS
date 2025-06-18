@@ -8,6 +8,9 @@ CREATE TABLE "highways_network"."roadlink" AS
     WITH DATA;
 ***/
 
+ALTER TABLE IF EXISTS "highways_network"."roadlink"
+    RENAME "roadName1_Name" TO "name1";
+
 -- set up road names
 ALTER TABLE "highways_network"."roadlink"
   ADD COLUMN IF NOT EXISTS "RoadFrom" character varying(100);
@@ -20,6 +23,7 @@ ALTER TABLE highways_network.roadlink
     RENAME ogc_fid TO id;
 ***/
 
+/***
 DROP MATERIALIZED VIEW IF EXISTS local_authority."StreetGazetteerView";
 
 ALTER TABLE "highways_network"."roadlink"
@@ -71,3 +75,6 @@ CREATE INDEX idx_street_name
     ON local_authority."StreetGazetteerView" USING btree
     ("RoadName" COLLATE pg_catalog."default")
     TABLESPACE pg_default;
+	
+***/
+	

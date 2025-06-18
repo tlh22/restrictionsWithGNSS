@@ -2,6 +2,10 @@
 
 DROP TABLE IF EXISTS mhtc_operations."Supply_orig3" CASCADE;
 
+CREATE TABLE mhtc_operations."Supply_orig3" AS 
+TABLE mhtc_operations."Supply";
+
+/***
 CREATE TABLE mhtc_operations."Supply_orig3"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
@@ -76,6 +80,8 @@ SELECT
     "GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
 	FROM mhtc_operations."Supply";
+	
+***/
 
 
 -- set up crossover nodes table
