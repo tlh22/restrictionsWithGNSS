@@ -62,6 +62,8 @@ Reopen Office project
     - 0001h_check_road_lengths.sql
    e. Check that the road centreline is within the road area
    
+   f. add any additional time periods that are in the survey area
+   
 11. In pgAdmin, create sections:
  - 0002a_create_sections.sql (added sections_merged queries here)
  - 0002c_project_parameters.sql (consider the vehicle length and corner protection distances)

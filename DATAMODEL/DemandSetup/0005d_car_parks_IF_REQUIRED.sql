@@ -18,3 +18,14 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
       AND s."RestrictionTypeID" IN (3, 4, 5, 6, 9, 11, 25)
       ORDER BY s."GeometryID", length) AS closest
 WHERE c."GeometryID" = closest.id;
+
+
+/***
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "RoadName" = a."RoadName"
+FROM toms."RestrictionPolygons" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND a."RestrictionTypeID" = 25;
+
+***/
