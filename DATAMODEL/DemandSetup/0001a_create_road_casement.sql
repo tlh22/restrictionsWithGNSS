@@ -17,6 +17,9 @@ TABLESPACE pg_default;
 ALTER TABLE topography.road_casement
     OWNER to postgres;
 
+CREATE INDEX road_casement_geom_idx
+  ON topography.road_casement
+  USING GIST (geom);
 
 
 INSERT INTO "topography"."road_casement" (geom)

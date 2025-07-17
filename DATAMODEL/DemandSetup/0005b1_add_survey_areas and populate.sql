@@ -54,6 +54,18 @@ FROM mhtc_operations."SurveyAreas" a
 WHERE ST_INTERSECTS (s.geom, a.geom)
 AND "SurveyAreaID" IS NULL;
 
+/***
+-- Calculate length/capacity within area
+
+SELECT a."SurveyAreaName", SUM(s."RestrictionLength") AS "RestrictionLength", SUM("Capacity") AS "Total Capacity",
+SUM (CASE WHEN "RestrictionTypeID" > 200 THEN 0 ELSE s."Capacity" END) AS "Bay Capacity"
+FROM mhtc_operations."Supply" s, mhtc_operations."SurveyAreas" a
+WHERE a."Code" = s."SurveyAreaID"
+--AND a."SurveyAreaName" LIKE 'V%'
+GROUP BY a."SurveyAreaName"
+ORDER BY a."SurveyAreaName";
+
+***/
 
 -- Add to RC_Sections_merged
 
@@ -75,8 +87,6 @@ WHERE ST_INTERSECTS (s.geom, a.geom)
 AND "SurveyAreaID" IS NULL;
 
 /***
-
---
 -- Calculate length of section within area
 
 SELECT a."SurveyAreaName", SUM(s."SectionLength")
@@ -85,16 +95,4 @@ WHERE ST_WITHIN (s.geom, a.geom)
 GROUP BY a."SurveyAreaName"
 ORDER BY a."SurveyAreaName";
 
-***/
-
-/***
--- Calculate length/capacity within area
-
-SELECT a."SurveyAreaName", SUM(s."RestrictionLength") AS "RestrictionLength", SUM("Capacity") AS "Total Capacity",
-SUM (CASE WHEN "RestrictionTypeID" > 200 THEN 0 ELSE s."Capacity" END) AS "Bay Capacity"
-FROM mhtc_operations."Supply" s, mhtc_operations."SurveyAreas" a
-WHERE a."Code" = s."SurveyAreaID"
---AND a."SurveyAreaName" LIKE 'V%'
-GROUP BY a."SurveyAreaName"
-ORDER BY a."SurveyAreaName";
 ***/

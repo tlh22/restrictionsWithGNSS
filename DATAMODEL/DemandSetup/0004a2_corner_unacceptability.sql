@@ -461,6 +461,10 @@ GRANT SELECT ON TABLE mhtc_operations."CornerProtectionSections_Single" TO toms_
 
 DROP TABLE IF EXISTS mhtc_operations."Supply_orig2" CASCADE;
 
+CREATE TABLE mhtc_operations."Supply_orig2" AS 
+TABLE mhtc_operations."Supply";
+
+/***
 CREATE TABLE mhtc_operations."Supply_orig2"
 (
     --"RestrictionID" character varying(254) COLLATE pg_catalog."default" NOT NULL,
@@ -525,9 +529,17 @@ CREATE TABLE mhtc_operations."Supply_orig2"
 )
 
 TABLESPACE pg_default;
+***/
 
+ALTER TABLE mhtc_operations."Supply_orig2" ADD PRIMARY KEY ("GeometryID");
+
+CREATE INDEX "sidx_Supply_orig2_geom"
+    ON mhtc_operations."Supply_orig2" USING gist
+    (geom)
+    TABLESPACE pg_default;
+	
 --- populate
-
+/***
 INSERT INTO mhtc_operations."Supply_orig2"(
 	--"RestrictionID",
 	"GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr","OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
@@ -537,7 +549,7 @@ SELECT
     "GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr","OpenDate", "CloseDate", "CPZ", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth",
     "SectionID", "StartStreet", "EndStreet", "SideOfStreet"
 	FROM mhtc_operations."Supply";
-
+***/
 --
 CREATE OR REPLACE FUNCTION mhtc_operations."cnrBufferExtent"(geometry, real) RETURNS geometry AS
 'SELECT ST_Collect(ST_ExteriorRing(ST_Buffer(c.geom, $2, ''endcap=flat''))) AS geom

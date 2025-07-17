@@ -7,6 +7,12 @@ DROP TABLE IF EXISTS mhtc_operations."Supply_orig" CASCADE;
 CREATE TABLE mhtc_operations."Supply_orig" AS 
 TABLE mhtc_operations."Supply";
 
+ALTER TABLE mhtc_operations."Supply_orig" ADD PRIMARY KEY ("GeometryID");
+
+CREATE INDEX Supply_orig_geom_idx
+  ON mhtc_operations."Supply_orig"
+  USING GIST (geom);
+  
 /***
 CREATE TABLE mhtc_operations."Supply_orig"
 (
