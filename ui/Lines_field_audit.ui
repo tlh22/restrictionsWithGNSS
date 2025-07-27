@@ -211,17 +211,17 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="10" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Notes:</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="1">
+       <item row="10" column="1">
         <widget class="QTextEdit" name="Notes"/>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>UnAcceptability  Reason:</string>
@@ -231,8 +231,24 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
+       <item row="8" column="1">
         <widget class="QComboBox" name="UnacceptableTypeID"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="lbl_CPZ">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>16</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>CPZ:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="CPZ"/>
        </item>
       </layout>
      </widget>
