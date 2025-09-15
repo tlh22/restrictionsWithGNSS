@@ -21,7 +21,8 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
       WHERE ST_DWithin(c1.geom, s.geom, 2.0)
 	  AND LENGTH(c1."RoadName") > 0
       ORDER BY s."GeometryID", length) AS closest
-WHERE c."GeometryID" = closest.id;
+WHERE c."GeometryID" = closest.id
+AND LENGTH(c."RoadName") = 0;
 
 -- Reset all road names, etc
 

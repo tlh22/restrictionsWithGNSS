@@ -108,6 +108,9 @@ FROM mhtc_operations."Corners";
 DELETE
 FROM mhtc_operations."SectionBreakPoints";
 
+DELETE
+FROM highway_assets."CrossingPoints";
+
 -- Tidy up other things ...
 
 ALTER TABLE highway_assets."HighwayAssets"

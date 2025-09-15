@@ -21,7 +21,6 @@ CREATE INDEX road_casement_geom_idx
   ON topography.road_casement
   USING GIST (geom);
 
-
 INSERT INTO "topography"."road_casement" (geom)
 SELECT (ST_Dump(ST_Multi(ST_Boundary(ST_Union (c.geom))))).geom AS geom
 FROM (SELECT geom FROM "topography"."os_mastermap_topography_polygons" WHERE "FeatureCode" = 10172) AS c;
@@ -63,4 +62,11 @@ INSERT INTO "topography"."road_casement" (geom)
 SELECT (ST_Dump(ST_Multi(ST_Boundary(ST_Union (c.geom))))).geom AS geom
 FROM (SELECT geom FROM "topography"."RC_Polygons") AS c;
 
+-- DROP INDEX IF EXISTS topography.sidx_road_casement_geom;
+
+CREATE INDEX IF NOT EXISTS sidx_road_casement_geom
+    ON topography.road_casement USING gist
+    (geom)
+    TABLESPACE pg_default;
+	
 ***/
