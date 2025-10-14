@@ -189,3 +189,23 @@ WHERE d."LinkedTo" = s."GeometryID"
 AND s."RestrictionTypeID" IN (116);
 
 -- TO DO Remove on-pavement bays / SYLs
+
+-- Remove Unmarked
+DELETE
+FROM mhtc_operations."DualRestrictions" d
+USING mhtc_operations."Supply" s
+WHERE d."GeometryID" = s."GeometryID"
+AND s."RestrictionTypeID" IN (216, 220, 225, 227, 228, 229);
+
+DELETE
+FROM mhtc_operations."DualRestrictions" d
+USING mhtc_operations."Supply" s
+WHERE d."LinkedTo" = s."GeometryID"
+AND s."RestrictionTypeID" IN (216, 220, 225, 227, 228, 229);
+
+-- Remove item linked to Unaaceptable SYL/SRL
+DELETE
+FROM mhtc_operations."DualRestrictions" d
+USING mhtc_operations."Supply" s
+WHERE d."LinkedTo" = s."GeometryID"
+AND s."RestrictionTypeID" IN (221, 222);

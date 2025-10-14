@@ -22,7 +22,7 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
 	  AND LENGTH(c1."RoadName") > 0
       ORDER BY s."GeometryID", length) AS closest
 WHERE c."GeometryID" = closest.id
-AND LENGTH(c."RoadName") = 0;
+;
 
 -- Reset all road names, etc
 
