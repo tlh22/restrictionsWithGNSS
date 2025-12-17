@@ -210,3 +210,10 @@ CREATE TRIGGER "set_last_update_details_supply"
     ON mhtc_operations."Supply"
     FOR EACH ROW
     EXECUTE PROCEDURE public.set_last_update_details();
+
+
+-- Tidy acceptability
+
+UPDATE mhtc_operations."Supply" AS s
+SET "UnacceptableTypeID" = NULL
+WHERE "RestrictionTypeID" = 202;

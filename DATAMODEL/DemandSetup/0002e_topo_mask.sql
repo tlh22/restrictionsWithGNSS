@@ -9,7 +9,7 @@
  CREATE TABLE topography."TopographicAreasMask"
  AS 
  SELECT row_number() OVER (PARTITION BY true::boolean) AS sid,
- 		ST_Difference(ST_Buffer(v.geom, 400.0), ST_Buffer(v.geom, 25.0))
+ 		ST_Difference(ST_Union(ST_Buffer(v.geom, 400.0)), ST_Union(ST_Buffer(v.geom, 25.0)))
  FROM local_authority."SiteArea" v;
  
  ALTER TABLE topography."TopographicAreasMask"
