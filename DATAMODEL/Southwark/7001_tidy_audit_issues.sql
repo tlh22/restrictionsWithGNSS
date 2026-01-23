@@ -101,7 +101,7 @@ END; $$;
 DELETE FROM mhtc_operations."Restrictions_Audit_Issues"
 WHERE "Reason" = 'Nr Bays';
 
--- Check for perpendicular bays that are close to bays of te same type
+-- Check for perpendicular bays that are close to bays of the same type
 
 DELETE FROM mhtc_operations."Restrictions_Audit_Issues"
 WHERE gid IN (
@@ -120,7 +120,7 @@ WHERE gid IN (
 	AND s."RestrictionDescription" = p."RestrictionDescription_orig"
 );
 
--- Check for bays that have been removed and and within a bay of the same type. remove these as well
+-- Check for bays that have been removed and within a bay of the same type. remove these as well. (These are typically for Disabled Bays).
 
 DELETE FROM mhtc_operations."Restrictions_Audit_Issues"
 WHERE gid IN (

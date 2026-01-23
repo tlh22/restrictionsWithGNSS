@@ -24,6 +24,25 @@ FROM toms."ControlledParkingZones" a
 WHERE ST_Intersects (s.geom, a.geom)
 AND s."CPZ" IS NULL;
 
+-- Add "SouthwarkProposedDeliveryZoneID"
+
+ALTER TABLE IF EXISTS toms."Signs"
+  ADD COLUMN IF NOT EXISTS "SouthwarkProposedDeliveryZoneID" INTEGER;
+
+UPDATE toms."Signs"
+SET "SouthwarkProposedDeliveryZoneID" = NULL;
+
+UPDATE toms."Signs" AS s
+SET "SouthwarkProposedDeliveryZoneID" = a."ogc_fid"
+FROM import_geojson."SouthwarkProposedDeliveryZones" a
+WHERE ST_WITHIN (s.geom, a.geom);
+
+UPDATE toms."Signs" AS s
+SET "SouthwarkProposedDeliveryZoneID" = a."ogc_fid"
+FROM import_geojson."SouthwarkProposedDeliveryZones" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND "SouthwarkProposedDeliveryZoneID" IS NULL;
+
 -- Sort out special characters
 
 UPDATE toms."Signs"
@@ -64,11 +83,14 @@ ALTER TABLE IF EXISTS mhtc_operations."Signs_Audit_Issues"
 	
 INSERT INTO mhtc_operations."Signs_Audit_Issues"(
 	"GeometryID"
-	--, "SouthwarkProposedDeliveryZoneName"
+	, "SouthwarkProposedDeliveryZoneName"
 	, "RoadName"
 	, "CPZ"
+	, "SignTypeID"
 	, "SignTypeDescription"
+	, "ComplianceRestrictionSignIssueID"
 	, "Restriction_Sign_Issue"
+	, "SignConditionIssueID"
 	, "Sign_Condition_Issue"
 	, "ComplianceNotes"
 	, "Notes"
@@ -78,11 +100,14 @@ INSERT INTO mhtc_operations."Signs_Audit_Issues"(
 	, geom)
 
 SELECT "GeometryID"
-	--, "SouthwarkProposedDeliveryZoneName"
+	, "SouthwarkProposedDeliveryZoneName"
 	, "RoadName"
 	, "CPZ"
+	, "SignTypeID"
 	, "SignTypeDescription" AS "Sign_Type_Description"
+	, "ComplianceRestrictionSignIssue" AS "ComplianceRestrictionSignIssueID"
 	, "Restriction_SignIssue_Description" As "Restriction_Sign_Issue"
+	, "Compl_Signs_Faded" AS "SignConditionIssueID"
 	, "SignFadedTypes_Description" As "Sign_Condition_Issue"
 	, "ComplianceNotes"
 	, "Notes"
@@ -92,21 +117,26 @@ SELECT "GeometryID"
 	, p.geom
 FROM
 (
-	 SELECT "GeometryID", "RoadName", "CPZ", "SignTypes"."Description" AS "SignTypeDescription",
-	   --a."ComplianceRestrictionSignIssue",
-	   "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description",
+	 SELECT "GeometryID", "RoadName"
+	   , COALESCE("SouthwarkProposedDeliveryZones"."zonename", '')  AS "SouthwarkProposedDeliveryZoneName"
+	   , "CPZ"
+	   , a."SignType_1" AS "SignTypeID"
+	   , "SignTypes"."Description" AS "SignTypeDescription"
+	   , a."ComplianceRestrictionSignIssue"
+	   , "Restriction_SignIssueTypes"."Description" AS "Restriction_SignIssue_Description"
 	   	--a."SignConditionTypeID",
 	   --"SignConditionTypes"."Description" AS "SignConditionTypes_Description",
-	   a."Compl_Signs_Faded",
-	   "SignFadedTypes"."Description" AS "SignFadedTypes_Description",
-	   "ComplianceNotes", "Notes", st_x(geom) AS "Easting", st_y(geom) AS "Northing", geom
+	   , a."Compl_Signs_Faded"
+	   , "SignFadedTypes"."Description" AS "SignFadedTypes_Description"
+	   , "ComplianceNotes", "Notes", st_x(a.geom) AS "Easting", st_y(a.geom) AS "Northing", a.geom
 	   , "Photos_01", "Photos_02"
-	 FROM (((((toms."Signs" AS a
+	 FROM ((((((toms."Signs" AS a
      LEFT JOIN "toms_lookups"."SignTypes" AS "SignTypes" ON a."SignType_1" is not distinct from "SignTypes"."Code") 
      LEFT JOIN "compliance_lookups"."Restriction_SignIssueTypes" AS "Restriction_SignIssueTypes" ON a."ComplianceRestrictionSignIssue" is not distinct from "Restriction_SignIssueTypes"."Code")
      LEFT JOIN "compliance_lookups"."SignConditionTypes" AS "SignConditionTypes" ON a."SignConditionTypeID" is not distinct from "SignConditionTypes"."Code")
 	 LEFT JOIN "compliance_lookups"."MHTC_CheckIssueTypes" AS "MHTC_CheckIssueTypes" ON a."MHTC_CheckIssueTypeID" is not distinct from "MHTC_CheckIssueTypes"."Code")
 	 LEFT JOIN "compliance_lookups"."SignFadedTypes" AS "SignFadedTypes" ON a."Compl_Signs_Faded" is not distinct from "SignFadedTypes"."Code")
+	 LEFT JOIN import_geojson."SouthwarkProposedDeliveryZones" AS "SouthwarkProposedDeliveryZones" ON a."SouthwarkProposedDeliveryZoneID" is not distinct from "SouthwarkProposedDeliveryZones"."ogc_fid")
 	WHERE (	
 	"ComplianceRestrictionSignIssue" > 1 OR
 	"SignConditionTypeID" > 1 OR
@@ -115,9 +145,9 @@ FROM
 	--AND COALESCE("ComplianceRestrictionSignIssue", 1) = 1
 	AND COALESCE("MHTC_CheckIssueTypeID", 1) = 1
 ) p
-	 , import_geojson."SouthwarkProposedDeliveryZones" z
+--	 , import_geojson."SouthwarkProposedDeliveryZones" z
 
-WHERE (ST_Within(p.geom, z.geom))
+--WHERE (ST_Within(p.geom, z.geom))
 	--AND z.zonename IN ('C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'))
 	--AND z.zonename IN ('A', 'B', 'S1'))
 

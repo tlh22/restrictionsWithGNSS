@@ -1,13 +1,13 @@
 -- Correct "Free bays"
 
 UPDATE "import_geojson"."Imported_Bays"
-SET "RestrictionTypeID" = 126
-WHERE "RestrictionTypeID" = 127
+SET "RestrictionTypeID" = 126   -- Limited Waiting
+WHERE "RestrictionTypeID" = 127  -- Free Bay (No Limited Waiting)
 AND "MaxStayID" > 0;
 
 UPDATE "toms"."Bays"
-SET "RestrictionTypeID" = 126
-WHERE "RestrictionTypeID" = 127
+SET "RestrictionTypeID" = 126  -- Limited Waiting
+WHERE "RestrictionTypeID" = 127  -- Free Bay (No Limited Waiting)
 AND "MaxStayID" > 0;
 
 -- Add Southwark Zone details to Bays
@@ -30,6 +30,20 @@ SET "SouthwarkProposedDeliveryZoneID" = a."ogc_fid"
 FROM import_geojson."SouthwarkProposedDeliveryZones" a
 WHERE ST_INTERSECTS (s.geom, a.geom)
 AND "SouthwarkProposedDeliveryZoneID" IS NULL;
+
+-- check CPZs
+
+UPDATE toms."Bays" AS s
+SET "CPZ" = a."CPZ"
+FROM toms."ControlledParkingZones" a
+WHERE ST_WITHIN (s.geom, a.geom)
+AND s."CPZ" IS NULL;
+
+UPDATE toms."Bays" AS s
+SET "CPZ" = a."CPZ"
+FROM toms."ControlledParkingZones" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND s."CPZ" IS NULL;
 
 ALTER TABLE toms."Bays" ENABLE TRIGGER all;
 
@@ -70,3 +84,22 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
 WHERE c."GeometryID" = closest.id;
 
 ***/
+
+-- Add CPZ
+
+ALTER TABLE IF EXISTS "import_geojson"."Imported_Bays"
+  ADD COLUMN IF NOT EXISTS "CPZ" character varying(40) COLLATE pg_catalog."default";
+
+UPDATE "import_geojson"."Imported_Bays"
+SET "CPZ" = NULL;
+
+UPDATE "import_geojson"."Imported_Bays" AS s
+SET "CPZ" = a."CPZ"
+FROM toms."ControlledParkingZones" a
+WHERE ST_WITHIN (s.geom, a.geom);
+
+UPDATE "import_geojson"."Imported_Bays" AS s
+SET "CPZ" = a."CPZ"
+FROM toms."ControlledParkingZones" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND s."CPZ" IS NULL;

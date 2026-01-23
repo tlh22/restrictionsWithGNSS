@@ -1,14 +1,26 @@
+/***
 
+Prepare tables for Audit output
+
+Currently trying to separate between:
+ - condition issues (signs and restrictions)
+ - sign spacing issues for restrictions (bays and lines)
+ - non-condition issues (signs and rstrictions)
+ 
+ ToDo: create master table with inheritance ??
+
+***/
 
 --
-DROP TABLE IF EXISTS mhtc_operations."Restrictions_Audit_Issues" CASCADE;
+DROP TABLE IF EXISTS mhtc_operations."Restrictions_Audit_Condition_Issues" CASCADE;
 
-CREATE TABLE IF NOT EXISTS mhtc_operations."Restrictions_Audit_Issues"
+CREATE TABLE IF NOT EXISTS mhtc_operations."Restrictions_Audit_Condition_Issues"
 (
 	gid SERIAL, 
 	"GeometryID" character varying COLLATE pg_catalog."default" NOT NULL,
 	ogc_fid integer,
 	"SouthwarkProposedDeliveryZoneName" character varying COLLATE pg_catalog."default",
+	"CPZ" character varying(40) COLLATE pg_catalog."default",
 	"Reason" text COLLATE pg_catalog."default",
 	"RoadName_orig" character varying COLLATE pg_catalog."default",
 	"RoadName_new" character varying COLLATE pg_catalog."default",
@@ -24,8 +36,59 @@ CREATE TABLE IF NOT EXISTS mhtc_operations."Restrictions_Audit_Issues"
 	"MaxStayDescription_new" character varying COLLATE pg_catalog."default",
 	"NoReturnDescription_orig" character varying COLLATE pg_catalog."default",
 	"NoReturnDescription_new" character varying COLLATE pg_catalog."default",
+	"NoWaitingTimeDescription_orig" character varying COLLATE pg_catalog."default",
+	"NoWaitingTimeDescription_new" character varying COLLATE pg_catalog."default",
+	"NoLoadingTimeDescription_orig" character varying COLLATE pg_catalog."default",
+	"NoLoadingTimeDescription_new" character varying COLLATE pg_catalog."default",
 	"Length orig" double precision,
 	"Length new" double precision,
+	"Notes" character varying COLLATE pg_catalog."default",
+	geom geometry(LineString,27700),
+	CONSTRAINT "Restrictions_Audit_Condition_Issues_pkey" PRIMARY KEY ("gid")
+)
+
+TABLESPACE pg_default;
+
+--
+
+CREATE INDEX "sidx_Restrictions_Audit_Condition_Issues_geom"
+    ON mhtc_operations."Restrictions_Audit_Condition_Issues" USING gist
+    (geom)
+    TABLESPACE pg_default;
+	
+--
+
+DROP TABLE IF EXISTS mhtc_operations."Restrictions_Audit_Issues" CASCADE;
+
+CREATE TABLE IF NOT EXISTS mhtc_operations."Restrictions_Audit_Issues"
+(
+	gid SERIAL, 
+	"GeometryID" character varying COLLATE pg_catalog."default" NOT NULL,
+	ogc_fid integer,
+	"SouthwarkProposedDeliveryZoneName" character varying COLLATE pg_catalog."default",
+	"CPZ" character varying(40) COLLATE pg_catalog."default",
+	"Reason" text COLLATE pg_catalog."default",
+	"RoadName_orig" character varying COLLATE pg_catalog."default",
+	"RoadName_new" character varying COLLATE pg_catalog."default",
+	"RestrictionDescription_orig" character varying COLLATE pg_catalog."default",
+	"RestrictionDescription_new" character varying COLLATE pg_catalog."default",
+	"RestrictionShapeDescription_orig" character varying COLLATE pg_catalog."default",
+	"RestrictionShapeDescription_new" character varying COLLATE pg_catalog."default",
+	"NrBays_orig" integer,
+	"NrBays_new" integer,
+	"TimePeriodDescription_orig" character varying COLLATE pg_catalog."default",
+	"TimePeriodDescription_new" character varying COLLATE pg_catalog."default",
+	"MaxStayDescription_orig" character varying COLLATE pg_catalog."default",
+	"MaxStayDescription_new" character varying COLLATE pg_catalog."default",
+	"NoReturnDescription_orig" character varying COLLATE pg_catalog."default",
+	"NoReturnDescription_new" character varying COLLATE pg_catalog."default",
+	"NoWaitingTimeDescription_orig" character varying COLLATE pg_catalog."default",
+	"NoWaitingTimeDescription_new" character varying COLLATE pg_catalog."default",
+	"NoLoadingTimeDescription_orig" character varying COLLATE pg_catalog."default",
+	"NoLoadingTimeDescription_new" character varying COLLATE pg_catalog."default",
+	"Length orig" double precision,
+	"Length new" double precision,
+    "Notes" character varying COLLATE pg_catalog."default",
 	geom geometry(LineString,27700),
 	CONSTRAINT "Restrictions_Audit_Issues_pkey" PRIMARY KEY ("gid")
 )
@@ -39,7 +102,52 @@ CREATE INDEX "sidx_Restrictions_Audit_Issues_geom"
     (geom)
     TABLESPACE pg_default;
 
+--
 
+DROP TABLE IF EXISTS mhtc_operations."Restrictions_Signs_Audit_Issues" CASCADE;
+
+CREATE TABLE IF NOT EXISTS mhtc_operations."Restrictions_Signs_Audit_Issues"
+(
+	gid SERIAL, 
+	"GeometryID" character varying COLLATE pg_catalog."default" NOT NULL,
+	ogc_fid integer,
+	"SouthwarkProposedDeliveryZoneName" character varying COLLATE pg_catalog."default",
+	"CPZ" character varying(40) COLLATE pg_catalog."default",
+	"Reason" text COLLATE pg_catalog."default",
+	"RoadName_orig" character varying COLLATE pg_catalog."default",
+	"RoadName_new" character varying COLLATE pg_catalog."default",
+	"RestrictionDescription_orig" character varying COLLATE pg_catalog."default",
+	"RestrictionDescription_new" character varying COLLATE pg_catalog."default",
+	"RestrictionShapeDescription_orig" character varying COLLATE pg_catalog."default",
+	"RestrictionShapeDescription_new" character varying COLLATE pg_catalog."default",
+	"NrBays_orig" integer,
+	"NrBays_new" integer,
+	"TimePeriodDescription_orig" character varying COLLATE pg_catalog."default",
+	"TimePeriodDescription_new" character varying COLLATE pg_catalog."default",
+	"MaxStayDescription_orig" character varying COLLATE pg_catalog."default",
+	"MaxStayDescription_new" character varying COLLATE pg_catalog."default",
+	"NoReturnDescription_orig" character varying COLLATE pg_catalog."default",
+	"NoReturnDescription_new" character varying COLLATE pg_catalog."default",
+	"NoWaitingTimeDescription_orig" character varying COLLATE pg_catalog."default",
+	"NoWaitingTimeDescription_new" character varying COLLATE pg_catalog."default",
+	"NoLoadingTimeDescription_orig" character varying COLLATE pg_catalog."default",
+	"NoLoadingTimeDescription_new" character varying COLLATE pg_catalog."default",
+	"Length orig" double precision,
+	"Length new" double precision,
+	"Notes" character varying COLLATE pg_catalog."default",
+	geom geometry(LineString,27700),
+	CONSTRAINT "Restrictions_Signs_Audit_Issues_pkey" PRIMARY KEY ("gid")
+)
+
+TABLESPACE pg_default;
+
+--
+
+CREATE INDEX "sidx_Restrictions_Signs_Audit_Issues_geom"
+    ON mhtc_operations."Restrictions_Signs_Audit_Issues" USING gist
+    (geom)
+    TABLESPACE pg_default;
+	
 --
 
 DROP TABLE IF EXISTS mhtc_operations."Signs_Audit_Issues" CASCADE;
@@ -49,9 +157,13 @@ CREATE TABLE IF NOT EXISTS mhtc_operations."Signs_Audit_Issues"
 	gid SERIAL, 
 	"GeometryID" character varying COLLATE pg_catalog."default" NOT NULL,
 	"SouthwarkProposedDeliveryZoneName" character varying COLLATE pg_catalog."default",
+	"CPZ" character varying(40) COLLATE pg_catalog."default",
 	"RoadName" character varying COLLATE pg_catalog."default",
+	"SignTypeID" INTEGER, 
 	"SignTypeDescription" character varying COLLATE pg_catalog."default",
+	"ComplianceRestrictionSignIssueID" INTEGER,
 	"Restriction_Sign_Issue" character varying COLLATE pg_catalog."default",
+	"SignConditionIssueID" INTEGER,
 	"Sign_Condition_Issue" character varying COLLATE pg_catalog."default",
 	"ComplianceNotes" character varying COLLATE pg_catalog."default",
 	"Notes" character varying COLLATE pg_catalog."default",
