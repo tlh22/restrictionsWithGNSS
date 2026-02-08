@@ -11,6 +11,7 @@ GRANT SELECT ON ALL TABLES IN SCHEMA local_authority TO toms_public, toms_operat
 GRANT SELECT, UPDATE, INSERT, DELETE ON ALL TABLES IN SCHEMA local_authority TO toms_admin;
 GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA local_authority TO toms_public, toms_operator, toms_admin;
 GRANT USAGE ON SCHEMA local_authority TO toms_public, toms_operator, toms_admin;
+GRANT CREATE ON SCHEMA local_authority TO toms_admin;
 
 REVOKE ALL ON ALL TABLES IN SCHEMA toms_lookups FROM toms_public, toms_operator, toms_admin;
 GRANT SELECT ON ALL TABLES IN SCHEMA toms_lookups TO toms_public, toms_operator;
