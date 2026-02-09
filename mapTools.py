@@ -318,8 +318,9 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         TOMsMessageLog.logMessage(("In CreateRestrictionTool - mode set."), level=Qgis.Info)
 
         # Seems that this is important - or at least to create a point list that is used later to create Geometry
-        self.sketchPoints = self.points()
-        #self.setPoints(self.sketchPoints)  ... not sure when to use this ??
+        #self.sketchPoints = self.points()
+        self.sketchPoints = []
+        #self.setPoints(self.sketchPoints)  #... not sure when to use this ??
 
         # Set up rubber band. In current implementation, it is not showing feeback for "next" location
 
@@ -381,7 +382,7 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
 
     def reset(self):
         #self.startPoint = self.endPoint = None
-        self.rb.reset(True)
+        self.rb.reset()
 
     def cadCanvasReleaseEvent(self, event):
         QgsMapToolCapture.cadCanvasReleaseEvent(self, event)
@@ -406,11 +407,13 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
             if not self.lastPoint:
 
                 self.result = self.addVertex(self.currPoint)
+                self.sketchPoints.append(self.currPoint)
                 TOMsMessageLog.logMessage("In Create - cadCanvasReleaseEvent: adding vertex 0 " + str(self.result), level=Qgis.Info)
 
             else:
 
                 self.result = self.addVertex(self.currPoint)
+                self.sketchPoints.append(self.currPoint)
                 TOMsMessageLog.logMessage(("In CreateRestrictionTool - (adding shortest path) X:" + str(self.currPoint.x()) + " Y: " + str(self.currPoint.y())), level=Qgis.Info)
 
             self.lastPoint = self.currPoint
@@ -439,11 +442,12 @@ class CreateRestrictionTool(FieldRestrictionTypeUtilsMixin, QgsMapToolCapture):
         TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured"), level=Qgis.Info)
 
         # Check the number of points
-        self.nrPoints = self.size()
+        #self.nrPoints = self.size()
+        self.nrPoints = len(self.sketchPoints)
         TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured; Stopping: " + str(self.nrPoints)),
                                  level=Qgis.Info)
 
-        self.sketchPoints = self.points()
+        #self.sketchPoints = self.points()
 
         for point in self.sketchPoints:
             TOMsMessageLog.logMessage(("In CreateRestrictionTool - getPointsCaptured X:" + str(point.x()) + " Y: " + str(point.y())), level=Qgis.Info)

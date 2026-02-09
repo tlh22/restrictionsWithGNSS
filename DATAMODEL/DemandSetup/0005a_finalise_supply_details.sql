@@ -46,8 +46,8 @@ AND "NoWaitingTimeID" IS NULL;
 
 UPDATE "mhtc_operations"."Supply"
 SET "TimePeriodID" = 1  -- At any time
-WHERE "RestrictionTypeID" IN (107, 110, 111, 112, 116, 117, 118, 119, 120, 122, 127, 130, 144, 145, 146, 147, 149, 150, 152, 161, 162, 165, 166, 167)  -- Bays
-AND "TimePeriodID" IS NULL;
+WHERE "RestrictionTypeID" IN (107, 110, 111, 112, 116, 117, 118, 119, 120, 122, 124, 127, 130, 144, 145, 146, 147, 149, 150, 152, 161, 162, 165, 166, 167)  -- Bays
+AND "TimePeriodID" IS NULL OR "TimePeriodID" = 0;
 
 
 /**
