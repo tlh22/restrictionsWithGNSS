@@ -5,6 +5,8 @@ GRANT SELECT ON ALL TABLES IN SCHEMA highways_network TO toms_public, toms_opera
 GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA highways_network TO toms_public, toms_operator, toms_admin;
 GRANT USAGE ON SCHEMA highways_network TO toms_public, toms_operator, toms_admin;
 
+GRANT UPDATE ON TABLE highways_network."roadlink" TO toms_operator, toms_admin; -- This allows progress field to be updated
+
 REVOKE ALL ON ALL TABLES IN SCHEMA local_authority FROM toms_public, toms_operator, toms_admin;
 GRANT SELECT ON ALL TABLES IN SCHEMA local_authority TO toms_public, toms_operator, toms_admin;
 GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA local_authority TO toms_public, toms_operator, toms_admin;
@@ -38,3 +40,10 @@ GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA mhtc_operations TO toms_public, to
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."MHTC_Kerblines" TO toms_operator, toms_admin;
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."gnss_pts" TO toms_operator, toms_admin;
+
+--GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."Supply" TO toms_operator, toms_admin;
+
+REVOKE ALL ON ALL TABLES IN SCHEMA compliance_lookups FROM toms_public, toms_operator, toms_admin;
+GRANT SELECT ON ALL TABLES IN SCHEMA compliance_lookups TO toms_public, toms_operator, toms_admin;
+GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA compliance_lookups TO toms_public, toms_operator, toms_admin;
+GRANT USAGE ON SCHEMA compliance_lookups TO toms_public, toms_operator, toms_admin;

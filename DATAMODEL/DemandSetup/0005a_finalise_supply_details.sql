@@ -21,7 +21,8 @@ FROM (SELECT DISTINCT ON (s."GeometryID") s."GeometryID" AS id, c1."gid" AS "Sec
       WHERE ST_DWithin(c1.geom, s.geom, 2.0)
 	  AND LENGTH(c1."RoadName") > 0
       ORDER BY s."GeometryID", length) AS closest
-WHERE c."GeometryID" = closest.id;
+WHERE c."GeometryID" = closest.id
+;
 
 -- Reset all road names, etc
 
@@ -209,3 +210,10 @@ CREATE TRIGGER "set_last_update_details_supply"
     ON mhtc_operations."Supply"
     FOR EACH ROW
     EXECUTE PROCEDURE public.set_last_update_details();
+
+
+-- Tidy acceptability
+
+UPDATE mhtc_operations."Supply" AS s
+SET "UnacceptableTypeID" = NULL
+WHERE "RestrictionTypeID" = 202;

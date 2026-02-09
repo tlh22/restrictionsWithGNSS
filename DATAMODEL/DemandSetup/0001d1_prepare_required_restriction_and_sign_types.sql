@@ -48,6 +48,10 @@ INSERT INTO toms_lookups."BayTypesInUse"(
 	"Code", "GeomShapeGroupType")
 	VALUES (147, 'LineString');  -- Cycle hangar
 
+INSERT INTO toms_lookups."BayTypesInUse"(
+	"Code", "GeomShapeGroupType")
+	VALUES (168, 'LineString');  -- Dockless cycle and e-scooter bay
+	
 DELETE FROM toms_lookups."BayTypesInUse"
 WHERE "Code" = 154;  -- Unmarked parking area (within controlled area)
 

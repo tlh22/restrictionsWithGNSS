@@ -141,4 +141,60 @@ AND NOT (
 	ST_DWithin(ST_StartPoint(s.geom), c.geom, 0.25) OR
 	ST_Dwithin(ST_EndPoint(s.geom), c.geom, 0.25)
 	);
-	
+
+
+
+--- 2025 ***
+
+CREATE TABLE mhtc_operations."Supply_tmp_C_D_E_F_G_H_K_orig" AS 
+TABLE "mhtc_operations"."Supply_tmp_C_D_E_F_G_H_K";
+
+ALTER TABLE mhtc_operations."Supply_tmp_C_D_E_F_G_H_K_orig" ADD CONSTRAINT "Supply_tmp_C_D_E_F_G_H_K_orig_pkey" PRIMARY KEY ("GeometryID");
+
+CREATE INDEX "sidx_Supply_tmp_C_D_E_F_G_H_K_orig_geom"
+    ON mhtc_operations."Supply_tmp_C_D_E_F_G_H_K_orig" USING gist
+    (geom)
+    TABLESPACE pg_default;
+
+---
+
+DELETE FROM "mhtc_operations"."Supply_tmp_C_D_E_F_G_H_K";
+
+INSERT INTO "mhtc_operations"."Supply_tmp_C_D_E_F_G_H_K" (
+	"RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth", 
+	ogc_fid,
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    geom)
+SELECT
+    "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth", 
+	ogc_fid,
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    (ST_Dump(ST_Split(s1.geom, ST_Buffer(c.geom, 0.00001)))).geom
+FROM "mhtc_operations"."Supply_tmp_C_D_E_F_G_H_K_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s2.geom, 0.24)) AS geom
+									  FROM "mhtc_operations"."Supply_tmp_C_D_E_F_G_H_K_orig" s2,
+									  (SELECT c1.geom
+									  FROM "mhtc_operations"."Corners_Single" c1, import_geojson."SouthwarkProposedDeliveryZones" z
+										WHERE ST_Within(c1.geom, z.geom)
+										AND z.zonename IN ('C', 'D', 'E', 'F', 'G', 'H', 'K')
+									  ) cnr, import_geojson."SouthwarkProposedDeliveryZones" z
+									WHERE ST_Within(s2.geom, z.geom)
+									AND z.zonename IN ('C', 'D', 'E', 'F', 'G', 'H', 'K')
+									  ) c
+WHERE ST_DWithin(s1.geom, c.geom, 0.25)
+union
+SELECT
+    "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "label_loading_pos", "label_loading_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "BayOrientation", "NrBays", "TimePeriodID", "PayTypeID", "MaxStayID", "NoReturnID", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "ParkingTariffArea", "AdditionalConditionID", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceLoadingMarkingsFaded", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "PayParkingAreaID", "PermitCode", "MatchDayTimePeriodID", "Capacity", "BayWidth", 
+	ogc_fid,
+    "SectionID", "StartStreet", "EndStreet", "SideOfStreet",
+    s1.geom
+FROM "mhtc_operations"."Supply_tmp_C_D_E_F_G_H_K_orig" s1, (SELECT ST_Union(ST_Snap(cnr.geom, s1.geom, 0.24)) AS geom
+									  FROM "mhtc_operations"."Supply_tmp_C_D_E_F_G_H_K_orig" s1, 
+									  (SELECT c2.geom
+									  FROM "mhtc_operations"."Corners_Single" c2, import_geojson."SouthwarkProposedDeliveryZones" z
+										WHERE ST_Within(c2.geom, z.geom)
+										AND z.zonename IN ('C', 'D', 'E', 'F', 'G', 'H', 'K')
+									  ) cnr, import_geojson."SouthwarkProposedDeliveryZones" z
+										WHERE ST_Within(s1.geom, z.geom)
+										AND z.zonename IN ('C', 'D', 'E', 'F', 'G', 'H', 'K')
+										) c
+WHERE NOT ST_DWithin(s1.geom, c.geom, 0.25);

@@ -1,7 +1,14 @@
 /***
- * Dual restrictions
+ * Dual restrictions. Assumption is that only one restriction is active within a time period.
+ *
  * If a restriction appears here, it is subserviant to the "LinkedTo" restriction, i.e.,
  * it's capacity is not to be included in any supply calculations (unless it is within it's hours of operation)
+ 
+ Examples:
+  - bay and SYL. Bay is primary and is active except during hours of SYL
+  - two bays. Bay 1 is primary and is active except during hours of Bay 2, e.g., P&D and Loading
+  - SKC and SYL. SYL is primary and is active except during hours of SKC
+  
  ***/
 
 DROP TABLE IF EXISTS mhtc_operations."DualRestrictions";
@@ -189,3 +196,23 @@ WHERE d."LinkedTo" = s."GeometryID"
 AND s."RestrictionTypeID" IN (116);
 
 -- TO DO Remove on-pavement bays / SYLs
+
+-- Remove Unmarked
+DELETE
+FROM mhtc_operations."DualRestrictions" d
+USING mhtc_operations."Supply" s
+WHERE d."GeometryID" = s."GeometryID"
+AND s."RestrictionTypeID" IN (216, 220, 225, 227, 228, 229);
+
+DELETE
+FROM mhtc_operations."DualRestrictions" d
+USING mhtc_operations."Supply" s
+WHERE d."LinkedTo" = s."GeometryID"
+AND s."RestrictionTypeID" IN (216, 220, 225, 227, 228, 229);
+
+-- Remove item linked to Unaaceptable SYL/SRL
+DELETE
+FROM mhtc_operations."DualRestrictions" d
+USING mhtc_operations."Supply" s
+WHERE d."LinkedTo" = s."GeometryID"
+AND s."RestrictionTypeID" IN (221, 222);

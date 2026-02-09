@@ -96,3 +96,17 @@ GROUP BY a."SurveyAreaName"
 ORDER BY a."SurveyAreaName";
 
 ***/
+
+/***
+
+ALTER TABLE IF EXISTS mhtc_operations."SurveyAreas"
+    ADD COLUMN "Completed" boolean;
+
+UPDATE mhtc_operations."SurveyAreas"
+SET "Completed" = FALSE;
+
+SELECT "SurveyAreaName", "Completed"
+FROM mhtc_operations."SurveyAreas"
+ORDER BY "SurveyAreaName"
+
+***/
