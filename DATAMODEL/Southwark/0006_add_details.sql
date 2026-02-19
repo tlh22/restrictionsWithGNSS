@@ -92,3 +92,75 @@ SET "RestrictionTypeID" = 221, "UnacceptableTypeID" = 10
 WHERE "RestrictionTypeID" IN (201, 224)
 AND "Capacity" = 0;
 
+---
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "RoadName" = a."RoadName"
+FROM toms."RestrictionPolygons" a
+WHERE ST_WITHIN (s.geom, a.geom)
+AND s."RoadName" IS NULL;
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "RoadName" = a."RoadName"
+FROM toms."RestrictionPolygons" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND s."RoadName" IS NULL;
+
+-- 
+
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "CPZ" = a."CPZ"
+FROM toms."ControlledParkingZones" a
+WHERE ST_WITHIN (s.geom, a.geom)
+AND s."CPZ" IS NULL;
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "CPZ" = a."CPZ"
+FROM toms."ControlledParkingZones" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND s."CPZ" IS NULL;
+
+
+-- Check unmarked restrictions within PPZ
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "RestrictionTypeID" = 227
+FROM toms."RestrictionPolygons" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND a."RestrictionTypeID" IN (2) -- PPA
+AND s."RestrictionTypeID" IN ( 216 )  -- unmarked (acceptable)
+;
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "RestrictionTypeID" = 228
+FROM toms."RestrictionPolygons" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND a."RestrictionTypeID" IN (2) -- PPA
+AND s."RestrictionTypeID" IN ( 220 ) -- unmarked (unacceptable)
+;
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "RestrictionTypeID" = 229
+FROM toms."RestrictionPolygons" a
+WHERE ST_INTERSECTS (s.geom, a.geom)
+AND a."RestrictionTypeID" IN (2) -- PPA
+AND s."RestrictionTypeID" IN ( 225 ) -- unmarked
+;
+
+-- Now deal with control hours
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "PermitCode" = a."CPZ"
+FROM toms."ControlledParkingZones" a
+WHERE ST_WITHIN (s.geom, a.geom)
+AND s."RestrictionTypeID" IN ( 216, 220, 225 , 227, 228, 229 )
+;
+
+UPDATE "mhtc_operations"."Supply" AS s
+SET "NoWaitingTimeID" = a."TimePeriodID"
+FROM toms."ControlledParkingZones" a
+WHERE s."PermitCode" = a."CPZ"
+AND s."RestrictionTypeID" IN ( 216, 220, 225 , 227, 228, 229 )
+AND "NoWaitingTimeID" IS NULL
+;
