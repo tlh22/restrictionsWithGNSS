@@ -131,7 +131,7 @@ WHERE ST_INTERSECTS (s.geom, a.geom)
 AND a."RestrictionTypeID" IN (2) -- PPA
 AND s."RestrictionTypeID" IN ( 216 )  -- unmarked (acceptable)
 ;
-
+	
 UPDATE "mhtc_operations"."Supply" AS s
 SET "RestrictionTypeID" = 228
 FROM toms."RestrictionPolygons" a
