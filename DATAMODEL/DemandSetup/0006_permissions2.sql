@@ -25,5 +25,6 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON ALL TABLES IN SCHEMA topography TO toms_
 GRANT SELECT,USAGE ON ALL SEQUENCES IN SCHEMA topography TO toms_public, toms_operator, toms_admin;
 GRANT USAGE ON SCHEMA topography TO toms_public, toms_operator, toms_admin;
 
-GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."Corners" TO toms_operator;
-GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE mhtc_operations."SectionBreakPoints" TO toms_operator;
+GRANT SELECT, UPDATE, INSERT, DELETE ON ALL TABLES IN SCHEMA mhtc_operations TO toms_operator, toms_admin;
+
+

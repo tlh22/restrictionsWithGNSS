@@ -1,19 +1,19 @@
 --
 
 UPDATE "mhtc_operations"."Supply" AS s
-SET "CPZ" = a."CPZ"
-FROM local_authority."Southwark CPZs" a
+SET "CPZ" = NULL
+FROM toms."ControlledParkingZones" a
 WHERE ST_WITHIN (s.geom, a.geom);
 
 UPDATE "mhtc_operations"."Supply" AS s
 SET "CPZ" = a."CPZ"
-FROM local_authority."Southwark CPZs" a
+FROM toms."ControlledParkingZones" a
 WHERE ST_WITHIN (s.geom, a.geom)
 AND s."CPZ" IS NULL;
 
 UPDATE "mhtc_operations"."Supply" AS s
 SET "CPZ" = a."CPZ"
-FROM local_authority."Southwark CPZs" a
+FROM toms."ControlledParkingZones" a
 WHERE ST_Intersects (s.geom, a.geom)
 AND s."CPZ" IS NULL;
 

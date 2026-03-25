@@ -15,7 +15,7 @@ SELECT
     "GeometryID", geom, "RestrictionLength", "RestrictionTypeID", "GeomShapeID", "AzimuthToRoadCentreLine", "Notes", "Photos_01", "Photos_02", "Photos_03", "RoadName", "USRN", "label_pos", "label_ldr", "OpenDate", "CloseDate", "CPZ", "MatchDayEventDayZone", "LastUpdateDateTime", "LastUpdatePerson", "NoWaitingTimeID", "NoLoadingTimeID", "UnacceptableTypeID", "AdditionalConditionID", "ParkingTariffArea", "label_loading_pos", "label_loading_ldr", "ComplianceRoadMarkingsFaded", "ComplianceRestrictionSignIssue", "ComplianceNotes", "MHTC_CheckIssueTypeID", "MHTC_CheckNotes", "ComplianceLoadingMarkingsFaded", "MatchDayTimePeriodID"
 	FROM toms."Lines";
 
-CREATE TRIGGER "create_geometryid_supply" BEFORE INSERT ON mhtc_operations."Supply" FOR EACH ROW EXECUTE FUNCTION "public"."create_supply_geometryid"();
+CREATE OR REPLACE TRIGGER "create_geometryid_supply" BEFORE INSERT ON mhtc_operations."Supply" FOR EACH ROW EXECUTE FUNCTION "public"."create_supply_geometryid"();
 
 --
 

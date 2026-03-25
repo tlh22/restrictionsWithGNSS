@@ -42,6 +42,11 @@ Deal with default values for time periods
 
 UPDATE "mhtc_operations"."Supply"
 SET "NoWaitingTimeID" = 1  -- At any time
+WHERE "RestrictionTypeID" IN (202, 209, 210, 211, 212, 213, 214)
+;
+
+UPDATE "mhtc_operations"."Supply"
+SET "NoWaitingTimeID" = 1  -- At any time
 WHERE "RestrictionTypeID" >=202 AND "RestrictionTypeID" <=215  -- Lines
 AND "NoWaitingTimeID" IS NULL;
 
